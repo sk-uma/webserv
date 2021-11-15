@@ -1,0 +1,2 @@
+# webserv
+like in nginx
