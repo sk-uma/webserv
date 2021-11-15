@@ -1,0 +1,28 @@
+<html>
+ <body>
+	<p>CGIページへのアクセス 
+	<a href="http://127.0.0.1:5050/cgi-bin/test.py">sample.py</a>
+	</p>
+	
+	
+	<form action="cgi-bin/sample.py" method="GET">GET
+		<input type="text" name="foo">
+		<input type="text" name="bar">
+   		<input type="submit">
+	</form>
+	<form action="cgi-bin/sample.py" method="post">POST
+		<input type="text" name="foo">
+		<input type="text" name="bar">
+   		<input type="submit">
+	</form>
+	<form action="cgi-bin/sample.py" method="post" enctype="multipart/form-data">
+		<input type="file" name="myFile" id="myFile">
+		<input type="submit" value="送信">
+	</form>
+	<form action="cgi-bin/sample.py" method="post" enctype="multipart/form-data">Upload file
+		<input type="file" name="upfile">
+		<input type="submit">
+	</form>
+ </body>
+</html>
+cgi-bin/sample.py

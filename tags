@@ -1,0 +1,53 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+BUF_SIZE	config.hpp	/^const int			BUF_SIZE = 1024;$/;"	v
+CONFIG_HPP	config.hpp	/^# define CONFIG_HPP$/;"	d
+CXX	Makefile	/^CXX = clang++ $(STDLIB)$/;"	m
+CXXFLAGS	Makefile	/^CXXFLAGS = -Wall -Werror -Wextra$/;"	m
+HTML_FILE	config.hpp	/^const std::string	HTML_FILE = "www";$/;"	v
+HTTP1HEADER_HPP	http1header.hpp	/^# define HTTP1HEADER_HPP$/;"	d
+HTTP1PARSER_HPP	http1parser.hpp	/^# define HTTP1PARSER_HPP$/;"	d
+HTTP1RESPONSE_HPP	http1response.hpp	/^# define HTTP1RESPONSE_HPP$/;"	d
+HTTP1_Header	http1header.hpp	/^class HTTP1_Header$/;"	c
+HTTP1_PORT	config.hpp	/^const int			HTTP1_PORT = 5000;$/;"	v
+HTTP1_Parser	http1parser.hpp	/^class HTTP1_Parser$/;"	c
+HTTP1_Response	http1response.hpp	/^class HTTP1_Response$/;"	c
+HTTP_VERSION	config.hpp	/^const int			HTTP_VERSION = 1;$/;"	v
+MAX_SESSION	config.hpp	/^const int			MAX_SESSION = 10;$/;"	v
+NAME	Makefile	/^NAME = webserv$/;"	m
+OBJ	Makefile	/^OBJ = $(SRC:.cpp=.o)$/;"	m
+RM	Makefile	/^RM = rm -f$/;"	m
+SOCKET_HPP	socket.hpp	/^# define SOCKET_HPP$/;"	d
+SRC	Makefile	/^SRC =	.\/main.cpp \\$/;"	m
+STDLIB	Makefile	/^STDLIB = -std=c++98$/;"	m
+Socket	socket.cpp	/^Socket::Socket (Socket const &copy)$/;"	f	class:Socket
+Socket	socket.cpp	/^Socket::Socket(int port_):port(port_) {}$/;"	f	class:Socket
+Socket	socket.cpp	/^Socket::Socket(void) {}$/;"	f	class:Socket
+Socket	socket.hpp	/^class Socket$/;"	c
+argv_path_analizer	http1parser.cpp	/^std::string	HTTP1_Parser::argv_path_analizer$/;"	f	class:HTTP1_Parser
+get_filename	http1parser.cpp	/^char *HTTP1_Parser::get_filename(const char *excutive_file)$/;"	f	class:HTTP1_Parser
+get_listenfd	socket.cpp	/^int		Socket::get_listenfd() const$/;"	f	class:Socket
+get_requestline_path	http1parser.cpp	/^std::string	HTTP1_Parser::get_requestline_path(char pbuf[BUF_SIZE])$/;"	f	class:HTTP1_Parser
+listenfd	socket.hpp	/^		int					listenfd;$/;"	m	class:Socket
+main	main.cpp	/^int	main()$/;"	f
+main	pre_test.c	/^int main(void) {$/;"	f
+main	test.c	/^int main()$/;"	f
+make_body	http1response.cpp	/^void HTTP1_Response::make_body$/;"	f	class:HTTP1_Response
+make_header	http1response.cpp	/^std::vector<std::string> &HTTP1_Response::make_header$/;"	f	class:HTTP1_Response
+make_response	http1response.cpp	/^std::string	HTTP1_Response::make_response$/;"	f	class:HTTP1_Response
+make_response200	http1header.cpp	/^std::vector<std::string>	&HTTP1_Header::make_response200(int body_length)$/;"	f	class:HTTP1_Header
+make_response302	http1header.cpp	/^std::vector<std::string>	&HTTP1_Header::make_response302(std::string path)$/;"	f	class:HTTP1_Header
+make_response404	http1header.cpp	/^std::vector<std::string>	&HTTP1_Header::make_response404()$/;"	f	class:HTTP1_Header
+make_responseUpgrade	http1header.cpp	/^std::vector<std::string>	&HTTP1_Header::make_responseUpgrade()$/;"	f	class:HTTP1_Header
+operator =	socket.cpp	/^Socket &Socket::operator=(Socket const &obj)$/;"	f	class:Socket
+port	socket.hpp	/^		int					port;$/;"	m	class:Socket
+serv_addr	socket.hpp	/^		struct sockaddr_in	serv_addr;$/;"	m	class:Socket	typeref:struct:Socket::sockaddr_in
+set_listenfd	socket.cpp	/^void	Socket::set_listenfd()$/;"	f	class:Socket
+set_sockaddr_in	socket.cpp	/^void	Socket::set_sockaddr_in()$/;"	f	class:Socket
+set_socket	socket.cpp	/^int		Socket::set_socket()$/;"	f	class:Socket
+tes	pre_test.c	/^void tes()$/;"	f
+~Socket	socket.cpp	/^Socket::~Socket(void) {}$/;"	f	class:Socket
