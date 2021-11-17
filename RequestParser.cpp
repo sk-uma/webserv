@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/12 22:00:34 by rtomishi          #+#    #+#             */
-/*   Updated: 2021/11/15 17:05:34 by rtomishi         ###   ########.fr       */
+/*   Updated: 2021/11/16 22:20:34 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,6 +79,23 @@ RequestParser::RequestParser(std::string request_):request(request_),
 	setenv("PATH_INFO", path_info.c_str(), 1);
 	setenv("SCRIPT_NAME", script_name.c_str(), 1);
 	setenv("QUERY_STRING", query_string.c_str(), 1);
+
+	//Content-Type, Content-Length
+	if (get_field("Content-Length") != "")
+	{
+		content_length = get_field("Content-Length");
+		//\rがついている場合は除外。なんでつくのかよくわからず
+		if (content_length.find("\r") != std::string::npos)
+			content_length = content_length.substr(0, content_length.find("\r"));
+		setenv("CONTENT_LENGTH", content_length.c_str(), 1);
+	}
+	std::cout << "length:" << content_length << std::endl;
+	if (get_field("Content-Type") != "")
+	{
+		content_type = get_field("Content-Type");
+		setenv("CONTENT_TYPE", content_type.c_str(), 1);
+	}
+	std::cout << "type:" << content_type << std::endl;
 }
 
 RequestParser::~RequestParser(void) {}
@@ -108,12 +125,14 @@ std::string	RequestParser::get_query_string(void) {return (this->query_string);}
 std::string	RequestParser::get_path_translated(void) {return (this->path_translated);}
 std::string	RequestParser::get_path_info(void) {return (this->path_info);}
 std::string	RequestParser::get_script_name(void) {return (this->script_name);}
+std::string	RequestParser::get_content_length(void) {return (this->content_length);}
+std::string	RequestParser::get_content_type(void) {return (this->content_type);}
 
 //ヘッダー情報から値を取り出すためのメンバ関数
 std::string	RequestParser::get_field(std::string key)
 {
 	std::size_t			pos;
-	std::istringstream	iss(this->request);
+	std::istringstream	iss(this->header);
 	std::string			str;
 
 	while (std::getline(iss, str))
@@ -123,5 +142,4 @@ std::string	RequestParser::get_field(std::string key)
 			return (str.substr(key.length() + 2));
 	}
 	return ("");
-	
 }

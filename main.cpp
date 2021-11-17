@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/06 21:40:53 by rtomishi          #+#    #+#             */
-/*   Updated: 2021/11/15 16:59:10 by rtomishi         ###   ########.fr       */
+/*   Updated: 2021/11/16 22:49:49 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -140,7 +140,7 @@ int	main(void)
 				if (read_size == 0)
 					break ;
 				//Response
-				//std::cout << "[recv_str]\n" << recv_str << std::endl;
+//				std::cout << "[recv_str]\n" << recv_str << std::endl;
 				//std::cout << "recv_length:" << recv_str.length() << std::endl;
 				RequestParser 	request(recv_str);
 				Response		response(request);
@@ -148,6 +148,7 @@ int	main(void)
 				std::string		response_str = response.get_header() + response.get_body();
 				ssize_t			write_size = 0;
 
+//				std::cout << "[response]\n" << response_str << std::endl;
 				while (write_size >=0)
 				{
 					write_size += write(accfd[i], response_str.c_str(),
