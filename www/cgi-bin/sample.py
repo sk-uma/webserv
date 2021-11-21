@@ -42,22 +42,7 @@ Commercial support is available at
 </body>
 </html>""")
 
-
-print("FILENAME")
-file_name = form["upfile"].filename
-path = upload_path + file_name
-if os.path.exists(path):
-    print(file_name + ' already exists.')
-uploaded_file = open(path, 'wb')
-item = form['upfile']
-while True:
-    chunk = item.file.read(1000)
-    if not chunk:
-        break
-    uploaded_file.write(chunk)
-uploaded_file.close()
-
 print(os.environ)
-#for key in form:
-#    value = form[key].value
-#    print('<p>%s: %s</p>' % (key, value))
+for key in form:
+    value = form[key].value
+    print('<p>%s: %s</p>' % (key, value))

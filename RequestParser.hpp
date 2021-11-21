@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/12 21:50:09 by rtomishi          #+#    #+#             */
-/*   Updated: 2021/11/16 21:17:36 by rtomishi         ###   ########.fr       */
+/*   Updated: 2021/11/18 22:28:43 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ class RequestParser
 		std::string					script_name;
 		std::string					content_length;
 		std::string					content_type;
+		std::string					transfer_encoding;
 //		std::vector<std::string>	vec_env;
 //		char						**cgi_env;
 
@@ -49,6 +50,7 @@ class RequestParser
 		std::string	get_script_name(void);
 		std::string	get_content_length(void);
 		std::string	get_content_type(void);
+		std::string	get_transfer_encoding(void);
 		std::string	get_field(std::string key);
 };
 

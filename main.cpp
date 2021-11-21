@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/06 21:40:53 by rtomishi          #+#    #+#             */
-/*   Updated: 2021/11/16 22:49:49 by rtomishi         ###   ########.fr       */
+/*   Updated: 2021/11/21 22:06:33 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,9 +111,10 @@ int	main(void)
 				while (read_size >= 0)
 				{
 					read_size = read(accfd[i], buf, sizeof(buf));
-
+//					std::cout << "read_size:" << read_size << std::endl;
 					if (read_size > 0)
 					{
+//						std::cout << "situation:read_size > 0" << std::endl;
 						buf[read_size] = '\0';
 						recv_str.append(buf);
 					//	std::cout << "read_size:" << read_size << std::endl;
@@ -121,6 +122,7 @@ int	main(void)
 					}
 					else if (read_size == 0)
 					{
+//						std::cout << "situation:read_size = 0" << std::endl;
 						std::cerr << "read() failed." << std::endl;
 						close(accfd[i]);
 						accfd[i] = -1;
@@ -128,11 +130,13 @@ int	main(void)
 					}			
 					if (read_size == -1 && recv_str.find("\r\n\r\n") == std::string::npos)
 					{
+//						std::cout << "situation:read_size = -1 and CRLF not found" << std::endl;
 						read_size = 0;
 						continue ;
 					}
 					else if (read_size == -1 && recv_str.find("Content-Type") != std::string::npos && recv_str.find("\r\n\r\n") == recv_str.length() - 4)
 					{
+//						std::cout << "situation:read_size = -1 and Content-Type + CRLF found" << std::endl;
 						read_size = 0;
 						continue ;						
 					}

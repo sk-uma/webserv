@@ -41,3 +41,4 @@ else:
 #</body>
 #</html>""".format(body))
 print(body)
+print(os.environ)

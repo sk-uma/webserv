@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/12 22:00:34 by rtomishi          #+#    #+#             */
-/*   Updated: 2021/11/16 22:20:34 by rtomishi         ###   ########.fr       */
+/*   Updated: 2021/11/19 22:34:49 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,30 @@ RequestParser::RequestParser(std::string request_):request(request_),
 		if (header.length() + 4 != request.length())
 			body = request.substr(pos_head + 4);
 	}
+
+	//Transfer-Encoding: chunkedの場合、bodyを書き換える
+	if (get_field("Transfer-Encoding") == "chunked")
+	{
+		std::size_t chunk_pos = 0;
+		std::size_t	chunk_start = 0;
+		std::size_t chunk_end = body.find("\r\n\r\n");
+		std::string chunk_body = "";
+		std::string	chunk_len_16;
+		float		chunk_len;
+
+		//chunkされた文字列を解析して、先頭のバイト数を除いた形で
+		//新たにchunk_bodyを形成し、bodyに割り当てる。
+		while ((chunk_pos = body.substr(chunk_start).find("\r\n") + chunk_start)
+				!= chunk_end)
+		{
+			chunk_len_16 = "0x" + body.substr(chunk_start, chunk_pos - chunk_start);
+			chunk_len = atof(chunk_len_16.c_str());
+			chunk_body += body.substr(chunk_start + chunk_len_16.length(), chunk_len);
+			chunk_start += chunk_len_16.length() + chunk_len + 2;
+		}
+		body = chunk_body;
+	}
+
 
 	//メソッドとURIをメンバ変数に格納すると共に、CGI用に環境変数にも設定する
 	std::getline(iss, str_top);
@@ -84,18 +108,13 @@ RequestParser::RequestParser(std::string request_):request(request_),
 	if (get_field("Content-Length") != "")
 	{
 		content_length = get_field("Content-Length");
-		//\rがついている場合は除外。なんでつくのかよくわからず
-		if (content_length.find("\r") != std::string::npos)
-			content_length = content_length.substr(0, content_length.find("\r"));
 		setenv("CONTENT_LENGTH", content_length.c_str(), 1);
 	}
-	std::cout << "length:" << content_length << std::endl;
 	if (get_field("Content-Type") != "")
 	{
 		content_type = get_field("Content-Type");
 		setenv("CONTENT_TYPE", content_type.c_str(), 1);
 	}
-	std::cout << "type:" << content_type << std::endl;
 }
 
 RequestParser::~RequestParser(void) {}
@@ -127,19 +146,27 @@ std::string	RequestParser::get_path_info(void) {return (this->path_info);}
 std::string	RequestParser::get_script_name(void) {return (this->script_name);}
 std::string	RequestParser::get_content_length(void) {return (this->content_length);}
 std::string	RequestParser::get_content_type(void) {return (this->content_type);}
+std::string	RequestParser::get_transfer_encoding(void) {return (this->transfer_encoding);}
 
 //ヘッダー情報から値を取り出すためのメンバ関数
 std::string	RequestParser::get_field(std::string key)
 {
 	std::size_t			pos;
 	std::istringstream	iss(this->header);
+	std::string			line;
 	std::string			str;
 
-	while (std::getline(iss, str))
+	while (std::getline(iss, line))
 	{
-		pos = str.find(key);
+		pos = line.find(key);
 		if (pos != std::string::npos && pos == 0)
-			return (str.substr(key.length() + 2));
+		{
+			str = line.substr(key.length() + 2);
+			if (str.find("\r") != std::string::npos)
+				return (str.substr(0, str.find("\r")));
+			else
+				return (str);
+		}
 	}
 	return ("");
 }

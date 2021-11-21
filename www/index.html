@@ -19,5 +19,18 @@
 		<input type="file" name="upfile">
 		<input type="submit">
 	</form>
+	<form action="cgi-bin/delete_cgi.py" method="post">Delete file
+		<input type="text" name="delfile">
+		<input type="hidden" name="_method" value="DELETE">
+   		<input type="submit">
+	</form>
+
+
+	<form action="cgi-bin/delete_cgi.py" method="post">Delete file
+    	<input type="text" name="textArea">
+    	<input type="hidden" name="_method" value="DELETE"> <!-- この1行を追加！ -->
+    	<input type="submit" value="delete!!">
+</form>
+
  </body>
 </html>
