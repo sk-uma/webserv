@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/06 21:40:53 by rtomishi          #+#    #+#             */
-/*   Updated: 2021/11/21 22:06:33 by rtomishi         ###   ########.fr       */
+/*   Updated: 2021/11/26 22:31:36 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,12 @@
 #include "RequestParser.hpp"
 #include "Response.hpp"
 
-int	main(void)
+int	main(int argc, char **argv)
 {
+	(void)argc;
+		//環境変数EXE_DIRに実行ファイルのディレクトリを格納する
+	setenv_exedir(argv);
+
 	//複数のポートを使用できるようにvector<Socket> sockを作成する
 	//現状、お試しでvector<string> ports を作成してから、
 	//for ループで各ポートのSocketのインスタンスをvectorでつくる
@@ -78,6 +82,7 @@ int	main(void)
 			if (FD_ISSET((*it).get_listenfd(), &rfd))
 			{
 				int connfd = accept((*it).get_listenfd(), (struct sockaddr*)NULL, NULL);
+				fcntl(connfd, F_SETFL, O_NONBLOCK);
 				bool limit_over = true;
 				for (int i = 0; i < MAX_SESSION; i++)
 				{
@@ -112,6 +117,8 @@ int	main(void)
 				{
 					read_size = read(accfd[i], buf, sizeof(buf));
 //					std::cout << "read_size:" << read_size << std::endl;
+//					if (read_size < 0)
+//						std::cout << "error:" << errono << ":" << strerror(errno) << std::endl;
 					if (read_size > 0)
 					{
 //						std::cout << "situation:read_size > 0" << std::endl;
@@ -144,7 +151,7 @@ int	main(void)
 				if (read_size == 0)
 					break ;
 				//Response
-//				std::cout << "[recv_str]\n" << recv_str << std::endl;
+				std::cout << "[recv_str]\n" << recv_str << std::endl;
 				//std::cout << "recv_length:" << recv_str.length() << std::endl;
 				RequestParser 	request(recv_str);
 				Response		response(request);

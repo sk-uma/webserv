@@ -6,7 +6,7 @@
 #    By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/09/03 22:58:14 by rtomishi          #+#    #+#              #
-#    Updated: 2021/11/22 22:06:03 by rtomishi         ###   ########.fr        #
+#    Updated: 2021/11/26 22:24:13 by rtomishi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -16,7 +16,8 @@ NAME = webserv
 SRC =	./main.cpp \
 		./socket.cpp \
 		./RequestParser.cpp \
-		./Response.cpp 
+		./Response.cpp \
+		./util_func.cpp
 
 OBJ = $(SRC:.cpp=.o)
 
