@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/06 21:40:53 by rtomishi          #+#    #+#             */
-/*   Updated: 2021/11/26 22:31:36 by rtomishi         ###   ########.fr       */
+/*   Updated: 2021/11/29 21:14:56 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -166,6 +166,7 @@ int	main(int argc, char **argv)
 									response_str.length());
 					if (write_size == (long)response_str.length())
 						break ;
+					//ノンブロッキングの制御で修正必要かも
 					else if (write_size == -1)
 					{
 				//		std::cout << "errorno:" << strerror(errno) << std::endl;

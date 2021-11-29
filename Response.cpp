@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/14 21:09:14 by rtomishi          #+#    #+#             */
-/*   Updated: 2021/11/28 23:02:45 by rtomishi         ###   ########.fr       */
+/*   Updated: 2021/11/29 22:01:27 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,7 +40,7 @@ Response::Response(RequestParser &request)
 	//ここのif文でbodyを作成
 	//cgiを利用して、autoindex機能を実行。サブプロセスで実行する。
 	if (S_ISDIR(eval_directory.st_mode))
-		status = auto_index(CGI_EXE, AUTOINDEX_CGI);		
+		status = auto_index(CGI_EXE, AUTOINDEX_CGI);
 	//request.get_script_name()がファイルである場合、つまりリクエストされているURIが
 	//CGI直下のディレクトリのファイルである場合、CGIを実行する。
 	else if (S_ISREG(eval_cgi.st_mode))
