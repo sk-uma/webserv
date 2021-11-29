@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/14 21:09:14 by rtomishi          #+#    #+#             */
-/*   Updated: 2021/11/29 22:01:27 by rtomishi         ###   ########.fr       */
+/*   Updated: 2021/11/29 22:27:06 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,11 +40,11 @@ Response::Response(RequestParser &request)
 	//ここのif文でbodyを作成
 	//cgiを利用して、autoindex機能を実行。サブプロセスで実行する。
 	if (S_ISDIR(eval_directory.st_mode))
-		status = auto_index(CGI_EXE, AUTOINDEX_CGI);
+		status = auto_index(AUTOINDEX_CGI);
 	//request.get_script_name()がファイルである場合、つまりリクエストされているURIが
 	//CGI直下のディレクトリのファイルである場合、CGIを実行する。
 	else if (S_ISREG(eval_cgi.st_mode))
-		status = cgi_exe(CGI_EXE, cgi_file, request);
+		status = cgi_exe(cgi_file, request);
 	//ファイルが見つかればそれを開く。見つからなければ404 Not Found用のファイルを開く
 	else
 		status = open_html(html_file);
@@ -91,12 +91,12 @@ int			Response::get_status(void) {return (status);}
 //返り値:実行結果に対するステータスコード
 //exe_path:実行するCGIのパス
 //auto_index_file:autoindex機能が発現するスクリプトファイル
-int		Response::auto_index(std::string const exe_path, std::string const autoindex_file)
+int		Response::auto_index(std::string const autoindex_file)
 {
 	pid_t	pid;
 	int	fds_r[2];
 	char exebuf[CGI_BUF];
-	char const	*argv[3] = {exe_path.c_str(), autoindex_file.c_str(), NULL};
+	char const	*argv[2] = {autoindex_file.c_str(), NULL};
 	int			ret = STATUS_OK;
 
 	pipe(fds_r);
@@ -109,7 +109,7 @@ int		Response::auto_index(std::string const exe_path, std::string const autoinde
 		dup2(fds_r[1], STDOUT_FILENO);
 		close(fds_r[0]);
 		close(fds_r[1]);
-		execve(exe_path.c_str(), const_cast<char**>(argv), environ);
+		execve(autoindex_file.c_str(), const_cast<char**>(argv), environ);
 	}
 	else
 	{
@@ -142,14 +142,14 @@ int		Response::auto_index(std::string const exe_path, std::string const autoinde
 //exe_path：実行するCGIのパス
 //cgi_file：実行されるCGIの対象ファイル
 //request:リクエスト情報が入ったRequestParserクラス
-int		Response::cgi_exe(std::string const exe_path, std::string const cgi_file, RequestParser &request)
+int		Response::cgi_exe(std::string const cgi_file, RequestParser &request)
 {
 	pid_t	pid;
 	int fds_w[2];
 	int	fds_r[2];
 	char exebuf[CGI_BUF];
 	std::string	tmp_str;
-	char const	*argv[3] = {exe_path.c_str(), cgi_file.c_str(), NULL};
+	char const	*argv[2] = {cgi_file.c_str(), NULL};
 	int			ret = STATUS_OK;
 
 	pipe(fds_w);
@@ -170,7 +170,7 @@ int		Response::cgi_exe(std::string const exe_path, std::string const cgi_file, R
 		close(fds_w[0]);
 		close(fds_w[1]);
 
-		execve(exe_path.c_str(), const_cast<char**>(argv), environ);
+		execve(cgi_file.c_str(), const_cast<char**>(argv), environ);
 	}
 	else
 	{

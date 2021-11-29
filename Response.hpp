@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/13 22:19:12 by rtomishi          #+#    #+#             */
-/*   Updated: 2021/11/28 22:49:35 by rtomishi         ###   ########.fr       */
+/*   Updated: 2021/11/29 22:26:01 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,8 +33,8 @@ class Response
 		std::string	get_header(void);
 		std::string get_body(void);
 		int			get_status(void);
-		int			auto_index(std::string const exe_path, std::string const autoindex_file);
-		int			cgi_exe(std::string const exe_path, std::string const cgi_file, RequestParser &request);
+		int			auto_index(std::string const autoindex_file);
+		int			cgi_exe(std::string const cgi_file, RequestParser &request);
 		int			open_html(std::string const html_file);
 
 		void		header_ok(std::ostringstream &oss);
