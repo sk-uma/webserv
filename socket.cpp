@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/06 21:30:43 by rtomishi          #+#    #+#             */
-/*   Updated: 2021/11/14 22:52:02 by rtomishi         ###   ########.fr       */
+/*   Updated: 2021/11/23 11:35:17 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,8 +70,8 @@ int		Socket::set_socket()
 	Socket::set_listenfd();
 	//ソケット関連のオプション設定
 	/*socket option setting:SOL_SOCKET-operate with API layer（特別でない限り変えない）,
-	 		SO_REUSEADDR-reuse socket address*/
-	ret_so = setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
+	 		SO_REUSEADDR-reuse socket address (TIME_WAIT状態のポートでbind可能)*/
+	ret_so = setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, (const char*)&optval, sizeof(optval));
 	if (ret_so == -1)
 	{
 		std::cerr << std::strerror(errno) << ":";

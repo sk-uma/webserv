@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/12 21:50:09 by rtomishi          #+#    #+#             */
-/*   Updated: 2021/11/18 22:28:43 by rtomishi         ###   ########.fr       */
+/*   Updated: 2021/11/29 10:57:10 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,8 +30,6 @@ class RequestParser
 		std::string					content_length;
 		std::string					content_type;
 		std::string					transfer_encoding;
-//		std::vector<std::string>	vec_env;
-//		char						**cgi_env;
 
 	public:
 		RequestParser(void);
@@ -52,6 +50,11 @@ class RequestParser
 		std::string	get_content_type(void);
 		std::string	get_transfer_encoding(void);
 		std::string	get_field(std::string key);
+
+		void		header_split(void);
+		void		chunked_split(void);
+		void		set_method_and_uri(void);
+		void		set_cgi_env(void);
 };
 
 #endif
