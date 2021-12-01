@@ -1,0 +1,72 @@
+# normal CGI server
+
+server {
+    listen 8080 default_server;
+    listen [::]:8080 default_server;
+
+    root /var/www/html;
+    autoindex on;
+
+    index index.html index.htm index.nginx-debian.html;
+    server_name _;
+    
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    include fcgiwrap.conf;
+}
+
+
+# extension CGI server
+
+server {
+    listen 8081 default_server;
+    listen [::]:8081 default_server;
+
+    root /var/www/html;
+    autoindex on;
+
+    index index.html index.htm index.nginx-debian.html;
+    server_name _;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    location ~ \.py$ {
+        gzip    off;
+        root	/usr/lib/cgi-bin;
+        fastcgi_pass  unix:/var/run/fcgiwrap.socket;
+        include /etc/nginx/fastcgi_params;
+        fastcgi_param SCRIPT_FILENAME  /usr/lib/cgi-bin$fastcgi_script_name;
+    }
+}
+
+
+# CGI setting in localtion
+
+server {
+    listen 8082 default_server;
+    listen [::]:8082 default_server;
+
+    root /var/www/html;
+    autoindex on;
+
+    index index.html index.htm index.nginx-debian.html;
+    server_name _;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    location /cgifile/ {
+        location ~ \.py$ {
+            gzip    off;
+            root	/usr/lib/cgi-bin;
+            fastcgi_pass  unix:/var/run/fcgiwrap.socket;
+            include /etc/nginx/fastcgi_params;
+            fastcgi_param SCRIPT_FILENAME  /usr/lib$fastcgi_script_name;
+        }
+    }
+}
