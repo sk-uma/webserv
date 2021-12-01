@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/06 21:26:18 by rtomishi          #+#    #+#             */
-/*   Updated: 2021/11/28 22:44:49 by rtomishi         ###   ########.fr       */
+/*   Updated: 2021/11/30 17:28:10 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@
 # include <sstream>
 # include <sys/stat.h>
 # include <sys/wait.h>
+# include <dirent.h>
 
 const int			BUF_SIZE = 1024;
 const int			CGI_BUF = 100;

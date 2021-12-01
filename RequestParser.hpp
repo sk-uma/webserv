@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/12 21:50:09 by rtomishi          #+#    #+#             */
-/*   Updated: 2021/11/29 10:57:10 by rtomishi         ###   ########.fr       */
+/*   Updated: 2021/11/30 21:08:12 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,8 @@ class RequestParser
 		std::string	get_content_type(void);
 		std::string	get_transfer_encoding(void);
 		std::string	get_field(std::string key);
+
+		void		set_uri(std::string uri_);
 
 		void		header_split(void);
 		void		chunked_split(void);

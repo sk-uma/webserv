@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/12 22:00:34 by rtomishi          #+#    #+#             */
-/*   Updated: 2021/11/29 11:23:53 by rtomishi         ###   ########.fr       */
+/*   Updated: 2021/11/30 21:21:56 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,11 @@
 RequestParser::RequestParser(void) {}
 
 //コンストラクタ
-RequestParser::RequestParser(std::string request_):request(request_), header(""), body("")
+RequestParser::RequestParser(std::string request_):request(request_),
+								header(""), body(""), method(""), uri(""),
+								path_translated(""), query_string(""),
+								path_info(""), script_name(""), content_length(""),
+								content_type(""), transfer_encoding("")
 {
 	//ヘッダーとボディを分けてメンバ変数に格納する
 	header_split();
@@ -91,6 +95,12 @@ std::string	RequestParser::get_field(std::string key)
 		}
 	}
 	return ("");
+}
+
+//セッター uri
+void		RequestParser::set_uri(std::string uri_)
+{
+	uri = uri_;
 }
 
 //ボデイがある場合はリクエストの文字列からヘッダーとボディを分離する
@@ -188,3 +198,4 @@ void		RequestParser::set_cgi_env(void)
 	setenv("SCRIPT_NAME", script_name.c_str(), 1);
 	setenv("QUERY_STRING", query_string.c_str(), 1);
 }
+

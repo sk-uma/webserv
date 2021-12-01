@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/14 21:09:14 by rtomishi          #+#    #+#             */
-/*   Updated: 2021/11/29 22:27:06 by rtomishi         ###   ########.fr       */
+/*   Updated: 2021/11/30 23:12:01 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,12 +22,18 @@ Response::Response(RequestParser &request)
 	struct stat			eval_directory;
 	struct stat			eval_cgi;
 	const std::string	EXE_DIR(getenv("EXE_DIR"));
+	std::size_t	qpos;
 
+	//クエリパラメータが来た場合は?を除いたパスに変換する
+	if ((qpos = request.get_uri().find("?")) != std::string::npos)
+		request.set_uri(request.get_uri().substr(0, qpos));
 	//何も指定がない(="/"以外の文字が来ない)場合はHTML_PATH + /index.htmlが開く
 	if (request.get_uri().find_first_not_of("/") != std::string::npos)
-		html_file = EXE_DIR + HTML_PATH + request.get_uri();
+		html_file = EXE_DIR + HTML_PATH + request.get_uri().substr(0, qpos);
 	else
 		html_file = EXE_DIR + HTML_PATH + "/index.html";
+
+	std::cout << "html_file:" << html_file << std::endl;
 
 	//CGI起動の場合のため、cgi_file変数を定義。CGIを使用しない場合は使わない
 	std::string	cgi_file = EXE_DIR + HTML_PATH + request.get_script_name();
@@ -40,7 +46,8 @@ Response::Response(RequestParser &request)
 	//ここのif文でbodyを作成
 	//cgiを利用して、autoindex機能を実行。サブプロセスで実行する。
 	if (S_ISDIR(eval_directory.st_mode))
-		status = auto_index(AUTOINDEX_CGI);
+//		status = auto_index(AUTOINDEX_CGI);
+		status = autoindex_c(html_file.c_str());
 	//request.get_script_name()がファイルである場合、つまりリクエストされているURIが
 	//CGI直下のディレクトリのファイルである場合、CGIを実行する。
 	else if (S_ISREG(eval_cgi.st_mode))
@@ -244,4 +251,51 @@ void	Response::header_not_found(std::ostringstream &oss)
 	header.append(oss.str());
 	header.append("Connection: Keep-alive\r\n");
 	header.append("\r\n");
+}
+
+//autoindex with c++
+int		Response::autoindex_c(const char *path)
+{
+	int			ret = STATUS_OK;
+    DIR 		*dp = opendir(path);
+	struct stat eval_dir;
+	dirent		*entry;
+
+    std::ostringstream oss;
+
+	if (dp == NULL)
+		return (ret);
+	entry = readdir(dp);
+
+	while (entry != NULL)
+	{
+		if (std::string(entry->d_name) != ".")
+		{
+			std::string	temp_path = std::string(path) + "/" + entry->d_name;
+			stat(temp_path.c_str(), &eval_dir);
+			if (std::string(entry->d_name) != ".." && S_ISDIR(eval_dir.st_mode))
+				oss << "<li><a href=\"" << std::string(getenv("REQUEST_URI")) + "/" + entry->d_name << "\">" << entry->d_name << "/</a></li>\r\n";
+			else
+				oss << "<li><a href=\"" << std::string(getenv("REQUEST_URI")) + "/" + entry->d_name << "\">" << entry->d_name << "</a></li>\r\n";
+		}
+		entry = readdir(dp);
+	}
+
+	body.append("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">\r\n");
+	body.append("<html>\r\n");
+	body.append("<head>\r\n");
+	body.append("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\r\n");
+	body.append("<title>Directory listing for xxx</title>\r\n");
+	body.append("</head>\r\n");
+	body.append("<body>\r\n");
+	body.append("<h1>Directory listing for xxx</h1>\r\n");
+	body.append("<hr>\r\n");
+	body.append("<ul>\r\n");
+	body.append(oss.str());
+	body.append("</ul>\r\n");
+	body.append("<hr>\r\n");
+	body.append("</body>\r\n");
+	body.append("</html>\r\n");
+
+	return (ret);
 }

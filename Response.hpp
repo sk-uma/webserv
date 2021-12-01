@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/13 22:19:12 by rtomishi          #+#    #+#             */
-/*   Updated: 2021/11/29 22:26:01 by rtomishi         ###   ########.fr       */
+/*   Updated: 2021/11/30 21:50:12 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,6 +39,8 @@ class Response
 
 		void		header_ok(std::ostringstream &oss);
 		void		header_not_found(std::ostringstream &oss);
+
+		int			autoindex_c(const char *path);
 };
 
 #endif
