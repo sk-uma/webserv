@@ -87,9 +87,51 @@ void webservconfig::ConfigBase::InitRoot(std::vector<std::string> line)
 void webservconfig::ConfigBase::InitListen(std::vector<std::string> line)
 {
   CheckNumberOfArgument(line, 2, 2);
+  const char *char_address = line[1].c_str();
 
-  char *port = std::strrchr(line[1].c_str(), ':');
-  std::cout << port << std::endl;
+  char *char_port = std::strrchr(char_address, ':') + 1;
+  if (char_port == NULL) {
+    throw std::runtime_error("Port and address are not explicitly stated");
+  }
+  std::string address = line[1].substr(0, char_port - char_address - 1);
+  std::string port(char_port);
+  int port_number = strtoll(port);
+  if (port_number == -1) {
+    throw std::runtime_error("Invalid port");
+  }
+  if (address.size() >= 2 && address[0] == '[' && *(address.end() - 1) == ']') {
+    address = address.substr(1, address.size() - 2);
+    if (!IsComposed(address, "1234567890:"))
+      throw std::runtime_error("Invalid address");
+    this->v6_listen_.push_back(std::pair<std::string, int>(address, port_number));
+  } else if (address.size() >= 2 && address[0] != '[' && *(address.end() - 1) != ']') {
+    if (!IsComposed(address, "1234567890."))
+      throw std::runtime_error("Invalid address");
+    this->v4_listen_.push_back(std::pair<std::string, int>(address, port_number));
+  } else {
+    throw std::runtime_error("unknown address format");
+  }
+}
+
+void webservconfig::ConfigBase::InitServerName(std::vector<std::string> line)
+{
+  CheckNumberOfArgument(line, 2, 2);
+  this->server_name_ = line[1];
+}
+
+void webservconfig::ConfigBase::InitReturn(std::vector<std::string> line)
+{
+  CheckNumberOfArgument(line, 3, -1);
+}
+
+bool webservconfig::ConfigBase::IsComposed(std::string str, std::string charset)
+{
+  for (std::string::iterator iter = str.begin(); iter != str.end(); iter++) {
+    if (!std::strchr(charset.c_str(), *iter)) {
+      return (false);
+    }
+  }
+  return (true);
 }
 
 void webservconfig::ConfigBase::CheckNumberOfArgument(std::vector<std::string> line, int min_size, int max_size) const

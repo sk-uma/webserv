@@ -46,13 +46,14 @@ namespace webservconfig
       void            InitAutoindex(std::vector<std::string> line);
       void            InitClientMaxBodySize(std::vector<std::string> line);
       void            InitRoot(std::vector<std::string> line);
-      void            InitListenV4(std::vector<std::string> line);
-      void            InitListenV6(std::vector<std::string> line);
       void            InitListen(std::vector<std::string> line);
+      void            InitServerName(std::vector<std::string> line);
+      void            InitReturn(std::vector<std::string> line);
 
-      void            CheckNumberOfArgument(std::vector<std::string> line, int min_size, int max_size) const;
-      body_size_type  strtoll(std::string str) const;
-      std::vector<std::string> SplitLine(std::string line);
+      bool                      IsComposed(std::string str, std::string charset);
+      void                      CheckNumberOfArgument(std::vector<std::string> line, int min_size, int max_size) const;
+      body_size_type            strtoll(std::string str) const;
+      std::vector<std::string>  SplitLine(std::string line);
 
     public:
       ConfigBase();
