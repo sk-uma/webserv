@@ -121,7 +121,13 @@ void webservconfig::ConfigBase::InitServerName(std::vector<std::string> line)
 
 void webservconfig::ConfigBase::InitReturn(std::vector<std::string> line)
 {
-  CheckNumberOfArgument(line, 3, -1);
+  CheckNumberOfArgument(line, 3, 3);
+
+  int code = strtoll(line[1]);
+  if (code != -1) {
+    throw std::runtime_error("Invalid code");
+  }
+  this->return_ = return_type(code, line[2]);
 }
 
 bool webservconfig::ConfigBase::IsComposed(std::string str, std::string charset)

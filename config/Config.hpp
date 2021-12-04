@@ -39,6 +39,7 @@ namespace webservconfig
       body_size_type            client_max_body_size_;
       std::string               root_;
       bool                      index_flag_;
+      std::vector<Server>       server_;
 
     protected:
       void            InitIndex(std::vector<std::string> line);

@@ -23,7 +23,7 @@ namespace webservconfig
       typedef long long                                 body_size_type;
       typedef std::vector<std::string>                  index_type;
       typedef std::vector<std::pair<std::string, int> > listen_type;
-      typedef std::pair<std::string, int>               return_type;
+      typedef std::pair<int, std::string>               return_type;
 
     protected:
       std::string               file_path_;

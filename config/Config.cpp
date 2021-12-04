@@ -7,7 +7,8 @@ webservconfig::Config::Config():
   autoindex_(false),
   client_max_body_size_(1048576),
   root_("/var/www/html"),
-  index_flag_(false)
+  index_flag_(false),
+  server_()
 { }
 
 webservconfig::Config::Config(std::string path):
@@ -17,7 +18,8 @@ webservconfig::Config::Config(std::string path):
   autoindex_(false),
   client_max_body_size_(1048576),
   root_("/var/www/html"),
-  index_flag_(false)
+  index_flag_(false),
+  server_()
 {
   std::ifstream input_file(this->file_path_.c_str());
   std::string line;
@@ -31,7 +33,7 @@ webservconfig::Config::Config(std::string path):
     if (line.size() != 0 && *(line.end() - 1) == ';') {
       line = std::string(line.begin(), line.end() - 1);
     }
-    std::cout << i++ << ": " << line << std::endl;
+    // std::cout << i++ << ": " << line << std::endl;
     std::vector<std::string> rtv = webservconfig::SplitLine(line);
     int len = rtv.size();
     if (len == 0) {
@@ -50,6 +52,8 @@ webservconfig::Config::Config(std::string path):
       throw std::runtime_error(std::string("not allowed directive \"") + rtv[0] + std::string("\""));
     }
   }
+  this->server_[0].ParseServerBlock();
+  (void)i;
 }
 
 webservconfig::Config::~Config()
@@ -104,11 +108,14 @@ void webservconfig::Config::InitServer(std::vector<std::string> line, std::ifstr
     if (buf == "}") {
       break;
     } else {
-      std::cout << "in server: " << buf << std::endl;
+      // std::cout << "in server: " << buf << std::endl;
       block += buf + "\n";
     }
   }
+  // std::cout << "in serv" << std::endl;
+  // std::cout << block << std::endl;
   webservconfig::Server server(block);
+  this->server_.push_back(server);
   (void)input_file;
   (void)line;
 }
