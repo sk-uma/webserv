@@ -97,13 +97,19 @@ void webservconfig::Config::InitRoot(std::vector<std::string> line)
 
 void webservconfig::Config::InitServer(std::vector<std::string> line, std::ifstream &input_file)
 {
-  std::string buf;
+  std::string block, buf;
 
+  block = "";
   while (std::getline(input_file, buf)) {
-    if (buf == "}")
+    if (buf == "}") {
       break;
-    std::cout << "in server: " << buf << std::endl;
+    } else {
+      std::cout << "in server: " << buf << std::endl;
+      block += buf + "\n";
+    }
   }
+  webservconfig::Server server(block);
+  (void)input_file;
   (void)line;
 }
 

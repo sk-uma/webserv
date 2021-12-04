@@ -14,12 +14,14 @@
 # include <cerrno>
 
 # include "ConfigUtils.hpp"
+# include "Server.hpp"
 
 namespace webservconfig
 {
+  class Server;
+
   class Config
   {
-
     protected:
       typedef std::map<std::string, std::string> error_page_type;
       typedef long long                          body_size_type;
@@ -49,6 +51,7 @@ namespace webservconfig
       body_size_type  strtoll(std::string str) const;
 
     public:
+
   /**
    * normalize
    */
