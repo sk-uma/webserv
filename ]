@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/14 21:09:14 by rtomishi          #+#    #+#             */
-/*   Updated: 2021/12/05 12:46:26 by rtomishi         ###   ########.fr       */
+/*   Updated: 2021/12/05 12:35:56 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -289,16 +289,8 @@ int		Response::delete_file(const char *path, RequestParser &request)
 	int					ret	= STATUS_OK;
     std::ostringstream	oss;
 
-	if (remove(path) < 0)
-	{
-		oss << "Delete failed\r\n";
-		ret = STATUS_NOT_FOUND;
-	}
-	else
-		oss << "Delete Successed\r\n";
-
+	oss << "Delete Successed\r\n";
 	std::cout << path << std::endl;
-	std::cout << request.get_uri()  << std::endl;
 	body.append("<html>\r\n");
 	body.append("<head>\r\n");
 	body.append("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\r\n");

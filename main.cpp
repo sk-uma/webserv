@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/06 21:40:53 by rtomishi          #+#    #+#             */
-/*   Updated: 2021/11/29 21:14:56 by rtomishi         ###   ########.fr       */
+/*   Updated: 2021/12/04 23:17:48 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -148,8 +148,8 @@ int	main(int argc, char **argv)
 						continue ;						
 					}
 				}
-				if (read_size == 0)
-					break ;
+//				if (read_size == 0)
+//					break ;
 				//Response
 				std::cout << "[recv_str]\n" << recv_str << std::endl;
 				//std::cout << "recv_length:" << recv_str.length() << std::endl;
