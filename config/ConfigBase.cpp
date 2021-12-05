@@ -124,7 +124,7 @@ void webservconfig::ConfigBase::InitReturn(std::vector<std::string> line)
   CheckNumberOfArgument(line, 3, 3);
 
   int code = strtoll(line[1]);
-  if (code != -1) {
+  if (code < 0) {
     throw std::runtime_error("Invalid code");
   }
   this->return_ = return_type(code, line[2]);

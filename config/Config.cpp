@@ -38,7 +38,7 @@ webservconfig::Config::Config(std::string path):
     int len = rtv.size();
     if (len == 0) {
       continue ;
-    } else if (rtv[0] == "server" && len == 2 && rtv[1] == "{") {
+    } else if (len >= 2 && rtv[0] == "server" && len == 2 && rtv[1] == "{") {
       InitServer(rtv, input_file);
     } else if (rtv[0] == "index") {
       InitIndex(rtv);
@@ -52,7 +52,9 @@ webservconfig::Config::Config(std::string path):
       throw std::runtime_error(std::string("not allowed directive \"") + rtv[0] + std::string("\""));
     }
   }
-  this->server_[0].ParseServerBlock();
+  for (std::vector<Server>::iterator iter = this->server_.begin(); iter != this->server_.end(); iter++) {
+    (*iter).ParseServerBlock();
+  }
   (void)i;
 }
 

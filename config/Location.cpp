@@ -1,24 +1,24 @@
-#include "Server.hpp"
+#include "Location.hpp"
 
-webservconfig::Server::Server():
+webservconfig::Location::Location():
   ConfigBase()
 { }
 
-webservconfig::Server::Server(std::string block):
+webservconfig::Location::Location(std::string block):
   ConfigBase()
 {
   this->block_ = block;
 }
 
-webservconfig::Server::~Server()
+webservconfig::Location::~Location()
 { }
 
-webservconfig::Server::Server(const Server &other)
+webservconfig::Location::Location(const Location &other)
 {
   *this = other;
 }
 
-const webservconfig::Server &webservconfig::Server::operator=(const Server &rhs)
+const webservconfig::Location &webservconfig::Location::operator=(const Location &rhs)
 {
   if (this != &rhs) {
     this->file_path_ = rhs.file_path_;
@@ -41,7 +41,7 @@ const webservconfig::Server &webservconfig::Server::operator=(const Server &rhs)
 
 // upload, allow_method
 
-void webservconfig::Server::ParseServerBlock()
+void webservconfig::Location::ParseLocationBlock()
 {
   // std::cout << "ParseBlock" << std::endl;
   // std::cout << this->block_;
@@ -57,8 +57,6 @@ void webservconfig::Server::ParseServerBlock()
     int len = rtv.size();
     if (len == 0) {
       continue;
-    } else if (len >= 3 && rtv[0] == "location" && rtv[2] == "{") {
-      InitLocation(rtv, iss);
     } else if (rtv[0] == "index") {
       InitIndex(rtv);
     } else if (rtv[0] == "autoindex") {
@@ -67,36 +65,11 @@ void webservconfig::Server::ParseServerBlock()
       InitClientMaxBodySize(rtv);
     } else if (rtv[0] == "root") {
       InitRoot(rtv);
-    } else if (rtv[0] == "listen") {
-      InitListen(rtv);
-    } else if (rtv[0] == "server_name") {
-      InitServerName(rtv);
     } else if (rtv[0] == "return") {
       InitReturn(rtv);
     } else {
       throw std::runtime_error(std::string("not allowed directive \"") + rtv[0] + std::string("\""));
     }
   }
-  for (std::vector<Location>::iterator iter = this->location_.begin(); iter != this->location_.end(); iter++) {
-    (*iter).ParseLocationBlock();
-  }
   (void)i;
-}
-
-void webservconfig::Server::InitLocation(std::vector<std::string> line, std::istringstream &input)
-{
-  std::string block, buf;
-
-  block = "";
-  while (std::getline(input, buf)) {
-    if (buf == "  }") {
-      break;
-    } else {
-      block += buf + "\n";
-    }
-  }
-  webservconfig::Location location(block);
-  this->location_.push_back(location);
-  (void)input;
-  (void)line;
 }

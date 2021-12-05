@@ -15,6 +15,7 @@
 # include <utility>
 
 # include "ConfigBase.hpp"
+# include "Location.hpp"
 
 namespace webservconfig
 {
@@ -22,6 +23,10 @@ namespace webservconfig
   {
     protected:
       std::string block_;
+      std::vector<Location> location_;
+
+    protected:
+      void  InitLocation(std::vector<std::string> line, std::istringstream &input);
 
     public:
       Server();
