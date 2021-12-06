@@ -35,6 +35,7 @@ const webservconfig::Server &webservconfig::Server::operator=(const Server &rhs)
     this->upload_pass_ = rhs.upload_pass_;
     this->upload_store_ = rhs.upload_store_;
     this->block_ = rhs.block_;
+    this->location_ = rhs.location_;
   }
   return (*this);
 }
@@ -95,8 +96,6 @@ void webservconfig::Server::InitLocation(std::vector<std::string> line, std::ist
       block += buf + "\n";
     }
   }
-  webservconfig::Location location(block);
+  webservconfig::Location location(block, line[1]);
   this->location_.push_back(location);
-  (void)input;
-  (void)line;
 }

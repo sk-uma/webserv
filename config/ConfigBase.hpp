@@ -19,7 +19,7 @@ namespace webservconfig
   class ConfigBase
   {
     protected:
-      typedef std::map<std::string, std::string>        error_page_type;
+      typedef std::map<int, std::string>                error_page_type;
       typedef long long                                 body_size_type;
       typedef std::vector<std::string>                  index_type;
       typedef std::vector<std::pair<std::string, int> > listen_type;
@@ -49,6 +49,7 @@ namespace webservconfig
       void            InitListen(std::vector<std::string> line);
       void            InitServerName(std::vector<std::string> line);
       void            InitReturn(std::vector<std::string> line);
+      void            InitErrorPage(std::vector<std::string> line);
 
       bool                      IsComposed(std::string str, std::string charset);
       void                      CheckNumberOfArgument(std::vector<std::string> line, int min_size, int max_size) const;
@@ -61,10 +62,9 @@ namespace webservconfig
       ConfigBase(const ConfigBase &other);
       const ConfigBase &operator=(const ConfigBase &other);
 
-      error_page_type GetErrorPages() const;
+      error_page_type GetErrorPage() const;
       std::string     GetErrorPage(std::string code) const;
       std::string     GetErrorPage(int code) const;
-      std::string     GetServer() const;
       index_type      GetIndex() const;
       bool            GetAutoIndex() const;
       body_size_type  GetClientMaxBodySize() const;
@@ -73,6 +73,8 @@ namespace webservconfig
       listen_type     GetListenV6() const;
       std::string     GetServerName() const;
       return_type     GetReturn() const;
+
+
       std::string     GetUplocaPass() const;
       std::string     GetUploadStore() const;
   };

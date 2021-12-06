@@ -13,7 +13,7 @@ namespace webservconfig
     
     public:
       Location();
-      Location(std::string block);
+      Location(std::string block, std::string location);
       ~Location();
       Location(const Location &other);
       const Location &operator=(const Location &location);

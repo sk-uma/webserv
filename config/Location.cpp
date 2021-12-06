@@ -4,10 +4,11 @@ webservconfig::Location::Location():
   ConfigBase()
 { }
 
-webservconfig::Location::Location(std::string block):
+webservconfig::Location::Location(std::string block, std::string location):
   ConfigBase()
 {
   this->block_ = block;
+  this->location_ = location;
 }
 
 webservconfig::Location::~Location()
@@ -35,6 +36,8 @@ const webservconfig::Location &webservconfig::Location::operator=(const Location
     this->upload_pass_ = rhs.upload_pass_;
     this->upload_store_ = rhs.upload_store_;
     this->block_ = rhs.block_;
+
+    this->location_ = rhs.location_;
   }
   return (*this);
 }

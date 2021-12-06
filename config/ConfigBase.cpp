@@ -130,6 +130,22 @@ void webservconfig::ConfigBase::InitReturn(std::vector<std::string> line)
   this->return_ = return_type(code, line[2]);
 }
 
+void webservconfig::ConfigBase::InitErrorPage(std::vector<std::string> line)
+{
+  CheckNumberOfArgument(line, 3, -1);
+
+  for (std::vector<std::string>::iterator iter = line.begin() - 1; iter != line.end(); iter++) {
+    int code = strtoll(*iter);
+    if (code < 0) {
+      throw std::runtime_error("Invalid code");
+    } else if (code < 300 || 599 < code) {
+      throw std::runtime_error("code 300 ~ 599");
+    } else {
+      this->error_page_[code] = *(line.end() - 1);
+    }
+  }
+}
+
 bool webservconfig::ConfigBase::IsComposed(std::string str, std::string charset)
 {
   for (std::string::iterator iter = str.begin(); iter != str.end(); iter++) {
@@ -186,4 +202,59 @@ std::vector<std::string> webservconfig::ConfigBase::SplitLine(std::string line)
     rtv.push_back(item);
   
   return (rtv);
+}
+
+webservconfig::ConfigBase::error_page_type webservconfig::ConfigBase::GetErrorPage() const
+{
+  return (this->error_page_);
+}
+
+std::string webservconfig::ConfigBase::GetErrorPage(std::string code) const
+{
+  ;
+}
+
+std::string webservconfig::ConfigBase::GetErrorPage(int code) const
+{
+  ;
+}
+
+webservconfig::ConfigBase::index_type webservconfig::ConfigBase::GetIndex() const
+{
+  return (this->index_);
+}
+
+bool webservconfig::ConfigBase::GetAutoIndex() const
+{
+  return (this->autoindex_);
+}
+
+webservconfig::ConfigBase::body_size_type webservconfig::ConfigBase::GetClientMaxBodySize() const
+{
+  return (this->client_max_body_size_);
+}
+
+std::string webservconfig::ConfigBase::GetRoot() const
+{
+  return (this->root_);
+}
+
+webservconfig::ConfigBase::listen_type webservconfig::ConfigBase::GetListenV4() const
+{
+  return (this->v4_listen_);
+}
+
+webservconfig::ConfigBase::listen_type webservconfig::ConfigBase::GetListenV6() const
+{
+  return (this->v6_listen_);
+}
+
+std::string webservconfig::ConfigBase::GetServerName() const
+{
+  return (this->server_name_);
+}
+
+webservconfig::ConfigBase::return_type webservconfig::ConfigBase::GetReturn() const
+{
+  return (this->return_);
 }
