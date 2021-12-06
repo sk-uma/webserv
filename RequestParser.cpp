@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/12 22:00:34 by rtomishi          #+#    #+#             */
-/*   Updated: 2021/11/29 11:23:53 by rtomishi         ###   ########.fr       */
+/*   Updated: 2021/12/06 16:13:52 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,11 @@
 RequestParser::RequestParser(void) {}
 
 //コンストラクタ
-RequestParser::RequestParser(std::string request_):request(request_), header(""), body("")
+RequestParser::RequestParser(std::string request_):request(request_),
+								header(""), body(""), method(""), uri(""),
+								path_translated(""), query_string(""),
+								path_info(""), script_name(""), content_length(""),
+								content_type(""), transfer_encoding("")
 {
 	//ヘッダーとボディを分けてメンバ変数に格納する
 	header_split();
@@ -93,6 +97,12 @@ std::string	RequestParser::get_field(std::string key)
 	return ("");
 }
 
+//セッター uri
+void		RequestParser::set_uri(std::string uri_)
+{
+	uri = uri_;
+}
+
 //ボデイがある場合はリクエストの文字列からヘッダーとボディを分離する
 void		RequestParser::header_split(void)
 {
@@ -148,36 +158,39 @@ void		RequestParser::set_cgi_env(void)
 	std::size_t script_start;
 	std::size_t info_start;
 	std::size_t query_start;
-	std::string cgi_dir(CGI_PATH);
-	std::string	cgi_para;
+//	std::string cgi_dir(CGI_PATH);
+//	std::string	cgi_para;
 
 	query_string = "";
 	path_info = "";
 	script_name = "";
-	if ((script_start = uri.find(CGI_PATH)) != std::string::npos)
+
+	std::size_t	i = 0;
+	
+	//先頭に複数/があった場合は除去する
+	while (uri[i] == '/')
+		i++;
+	if (i != 0)
+		i--;
+	uri = uri.substr(i);
+
+	if ((query_start = uri.find("?")) != std::string::npos)
+		query_string = uri.substr(query_start + 1);
+	uri = uri.substr(0, query_start);
+	if (uri.find(CGI_PATH) == 0 &&
+			(script_start = uri.substr(CGI_PATH.length()).find_first_not_of("/")) != std::string::npos)
 	{
-		if ((query_start = uri.find("?")) != std::string::npos)
+		if ((info_start = uri.substr(CGI_PATH.length() + script_start).find("/")) != std::string::npos)
 		{
-			query_string = uri.substr(query_start + 1);
-			if ((info_start = uri.substr(script_start + cgi_dir.length()).find("/")) != std::string::npos)
-			{
-				script_name = uri.substr(0, script_start + cgi_dir.length() + info_start);
-				path_info = uri.substr(script_start + cgi_dir.length() + info_start, uri.length() - script_name.length() - query_string.length() - 1);
-			}
-			else
-				script_name = uri.substr(0, uri.length() - query_string.length() - 1);
-		}
-		else
-		{
-			if ((info_start = uri.substr(script_start + cgi_dir.length()).find("/")) != std::string::npos)
-			{
-				script_name = uri.substr(0, script_start + cgi_dir.length() + info_start);
-				path_info = uri.substr(script_start + cgi_dir.length() + info_start);
-			}
-			else
-				script_name = uri;
+			i = CGI_PATH.length() + script_start + info_start;
+			while (uri[i] == '/')
+				i++;
+			if (i != CGI_PATH.length() + script_start + info_start)
+				i--;
+			path_info = uri.substr(i);
 		}
 	}
+	script_name = (path_info == "" ? uri : uri.substr(0, CGI_PATH.length() + script_start + info_start));
 	//PATH_TRANSLATEDの指定。環境変数EXE_DIRが相対パス/絶対パスの場合で指定方法を分ける
 	if (std::string(getenv("EXE_DIR")).find("/") == 0)
 		path_translated = std::string(getenv("EXE_DIR")) + path_info;
@@ -188,3 +201,4 @@ void		RequestParser::set_cgi_env(void)
 	setenv("SCRIPT_NAME", script_name.c_str(), 1);
 	setenv("QUERY_STRING", query_string.c_str(), 1);
 }
+

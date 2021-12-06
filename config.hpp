@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/06 21:26:18 by rtomishi          #+#    #+#             */
-/*   Updated: 2021/11/28 22:44:49 by rtomishi         ###   ########.fr       */
+/*   Updated: 2021/12/06 13:18:41 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,10 +31,12 @@
 # include <sstream>
 # include <sys/stat.h>
 # include <sys/wait.h>
+# include <dirent.h>
 
 const int			BUF_SIZE = 1024;
 const int			CGI_BUF = 100;
 const std::string	CGI_PATH = "/cgi-bin/";
+const std::string	UPLOAD_PATH = "/upload_file/";
 const std::string	AUTOINDEX_CGI = "./GenIndex.py";
 const std::string	CGI_EXE = "/usr/local/bin/python3";
 const std::string	NOT_FOUND_FILE = "/404.html";

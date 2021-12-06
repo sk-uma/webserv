@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/06 21:40:53 by rtomishi          #+#    #+#             */
-/*   Updated: 2021/11/29 21:14:56 by rtomishi         ###   ########.fr       */
+/*   Updated: 2021/12/06 16:59:26 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -147,11 +147,32 @@ int	main(int argc, char **argv)
 						read_size = 0;
 						continue ;						
 					}
+					//ファイルアップロードでFオプションの対応
+					else if (read_size == -1 && recv_str.find("Content-Type: multipart/form-data;") != std::string::npos)
+					{
+//						std::cout << "situation:read_size = -1 and multipart/form-data" << std::endl;
+						std::istringstream	iss(recv_str);
+						std::string			line;
+						std::string			str;
+						std::size_t			epos;
+						
+						while (getline(iss, line))
+						{
+							if (line.find("Content-Type: multipart/form-data;") != std::string::npos)
+							{
+								epos = line.find("=");
+								str = line.substr(epos + 1, line.length() - (epos + 1 + 1));
+							}
+						}
+						if (recv_str.find(str + "--\r\n") == std::string::npos)
+						{
+							read_size = 0;
+							continue ;
+						}
+					}
 				}
-				if (read_size == 0)
-					break ;
 				//Response
-				std::cout << "[recv_str]\n" << recv_str << std::endl;
+//				std::cout << "[recv_str]\n" << recv_str << std::endl;
 				//std::cout << "recv_length:" << recv_str.length() << std::endl;
 				RequestParser 	request(recv_str);
 				Response		response(request);
