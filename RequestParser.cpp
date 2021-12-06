@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/12 22:00:34 by rtomishi          #+#    #+#             */
-/*   Updated: 2021/12/02 23:12:16 by rtomishi         ###   ########.fr       */
+/*   Updated: 2021/12/06 16:13:52 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -191,30 +191,6 @@ void		RequestParser::set_cgi_env(void)
 		}
 	}
 	script_name = (path_info == "" ? uri : uri.substr(0, CGI_PATH.length() + script_start + info_start));
-//	if ((script_start = uri.find(CGI_PATH)) != std::string::npos)
-//	{
-//		if ((query_start = uri.find("?")) != std::string::npos)
-//		{
-//			query_string = uri.substr(query_start + 1);
-//			if ((info_start = uri.substr(script_start + cgi_dir.length()).find("/")) != std::string::npos)
-//			{
-//				script_name = uri.substr(0, script_start + cgi_dir.length() + info_start);
-//				path_info = uri.substr(script_start + cgi_dir.length() + info_start, uri.length() - script_name.length() - query_string.length() - 1);
-//			}
-//			else
-//				script_name = uri.substr(0, uri.length() - query_string.length() - 1);
-//		}
-//		else
-//		{
-//			if ((info_start = uri.substr(script_start + cgi_dir.length()).find("/")) != std::string::npos)
-//			{
-//				script_name = uri.substr(0, script_start + cgi_dir.length() + info_start);
-//				path_info = uri.substr(script_start + cgi_dir.length() + info_start);
-//			}
-//			else
-//				script_name = uri;
-//		}
-//	}
 	//PATH_TRANSLATEDの指定。環境変数EXE_DIRが相対パス/絶対パスの場合で指定方法を分ける
 	if (std::string(getenv("EXE_DIR")).find("/") == 0)
 		path_translated = std::string(getenv("EXE_DIR")) + path_info;

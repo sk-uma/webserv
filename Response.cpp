@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/14 21:09:14 by rtomishi          #+#    #+#             */
-/*   Updated: 2021/12/05 12:46:26 by rtomishi         ###   ########.fr       */
+/*   Updated: 2021/12/06 16:35:10 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,8 +38,11 @@ Response::Response(RequestParser &request)
 	stat(cgi_file.c_str(), &eval_cgi);
 
 	//ここのif文でbodyを作成
-	if (request.get_method() == "DELETE")
-		status = delete_file((EXE_DIR + HTML_PATH + request.get_uri()).c_str(), request);
+	if (request.get_method() == "POST" && request.get_uri() == "/Upload")
+		status = upload_file((EXE_DIR + HTML_PATH + UPLOAD_PATH).c_str(), request);
+	//methodがDELETEの場合にのみファイルを削除する動作をする
+	else if (request.get_method() == "DELETE")
+		status = delete_file((EXE_DIR + HTML_PATH + request.get_uri()).c_str());
 	//cgiを利用して、autoindex機能を実行。サブプロセスで実行する。
 	else if (S_ISDIR(eval_directory.st_mode))
 //		status = auto_index(AUTOINDEX_CGI);
@@ -219,7 +222,7 @@ int		Response::open_html(std::string html_file, std::string exe_path)
 		html_file = exe_path + HTML_PATH + NOT_FOUND_FILE;
 		output_file.close();
 		output_file.clear();
-		std::cout << "not_foud:" << html_file << std::endl;
+		std::cout << "not_found:" << html_file << std::endl;
 		output_file.open(html_file.c_str());
 		ret = STATUS_NOT_FOUND;
 	}
@@ -229,6 +232,9 @@ int		Response::open_html(std::string html_file, std::string exe_path)
 }
 
 //autoindex with c++
+//返り値:実行結果に対応するステータスコード
+//path:autoindexレスポンスを返すディレクトリのパス
+//request:リクエスト情報をもつRequestParserクラス
 int		Response::autoindex_c(const char *path, RequestParser &request)
 {
 	int			ret = STATUS_OK;
@@ -284,21 +290,86 @@ int		Response::autoindex_c(const char *path, RequestParser &request)
 	return (ret);
 }
 
-int		Response::delete_file(const char *path, RequestParser &request)
+//ファイルアップロードをするための関数
+//返り値:実行結果に対応するステータスコード
+//path:アップロードされるファイルを格納するフォルダパス
+//request:リクエスト情報をもつRequestParserクラス
+int		Response::upload_file(const char *path, RequestParser &request)
+{
+	int					ret = STATUS_OK;
+	std::istringstream	iss(request.get_body());
+	std::string			boundary;
+	std::size_t			s_pos = 0;
+	std::size_t			len = 0;
+	std::vector<std::string>	vstr;
+	std::ostringstream	oss;
+	
+	getline(iss, boundary);
+	boundary = boundary.substr(0, boundary.length() - 1);
+
+	while (1)
+	{
+		s_pos = boundary.length() + len + s_pos + 2;
+		if ((len = request.get_body().substr(s_pos).find(boundary)) == std::string::npos)
+			break ;
+		vstr.push_back(request.get_body().substr(s_pos, len));
+	}
+	for (std::vector<std::string>::iterator	it = vstr.begin(); it != vstr.end(); it++)
+	{
+		std::istringstream	iss_top(*it);
+		std::string			top;
+		std::size_t			start_top;
+		std::size_t			filename_len;
+		std::string			filename;
+		std::string			output;
+		
+		getline(iss_top, top);
+		if (top.find("filename=") == std::string::npos)
+		{
+			oss << "Input parameter is invalid.\r\n";
+			continue ;
+		}
+		start_top = top.find("filename=\"") + std::string("filename=\"").length();
+		filename_len = top.length() - (start_top + 2);
+		filename = top.substr(start_top, filename_len);
+		output = (*it).substr((*it).find("\r\n\r\n") + std::string("\r\n\r\n").length());
+		output = output.substr(0, output.length() - 2);
+		std::ofstream		ofs(std::string(path) + filename, std::ios::binary);
+		if (!ofs)
+			oss << "\"" + filename + "\" Upload Failed.\r\n";
+		else
+		{
+			ofs << output;
+			oss << "\"" + filename + "\" Upload Successed.\r\n";
+		}
+	}
+	body.append("<html>\r\n");
+	body.append("<head>\r\n");
+	body.append("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\r\n");
+	body.append("<title>Upload</title>\r\n");
+	body.append("</head>\r\n");
+	body.append("<body>\r\n");
+	body.append(oss.str());
+	body.append("</body>\r\n");
+	body.append("</html>\r\n");
+	return (ret);
+}
+
+//DELETEメソッド指定時に指定のパスのファイルを消去する
+//返り値:実行結果に対するステータスコード
+//path:消去するファイルのパス
+int		Response::delete_file(const char *path)
 {
 	int					ret	= STATUS_OK;
     std::ostringstream	oss;
 
-	if (remove(path) < 0)
+	if (remove(path) == 0)
+		oss << "Delete Successed.\r\n";
+	else
 	{
-		oss << "Delete failed\r\n";
+		oss << "Delete Failedd.\r\n";
 		ret = STATUS_NOT_FOUND;
 	}
-	else
-		oss << "Delete Successed\r\n";
-
-	std::cout << path << std::endl;
-	std::cout << request.get_uri()  << std::endl;
 	body.append("<html>\r\n");
 	body.append("<head>\r\n");
 	body.append("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\r\n");
