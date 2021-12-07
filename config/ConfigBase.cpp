@@ -211,12 +211,14 @@ webservconfig::ConfigBase::error_page_type webservconfig::ConfigBase::GetErrorPa
 
 std::string webservconfig::ConfigBase::GetErrorPage(std::string code) const
 {
-  ;
+  (void)code;
+  return (NULL);
 }
 
 std::string webservconfig::ConfigBase::GetErrorPage(int code) const
 {
-  ;
+  (void)code;
+  return (NULL);
 }
 
 webservconfig::ConfigBase::index_type webservconfig::ConfigBase::GetIndex() const
