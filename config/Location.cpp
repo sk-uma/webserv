@@ -22,7 +22,6 @@ webservconfig::Location::Location(const Location &other)
 const webservconfig::Location &webservconfig::Location::operator=(const Location &rhs)
 {
   if (this != &rhs) {
-    this->file_path_ = rhs.file_path_;
     this->index_ = rhs.index_;
     this->error_page_ = rhs.error_page_;
     this->autoindex_ = rhs.autoindex_;

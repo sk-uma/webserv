@@ -71,3 +71,47 @@ void webservconfig::Config::InitServer(std::vector<std::string> line, std::ifstr
   (void)input_file;
   (void)line;
 }
+
+std::string webservconfig::Config::GetFilePath() const
+{
+  return (this->file_path_);
+}
+
+std::vector<webservconfig::Server> webservconfig::Config::GetServer() const
+{
+  return (this->server_);
+}
+
+std::ostream& webservconfig::Config::PutConfig(std::ostream& os) const
+{
+  os << "Config: " << GetFilePath() << std::endl;
+  PutIndex(os, "├── ");
+  PutErrorPage(os, "├── ");
+  PutAutoIndex(os, "├── ");
+  PutClientMaxBodySize(os, "├── ");
+  if (GetServer().size() != 0) {
+    PutRoot(os, "├── ");
+  } else {
+    PutRoot(os, "└── ");
+  }
+  if (GetServer().size() != 0) {
+    int size = GetServer().size();
+    int i = 1;
+    for (std::vector<webservconfig::Server>::iterator iter = GetServer().begin();
+         iter != (GetServer().end()); iter++, i++) {
+      /*
+      if (i != size) {
+        (*iter).PutServer(os, "├── ", "│   ");
+      } else {
+        (*iter).PutServer(os, "└── ", "    ");
+      }
+      */
+    }
+  }
+  return (os);
+}
+
+std::ostream& operator<<(std::ostream& os, const webservconfig::Config& config)
+{
+  return (config.PutConfig(os));
+}

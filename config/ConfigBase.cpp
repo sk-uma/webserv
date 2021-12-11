@@ -1,7 +1,6 @@
 #include "ConfigBase.hpp"
 
 webservconfig::ConfigBase::ConfigBase():
-  file_path_(""),
   index_(),
   error_page_(),
   autoindex_(false),
@@ -27,7 +26,6 @@ webservconfig::ConfigBase::~ConfigBase()
 const webservconfig::ConfigBase &webservconfig::ConfigBase::operator=(const ConfigBase &rhs)
 {
   if (this != &rhs) {
-    this->file_path_ = rhs.file_path_;
     this->index_ = rhs.index_;
     this->error_page_ = rhs.error_page_;
     this->autoindex_ = rhs.autoindex_;
@@ -47,7 +45,7 @@ const webservconfig::ConfigBase &webservconfig::ConfigBase::operator=(const Conf
 void webservconfig::ConfigBase::InitIndex(std::vector<std::string> line)
 {
   CheckNumberOfArgument(line, 2, -1);
-  if (this->index_flag_) {
+  if (!this->index_flag_) {
     this->index_.clear();
     this->index_flag_ = false;
   }
@@ -103,11 +101,13 @@ void webservconfig::ConfigBase::InitListen(std::vector<std::string> line)
     address = address.substr(1, address.size() - 2);
     if (!IsComposed(address, "1234567890:"))
       throw std::runtime_error("Invalid address");
-    this->v6_listen_.push_back(std::pair<std::string, int>(address, port_number));
+    this->v6_listen_.push_back(std::make_pair(address, port_number));
   } else if (address.size() >= 2 && address[0] != '[' && *(address.end() - 1) != ']') {
     if (!IsComposed(address, "1234567890."))
       throw std::runtime_error("Invalid address");
-    this->v4_listen_.push_back(std::pair<std::string, int>(address, port_number));
+    this->v4_listen_.push_back(std::make_pair(address, port_number));
+    // this->v4_listen_.push_back(std::pair<std::string, int>(address, port_number));
+    // std::cout << &((GetListenV4().begin() - 1)->first) << std::endl;
   } else {
     throw std::runtime_error("unknown address format");
   }
@@ -259,4 +259,100 @@ std::string webservconfig::ConfigBase::GetServerName() const
 webservconfig::ConfigBase::return_type webservconfig::ConfigBase::GetReturn() const
 {
   return (this->return_);
+}
+
+void webservconfig::ConfigBase::PutIndex(std::ostream &os, std::string indent) const
+{
+  std::string rtv;
+
+  os << indent << "index               : ";
+  if (GetIndex().size() != 0) {
+    for (webservconfig::ConfigBase::index_type::iterator iter = GetIndex().begin();
+         iter != (GetIndex().end() - 1); iter++) {
+      os << *iter << ", ";
+    }
+    os << *(GetIndex().end() - 1);
+  }
+  os << std::endl;
+}
+
+void webservconfig::ConfigBase::PutErrorPage(std::ostream &os, std::string indent) const
+{
+  os << indent << "error_page          : ";
+  if (GetErrorPage().size() != 0) {
+    int size = GetErrorPage().size();
+    for (webservconfig::ConfigBase::error_page_type::iterator iter = GetErrorPage().begin();
+         iter != (GetErrorPage().end()); iter++) {
+      os << "{" << iter->first << "=" << iter->second << "}";
+    }
+  }
+  os << std::endl;
+}
+
+void webservconfig::ConfigBase::PutAutoIndex(std::ostream &os, std::string indent) const
+{
+  os << indent << "autoindex           : ";
+  if (GetAutoIndex()) {
+    os << "on";
+  } else {
+    os << "off";
+  }
+  os << std::endl;
+}
+
+void webservconfig::ConfigBase::PutClientMaxBodySize(std::ostream &os, std::string indent) const
+{
+  os << indent << "client_max_body_size: " << GetClientMaxBodySize() << std::endl;
+}
+
+void webservconfig::ConfigBase::PutRoot(std::ostream &os, std::string indent) const
+{
+  os << indent << "root                : " << GetRoot() << std::endl;
+}
+
+void webservconfig::ConfigBase::PutListenV4(std::ostream &os, std::string indent) const
+{
+  os << indent << "listen v4           : ";
+  std::cout << GetListenV4().size() << ", ";
+  std::cout << (GetListenV4().begin())->first << std::endl;
+  if (GetListenV4().size() != 0) {
+    for (listen_type::iterator iter = GetListenV4().begin(); iter != (GetListenV4().end() - 1); iter++) {
+      os << iter->first << ":" << iter->second << ", ";
+    }
+    // std::cout << &((GetListenV4().begin())->first) << std::endl;
+    os << (GetListenV4().end() - 1)->first << ":" << (GetListenV4().end() - 1)->second;
+  }
+  os << std::endl;
+}
+
+void webservconfig::ConfigBase::PutListenV6(std::ostream &os, std::string indent) const
+{
+  os << indent << "listen v6           : ";
+  if (GetListenV6().size() != 0) {
+    for (listen_type::iterator iter = GetListenV6().begin(); iter != (GetListenV6().end() - 1); iter++) {
+      os << iter->first << ":" << iter->second << ", ";
+    }
+    os << (GetListenV6().end() - 1)->first << ":" << (GetListenV6().end() - 1)->second;
+  }
+  os << std::endl;
+}
+
+void webservconfig::ConfigBase::PutServerName(std::ostream &os, std::string indent) const
+{
+  os << indent << "server_name         : " << GetServerName() << std::endl;
+}
+
+void webservconfig::ConfigBase::PutReturn(std::ostream &os, std::string indent) const
+{
+  os << indent << "return              : " << std::endl;
+}
+
+void webservconfig::ConfigBase::PutUploadPass(std::ostream &os, std::string indent) const
+{
+  os << indent << "upload_pass         : xxxxx" << std::endl;
+}
+
+void webservconfig::ConfigBase::PutUploadStore(std::ostream &os, std::string indent) const
+{
+  os << indent << "upload_store        : xxxxxx" << std::endl;
 }

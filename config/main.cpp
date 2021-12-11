@@ -17,6 +17,7 @@ int main(int argc, char *argv[])
   filename = argv[1];
   try {
     webservconfig::Config config(filename);
+    std::cout << config;
   } catch (const std::exception &e) {
     std::cout << "exception: " << e.what() << std::endl;
   }

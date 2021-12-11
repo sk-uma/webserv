@@ -18,7 +18,7 @@ namespace webservconfig
 {
   class ConfigBase
   {
-    protected:
+    public:
       typedef std::map<int, std::string>                error_page_type;
       typedef long long                                 body_size_type;
       typedef std::vector<std::string>                  index_type;
@@ -26,7 +26,6 @@ namespace webservconfig
       typedef std::pair<int, std::string>               return_type;
 
     protected:
-      std::string               file_path_;
       std::vector<std::string>  index_;
       error_page_type           error_page_;
       bool                      autoindex_;
@@ -75,8 +74,20 @@ namespace webservconfig
       return_type     GetReturn() const;
 
 
-      std::string     GetUplocaPass() const;
+      std::string     GetUploadPass() const;
       std::string     GetUploadStore() const;
+
+      void            PutIndex(std::ostream &os, std::string indent) const;
+      void            PutErrorPage(std::ostream &os, std::string indent) const;
+      void            PutAutoIndex(std::ostream &os, std::string indent) const;
+      void            PutClientMaxBodySize(std::ostream &os, std::string indent) const;
+      void            PutRoot(std::ostream &os, std::string indent) const;
+      void            PutListenV4(std::ostream &os, std::string indent) const;
+      void            PutListenV6(std::ostream &os, std::string indent) const;
+      void            PutServerName(std::ostream &os, std::string indent) const;
+      void            PutReturn(std::ostream &os, std::string indent) const;
+      void            PutUploadPass(std::ostream &os, std::string indent) const;
+      void            PutUploadStore(std::ostream &os, std::string indent) const;
   };
 }
 
