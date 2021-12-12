@@ -110,7 +110,7 @@ std::vector<webservconfig::Location> webservconfig::Server::GetLocation() const
 std::ostream& webservconfig::Server::PutServer(std::ostream& os, std::string first_indent, std::string indent) const
 {
   os << first_indent << "Server: " << GetServerName() << std::endl;
-  std::cout << "put: " << (GetListenV4().begin())->first << ":" << (GetListenV4().begin())->second << std::endl;
+  // std::cout << "put: " << (GetListenV4().begin())->first << ":" << (GetListenV4().begin())->second << std::endl;
   PutListenV4(os, indent + "├── ");
   PutListenV6(os, indent + "├── ");
   PutIndex(os, indent + "├── ");

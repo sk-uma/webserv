@@ -283,8 +283,9 @@ void webservconfig::ConfigBase::PutErrorPage(std::ostream &os, std::string inden
     int size = GetErrorPage().size();
     for (webservconfig::ConfigBase::error_page_type::iterator iter = GetErrorPage().begin();
          iter != (GetErrorPage().end()); iter++) {
-      os << "{" << iter->first << "=" << iter->second << "}";
+      os << "{" << iter->first << "=" << iter->second << "} ";
     }
+    (void)size;
   }
   os << std::endl;
 }
@@ -313,8 +314,8 @@ void webservconfig::ConfigBase::PutRoot(std::ostream &os, std::string indent) co
 void webservconfig::ConfigBase::PutListenV4(std::ostream &os, std::string indent) const
 {
   os << indent << "listen v4           : ";
-  std::cout << GetListenV4().size() << ", ";
-  std::cout << (GetListenV4().begin())->first << std::endl;
+  // std::cout << GetListenV4().size() << ", ";
+  // std::cout << (GetListenV4().begin())->first << std::endl;
   if (GetListenV4().size() != 0) {
     for (listen_type::iterator iter = GetListenV4().begin(); iter != (GetListenV4().end() - 1); iter++) {
       os << iter->first << ":" << iter->second << ", ";

@@ -84,7 +84,8 @@ std::vector<webservconfig::Server> webservconfig::Config::GetServer() const
 
 std::ostream& webservconfig::Config::PutConfig(std::ostream& os) const
 {
-  os << "Config: " << GetFilePath() << std::endl;
+  // std::cout << "in config: " << GetServer().begin()->GetListenV4().begin()->first << std::endl;
+  // os << "Config: " << GetFilePath() << std::endl;
   PutIndex(os, "├── ");
   PutErrorPage(os, "├── ");
   PutAutoIndex(os, "├── ");
@@ -98,14 +99,17 @@ std::ostream& webservconfig::Config::PutConfig(std::ostream& os) const
     int size = GetServer().size();
     int i = 1;
     for (std::vector<webservconfig::Server>::iterator iter = GetServer().begin();
-         iter != (GetServer().end()); iter++, i++) {
-      /*
+         iter != (GetServer().end()); iter++) {
       if (i != size) {
-        (*iter).PutServer(os, "├── ", "│   ");
+        std::cout << "in config: " << (iter->GetListenV4().begin()->first) << std::endl;
+        std::cout << "in config: " << &(iter->GetListenV4().begin()->first) << std::endl;
+        std::cout << "in config: " << (GetServer().begin()->GetListenV4().begin()->first) << std::endl;
+        std::cout << "in config: " << &(GetServer().begin()->GetListenV4().begin()->first) << std::endl;
+        iter->PutServer(os, "├── ", "│   ");
       } else {
-        (*iter).PutServer(os, "└── ", "    ");
+        iter->PutServer(os, "└── ", "    ");
       }
-      */
+      i++;
     }
   }
   return (os);
