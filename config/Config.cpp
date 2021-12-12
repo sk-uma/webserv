@@ -64,8 +64,6 @@ void webservconfig::Config::InitServer(std::vector<std::string> line, std::ifstr
       block += buf + "\n";
     }
   }
-  // std::cout << "in serv" << std::endl;
-  // std::cout << block << std::endl;
   webservconfig::Server server(block);
   this->server_.push_back(server);
   (void)input_file;
@@ -77,15 +75,14 @@ std::string webservconfig::Config::GetFilePath() const
   return (this->file_path_);
 }
 
-std::vector<webservconfig::Server> webservconfig::Config::GetServer() const
+const std::vector<webservconfig::Server> &webservconfig::Config::GetServer() const
 {
   return (this->server_);
 }
 
 std::ostream& webservconfig::Config::PutConfig(std::ostream& os) const
 {
-  // std::cout << "in config: " << GetServer().begin()->GetListenV4().begin()->first << std::endl;
-  // os << "Config: " << GetFilePath() << std::endl;
+
   PutIndex(os, "├── ");
   PutErrorPage(os, "├── ");
   PutAutoIndex(os, "├── ");
@@ -98,13 +95,9 @@ std::ostream& webservconfig::Config::PutConfig(std::ostream& os) const
   if (GetServer().size() != 0) {
     int size = GetServer().size();
     int i = 1;
-    for (std::vector<webservconfig::Server>::iterator iter = GetServer().begin();
+    for (std::vector<webservconfig::Server>::const_iterator iter = GetServer().begin();
          iter != (GetServer().end()); iter++) {
       if (i != size) {
-        std::cout << "in config: " << (iter->GetListenV4().begin()->first) << std::endl;
-        std::cout << "in config: " << &(iter->GetListenV4().begin()->first) << std::endl;
-        std::cout << "in config: " << (GetServer().begin()->GetListenV4().begin()->first) << std::endl;
-        std::cout << "in config: " << &(GetServer().begin()->GetListenV4().begin()->first) << std::endl;
         iter->PutServer(os, "├── ", "│   ");
       } else {
         iter->PutServer(os, "└── ", "    ");

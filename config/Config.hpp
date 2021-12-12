@@ -45,7 +45,7 @@ namespace webservconfig
       const Config &operator=(const Config &rhs);
 
       std::string GetFilePath() const;
-      std::vector<Server> GetServer() const;
+      const std::vector<Server> &GetServer() const;
 
       std::ostream& PutConfig(std::ostream& os) const;
   };

@@ -266,12 +266,12 @@ void webservconfig::ConfigBase::PutIndex(std::ostream &os, std::string indent) c
   std::string rtv;
 
   os << indent << "index               : ";
-  if (GetIndex().size() != 0) {
-    for (webservconfig::ConfigBase::index_type::iterator iter = GetIndex().begin();
-         iter != (GetIndex().end() - 1); iter++) {
+  if (this->index_.size() != 0) {
+    for (index_type::const_iterator iter = this->index_.begin();
+         iter != (this->index_.end() - 1); iter++) {
       os << *iter << ", ";
     }
-    os << *(GetIndex().end() - 1);
+    os << *(this->index_.end() - 1);
   }
   os << std::endl;
 }
@@ -279,10 +279,10 @@ void webservconfig::ConfigBase::PutIndex(std::ostream &os, std::string indent) c
 void webservconfig::ConfigBase::PutErrorPage(std::ostream &os, std::string indent) const
 {
   os << indent << "error_page          : ";
-  if (GetErrorPage().size() != 0) {
-    int size = GetErrorPage().size();
-    for (webservconfig::ConfigBase::error_page_type::iterator iter = GetErrorPage().begin();
-         iter != (GetErrorPage().end()); iter++) {
+  if (this->error_page_.size() != 0) {
+    int size = this->error_page_.size();
+    for (error_page_type::const_iterator iter = this->error_page_.begin();
+         iter != (this->error_page_.end()); iter++) {
       os << "{" << iter->first << "=" << iter->second << "} ";
     }
     (void)size;
@@ -293,7 +293,7 @@ void webservconfig::ConfigBase::PutErrorPage(std::ostream &os, std::string inden
 void webservconfig::ConfigBase::PutAutoIndex(std::ostream &os, std::string indent) const
 {
   os << indent << "autoindex           : ";
-  if (GetAutoIndex()) {
+  if (this->autoindex_) {
     os << "on";
   } else {
     os << "off";
@@ -303,25 +303,22 @@ void webservconfig::ConfigBase::PutAutoIndex(std::ostream &os, std::string inden
 
 void webservconfig::ConfigBase::PutClientMaxBodySize(std::ostream &os, std::string indent) const
 {
-  os << indent << "client_max_body_size: " << GetClientMaxBodySize() << std::endl;
+  os << indent << "client_max_body_size: " << this->client_max_body_size_ << std::endl;
 }
 
 void webservconfig::ConfigBase::PutRoot(std::ostream &os, std::string indent) const
 {
-  os << indent << "root                : " << GetRoot() << std::endl;
+  os << indent << "root                : " << this->root_ << std::endl;
 }
 
 void webservconfig::ConfigBase::PutListenV4(std::ostream &os, std::string indent) const
 {
   os << indent << "listen v4           : ";
-  // std::cout << GetListenV4().size() << ", ";
-  // std::cout << (GetListenV4().begin())->first << std::endl;
-  if (GetListenV4().size() != 0) {
-    for (listen_type::iterator iter = GetListenV4().begin(); iter != (GetListenV4().end() - 1); iter++) {
+  if (this->v4_listen_.size() != 0) {
+    for (listen_type::const_iterator iter = this->v4_listen_.begin(); iter != (this->v4_listen_.end() - 1); iter++) {
       os << iter->first << ":" << iter->second << ", ";
     }
-    // std::cout << &((GetListenV4().begin())->first) << std::endl;
-    os << (GetListenV4().end() - 1)->first << ":" << (GetListenV4().end() - 1)->second;
+    os << (this->v4_listen_.end() - 1)->first << ":" << (this->v4_listen_.end() - 1)->second;
   }
   os << std::endl;
 }
@@ -329,18 +326,18 @@ void webservconfig::ConfigBase::PutListenV4(std::ostream &os, std::string indent
 void webservconfig::ConfigBase::PutListenV6(std::ostream &os, std::string indent) const
 {
   os << indent << "listen v6           : ";
-  if (GetListenV6().size() != 0) {
-    for (listen_type::iterator iter = GetListenV6().begin(); iter != (GetListenV6().end() - 1); iter++) {
+  if (this->v6_listen_.size() != 0) {
+    for (listen_type::const_iterator iter = this->v6_listen_.begin(); iter != (this->v6_listen_.end() - 1); iter++) {
       os << iter->first << ":" << iter->second << ", ";
     }
-    os << (GetListenV6().end() - 1)->first << ":" << (GetListenV6().end() - 1)->second;
+    os << (this->v6_listen_.end() - 1)->first << ":" << (this->v6_listen_.end() - 1)->second;
   }
   os << std::endl;
 }
 
 void webservconfig::ConfigBase::PutServerName(std::ostream &os, std::string indent) const
 {
-  os << indent << "server_name         : " << GetServerName() << std::endl;
+  os << indent << "server_name         : " << this->server_name_ << std::endl;
 }
 
 void webservconfig::ConfigBase::PutReturn(std::ostream &os, std::string indent) const
