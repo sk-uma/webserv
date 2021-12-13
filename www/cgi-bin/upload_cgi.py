@@ -16,7 +16,7 @@ else:
     uploaded_file = open(path, 'wb')
     item = form['upfile']
     while True:
-        chunk = item.file.read(1000)
+        chunk = item.file.read(1000000)
         if not chunk:
             break
         uploaded_file.write(chunk)
