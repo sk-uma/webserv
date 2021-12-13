@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/14 21:09:14 by rtomishi          #+#    #+#             */
-/*   Updated: 2021/12/06 16:35:10 by rtomishi         ###   ########.fr       */
+/*   Updated: 2021/12/13 22:26:42 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,11 +23,33 @@ Response::Response(RequestParser &request)
 	struct stat			eval_cgi;
 	const std::string	EXE_DIR(getenv("EXE_DIR"));
 
+	//index file設定用。あとでconfigクラスに対応させる
+	std::vector<std::string> index;
+	index.push_back("index.htm");
+	index.push_back("index.html");
+	index.push_back("index.nginx-debian.html");
+
+	//method制限テスト用。あとでconfigクラスに対応させる
+	std::vector<std::string> allowed;
+	std::vector<std::string> limited;
+	allowed.push_back("GET");
+	allowed.push_back("POST");
+	allowed.push_back("DELETE");
+	allowed.push_back("HEAD");
+	for (std::vector<std::string>::iterator	it = allowed.begin(); it != allowed.end(); it++)
+	{
+		if (*it != "DELETE")
+			limited.push_back(*it);
+	}
+	
+	//リダイレクトのチェック。必要があればuriを書き換える。
+	check_redirect(request);
+
 	//何も指定がない(="/"以外の文字が来ない)場合はHTML_PATH + /index.htmlが開く
 	if (request.get_uri().find_first_not_of("/") != std::string::npos)
 		html_file = EXE_DIR + HTML_PATH + request.get_uri();
 	else
-		html_file = EXE_DIR + HTML_PATH + "/index.html";
+		html_file = EXE_DIR + HTML_PATH + index_search(EXE_DIR + HTML_PATH, index);
 
 	//CGI起動の場合のため、cgi_file変数を定義。CGIを使用しない場合は使わない
 	std::string	cgi_file = EXE_DIR + HTML_PATH + request.get_script_name();
@@ -38,36 +60,36 @@ Response::Response(RequestParser &request)
 	stat(cgi_file.c_str(), &eval_cgi);
 
 	//ここのif文でbodyを作成
-	if (request.get_method() == "POST" && request.get_uri() == "/Upload")
+	if (!method_allowed(allowed, request))
+		status = STATUS_METHOD_NOT_ALLOWED;
+	else if (!method_limited(limited, request))
+		status = STATUS_NOT_IMPLEMENTED;
+	else if (request.get_body().length() > CLIENT_MAX_BODY)
+		status = STATUS_PAYLOAD_TOO_LARGE;
+	else if (request.get_method() == "POST" && request.get_uri() == "/Upload")
 		status = upload_file((EXE_DIR + HTML_PATH + UPLOAD_PATH).c_str(), request);
 	//methodがDELETEの場合にのみファイルを削除する動作をする
 	else if (request.get_method() == "DELETE")
 		status = delete_file((EXE_DIR + HTML_PATH + request.get_uri()).c_str());
 	//cgiを利用して、autoindex機能を実行。サブプロセスで実行する。
 	else if (S_ISDIR(eval_directory.st_mode))
-//		status = auto_index(AUTOINDEX_CGI);
-		status = autoindex_c(html_file.c_str(), request);
+		status = autoindex_c(html_file.c_str(), request, AUTOINDEX);
 	//request.get_script_name()がファイルである場合、つまりリクエストされているURIが
 	//CGI直下のディレクトリのファイルである場合、CGIを実行する。
 	else if (S_ISREG(eval_cgi.st_mode))
-		status = cgi_exe(cgi_file, request);
+		status = cgi_exe(cgi_file, request, eval_cgi);
 	//ファイルが見つかればそれを開く。見つからなければ404 Not Found用のファイルを開く
 	else
-		status = open_html(html_file, EXE_DIR);
+		status = open_html(html_file);
 	
 	//以下のswitch文でヘッダーを作成する
+	if (status >= 400)
+		error_body_set(EXE_DIR + HTML_PATH);
+		
     std::ostringstream oss;
 
 	oss << "Content-Length: " << body.length() << "\r\n";
-	switch (status)
-	{
-		case STATUS_OK:
-			header_ok(oss);
-			break;
-		case STATUS_NOT_FOUND:
-			header_not_found(oss);
-			break;
-	}
+	header_set(oss);
 }
 
 Response::~Response(void) {}
@@ -93,52 +115,50 @@ std::string Response::get_header(void) {return (header);}
 std::string Response::get_body(void) {return (body);}
 int			Response::get_status(void) {return (status);}
 
-//CGIでautoindex_fileを指定して、サブプロセス実行する
-//返り値:実行結果に対するステータスコード
-//exe_path:実行するCGIのパス
-//auto_index_file:autoindex機能が発現するスクリプトファイル
-int		Response::auto_index(std::string const autoindex_file)
+//indexファイルのvectorからファイル検索をして、ファイルが存在するもののパスを与える
+//返り値:見つかったindex_file。見つからなかった場合、空文字
+//root:ルートパス文字列
+//index:index_fileのリストが格納されたvector
+std::string	Response::index_search(std::string root, std::vector<std::string> index)
 {
-	pid_t	pid;
-	int	fds_r[2];
-	char exebuf[CGI_BUF];
-	char const	*argv[2] = {autoindex_file.c_str(), NULL};
-	int			ret = STATUS_OK;
-
-	pipe(fds_r);
-	pid = fork();
-	if (pid < 0)
-		std::cerr << "fork_fail" << std::endl;
-	if (pid == 0)
+	for (std::vector<std::string>::iterator	it = index.begin(); it != index.end(); it++)
 	{
-		close(STDOUT_FILENO);
-		dup2(fds_r[1], STDOUT_FILENO);
-		close(fds_r[0]);
-		close(fds_r[1]);
-		execve(autoindex_file.c_str(), const_cast<char**>(argv), environ);
-	}
-	else
-	{
-		int			status;
-		int			r;
-		std::string	str;
+		std::string		path = root + "/" + *it;
+		std::ifstream 	file(path.c_str());
 
-		close(fds_r[1]);
-		while (1)
-		{
-			r = read(fds_r[0], exebuf, CGI_BUF - 1);
-			if (r == 0)
-				break;
-			else if (r == -1)
-				exit(1);
-			exebuf[r] = '\0';
-			str = exebuf;
-			body.append(str);
-		}
-		wait(&status);
-		close(fds_r[0]);
+		if (file.is_open())
+			return ("/" + *it);
 	}
-	return (ret);
+	return ("");
+}
+
+
+//許可されているmethod以外が指定されいる場合、falseとする
+//返り値:指定外のmethodでfalse
+//allowed:許可されているmethodをvectorで格納
+//request:リクエスト情報が入ったRequestParserクラス
+bool	Response::method_allowed(std::vector<std::string> allowed, RequestParser &request)
+{
+	for (std::vector<std::string>::iterator	it = allowed.begin(); it != allowed.end(); it++)
+	{
+		if (*it == request.get_method())
+			return (true);
+	}
+	return (false);
+}
+
+//制限されているmethod以外が指定されいる場合、falseとする
+//返り値:指定外のmethodでfalse
+//allowed:制限されているmethodをvectorで格納
+//request:リクエスト情報が入ったRequestParserクラス
+bool	Response::method_limited(std::vector<std::string> limited, RequestParser &request)
+{
+	for (std::vector<std::string>::iterator	it = limited.begin(); it != limited.end(); it++)
+	{
+		if (*it == request.get_method())
+			return (true);
+	}
+	return (false);
 }
 
 //CGIを起動するための関数
@@ -148,23 +168,23 @@ int		Response::auto_index(std::string const autoindex_file)
 //exe_path：実行するCGIのパス
 //cgi_file：実行されるCGIの対象ファイル
 //request:リクエスト情報が入ったRequestParserクラス
-int		Response::cgi_exe(std::string const cgi_file, RequestParser &request)
+int		Response::cgi_exe(std::string const cgi_file, RequestParser &request, struct stat eval_cgi)
 {
+	//所有者権限がない場合はcgiを起動させない
+	if ((eval_cgi.st_mode & S_IXUSR) != S_IXUSR)
+		return (STATUS_INTERNAL_SERVER_ERROR);
 	pid_t	pid;
 	int fds_w[2];
 	int	fds_r[2];
 	char exebuf[CGI_BUF];
 	std::string	tmp_str;
 	char const	*argv[2] = {cgi_file.c_str(), NULL};
-	int			ret = STATUS_OK;
 
 	pipe(fds_w);
 	pipe(fds_r);
 	pid = fork();
 	if (pid < 0)
-	{
-		std::cerr << "fork_fail" << std::endl;
-	}
+		return (STATUS_INTERNAL_SERVER_ERROR);
 	if (pid == 0)
 	{
 		close(STDIN_FILENO);
@@ -175,7 +195,6 @@ int		Response::cgi_exe(std::string const cgi_file, RequestParser &request)
 		close(fds_r[1]);
 		close(fds_w[0]);
 		close(fds_w[1]);
-
 		execve(cgi_file.c_str(), const_cast<char**>(argv), environ);
 	}
 	else
@@ -187,7 +206,7 @@ int		Response::cgi_exe(std::string const cgi_file, RequestParser &request)
 		close(fds_r[1]);
 		int		w;
 		if ((w = write(fds_w[1], request.get_body().c_str(), request.get_body().length())) < 0)
-			std::cerr << "write():failed" << std::endl;
+			return (STATUS_INTERNAL_SERVER_ERROR);
 		close(fds_w[1]);
 		while (1)
 		{
@@ -195,22 +214,26 @@ int		Response::cgi_exe(std::string const cgi_file, RequestParser &request)
 			if (r == 0)
 				break;
 			else if (r == -1)
-				exit(1);
+				return (STATUS_INTERNAL_SERVER_ERROR);
 			exebuf[r] = '\0';
 			tmp_str = exebuf;
 			body.append(tmp_str);
 		}
 		wait(&status);
 		close(fds_r[0]);
-//			std::cout << body << std::endl;
+		if (WEXITSTATUS(status))
+		{
+			body = "";
+			return (STATUS_INTERNAL_SERVER_ERROR);
+		}
 	}
-	return (ret);
+	return (STATUS_OK);
 }
 
 //ファイルを開いてレスポンスボディに文字列を格納する。見つからない場合はNot Found処理をする
 //返り値:実行結果に対するステータスコード
 //html_file:表示させるファイルのパス
-int		Response::open_html(std::string html_file, std::string exe_path)
+int		Response::open_html(std::string html_file)
 {
 	std::ifstream 	output_file(html_file.c_str());
 	std::string		temp_str;
@@ -218,16 +241,11 @@ int		Response::open_html(std::string html_file, std::string exe_path)
 	int				file_exist = 0;
 
 	if ((file_exist = output_file.fail()))
-	{
-		html_file = exe_path + HTML_PATH + NOT_FOUND_FILE;
-		output_file.close();
-		output_file.clear();
-		std::cout << "not_found:" << html_file << std::endl;
-		output_file.open(html_file.c_str());
-		ret = STATUS_NOT_FOUND;
-	}
+		return (STATUS_NOT_FOUND);
 	while (getline(output_file, temp_str))
 		body.append(temp_str + "\r\n");
+	if (status == STATUS_MOVED_PERMANENTLY)
+		ret = STATUS_MOVED_PERMANENTLY;
 	return (ret);
 }
 
@@ -235,27 +253,27 @@ int		Response::open_html(std::string html_file, std::string exe_path)
 //返り値:実行結果に対応するステータスコード
 //path:autoindexレスポンスを返すディレクトリのパス
 //request:リクエスト情報をもつRequestParserクラス
-int		Response::autoindex_c(const char *path, RequestParser &request)
+int		Response::autoindex_c(const char *path, RequestParser &request, bool autoindex)
 {
-	int			ret = STATUS_OK;
-    DIR 		*dp = opendir(path);
-	struct stat eval_dir;
-	dirent		*entry;
-	std::string temp_uri = request.get_uri();
-    std::ostringstream oss;
+    DIR 				*dp = opendir(path);
+	struct stat 		eval_dir;
+	dirent				*entry;
+	std::string 		temp_uri = request.get_uri();
+    std::ostringstream 	oss;
 
+	if (!autoindex)
+		return (STATUS_FORBIDDEN);
 	//最後の文字に/があると扱いにくいので除去する
 	std::size_t i = 0;
 	while (temp_uri[temp_uri.length() - i - 1] == '/')
 		i++;
 	temp_uri = temp_uri.substr(0, temp_uri.length() - i);
-	std::cout << "temp_uri:" << temp_uri <<std::endl;
 
 	//リンクの作成。ディレクトリとファイルの判別が着くようにディレクトリの末尾には/を表示させる
 	if (dp == NULL)
-		return (ret);
-	entry = readdir(dp);
-
+		return (STATUS_INTERNAL_SERVER_ERROR);
+	if ((entry = readdir(dp)) == NULL)
+		return (STATUS_INTERNAL_SERVER_ERROR);
 	while (entry != NULL)
 	{
 		if (std::string(entry->d_name) != ".")
@@ -271,7 +289,7 @@ int		Response::autoindex_c(const char *path, RequestParser &request)
 		entry = readdir(dp);
 	}
 
-	body.append("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">\r\n");
+	body.append("<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.01//EN>\r\n");
 	body.append("<html>\r\n");
 	body.append("<head>\r\n");
 	body.append("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\r\n");
@@ -287,7 +305,7 @@ int		Response::autoindex_c(const char *path, RequestParser &request)
 	body.append("</body>\r\n");
 	body.append("</html>\r\n");
 
-	return (ret);
+	return (STATUS_OK);
 }
 
 //ファイルアップロードをするための関数
@@ -296,14 +314,15 @@ int		Response::autoindex_c(const char *path, RequestParser &request)
 //request:リクエスト情報をもつRequestParserクラス
 int		Response::upload_file(const char *path, RequestParser &request)
 {
-	int					ret = STATUS_OK;
-	std::istringstream	iss(request.get_body());
-	std::string			boundary;
-	std::size_t			s_pos = 0;
-	std::size_t			len = 0;
+	std::istringstream			iss(request.get_body());
+	std::string					boundary;
+	std::size_t					s_pos = 0;
+	std::size_t					len = 0;
 	std::vector<std::string>	vstr;
-	std::ostringstream	oss;
+	std::ostringstream			oss;
 	
+	if (request.get_content_type().find("multipart/form-data") == std::string::npos)
+		return (STATUS_BAD_REQUEST);
 	getline(iss, boundary);
 	boundary = boundary.substr(0, boundary.length() - 1);
 
@@ -318,25 +337,30 @@ int		Response::upload_file(const char *path, RequestParser &request)
 	{
 		std::istringstream	iss_top(*it);
 		std::string			top;
+
+		getline(iss_top, top);
+		if (top.find("filename=") == std::string::npos)
+			return (STATUS_BAD_REQUEST);
+	}
+	for (std::vector<std::string>::iterator	it = vstr.begin(); it != vstr.end(); it++)
+	{
+		std::istringstream	iss_top(*it);
+		std::string			top;
 		std::size_t			start_top;
 		std::size_t			filename_len;
 		std::string			filename;
 		std::string			output;
 		
 		getline(iss_top, top);
-		if (top.find("filename=") == std::string::npos)
-		{
-			oss << "Input parameter is invalid.\r\n";
-			continue ;
-		}
 		start_top = top.find("filename=\"") + std::string("filename=\"").length();
 		filename_len = top.length() - (start_top + 2);
 		filename = top.substr(start_top, filename_len);
 		output = (*it).substr((*it).find("\r\n\r\n") + std::string("\r\n\r\n").length());
 		output = output.substr(0, output.length() - 2);
+
 		std::ofstream		ofs(std::string(path) + filename, std::ios::binary);
 		if (!ofs)
-			oss << "\"" + filename + "\" Upload Failed.\r\n";
+			return(STATUS_INTERNAL_SERVER_ERROR);
 		else
 		{
 			ofs << output;
@@ -352,7 +376,7 @@ int		Response::upload_file(const char *path, RequestParser &request)
 	body.append(oss.str());
 	body.append("</body>\r\n");
 	body.append("</html>\r\n");
-	return (ret);
+	return (STATUS_OK);
 }
 
 //DELETEメソッド指定時に指定のパスのファイルを消去する
@@ -360,16 +384,12 @@ int		Response::upload_file(const char *path, RequestParser &request)
 //path:消去するファイルのパス
 int		Response::delete_file(const char *path)
 {
-	int					ret	= STATUS_OK;
     std::ostringstream	oss;
 
 	if (remove(path) == 0)
 		oss << "Delete Successed.\r\n";
 	else
-	{
-		oss << "Delete Failedd.\r\n";
-		ret = STATUS_NOT_FOUND;
-	}
+		return (STATUS_BAD_REQUEST);
 	body.append("<html>\r\n");
 	body.append("<head>\r\n");
 	body.append("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\r\n");
@@ -379,7 +399,93 @@ int		Response::delete_file(const char *path)
 	body.append(oss.str());
 	body.append("</body>\r\n");
 	body.append("</html>\r\n");
-	return (ret);
+	return (STATUS_OK);
+}
+
+
+void	Response::check_redirect(RequestParser &request)
+{
+	//（修正予定）後でエラーファイルを選択できるようにする
+	std::map<std::string, std::string>	redirect_map;
+	redirect_map.insert(std::make_pair("/42webserv", "/index.html"));
+
+	if (redirect_map.count(request.get_uri()))
+	{
+		request.set_uri(redirect_map[request.get_uri()]);
+		status = STATUS_MOVED_PERMANENTLY;
+	}
+}
+
+//エラー用のボディ設定をする
+//error_path:エラーファイルが存在するディレクトリ
+void	Response::error_body_set(std::string error_path)
+{
+	//（修正予定）後でエラーファイルを選択できるようにする
+	std::map<int, std::string>	ERROR_FILE;
+	ERROR_FILE.insert(std::make_pair(STATUS_BAD_REQUEST, "400.html"));
+	ERROR_FILE.insert(std::make_pair(STATUS_FORBIDDEN, "403.html"));
+	ERROR_FILE.insert(std::make_pair(STATUS_NOT_FOUND, "404.html"));
+	ERROR_FILE.insert(std::make_pair(STATUS_METHOD_NOT_ALLOWED, "405.html"));
+	ERROR_FILE.insert(std::make_pair(STATUS_PAYLOAD_TOO_LARGE, "413.html"));
+	ERROR_FILE.insert(std::make_pair(STATUS_INTERNAL_SERVER_ERROR, "500.html"));
+	ERROR_FILE.insert(std::make_pair(STATUS_NOT_IMPLEMENTED, "501.html"));
+	
+	std::string	path;
+	path = error_path + "/" + ERROR_FILE.at(status);
+
+	std::ifstream 	output_file(path.c_str());
+	std::string		temp_str;
+	int				file_exist = 0;
+
+	if ((file_exist = output_file.fail()))
+	{
+		status = STATUS_INTERNAL_SERVER_ERROR;
+		path = error_path + ERROR_FILE.at(status);
+		output_file.close();
+		output_file.clear();
+		output_file.open(path.c_str());
+	}
+	while (getline(output_file, temp_str))
+		body.append(temp_str + "\r\n");
+}
+
+void	Response::header_set(std::ostringstream &oss)
+{
+	switch (status)
+	{
+		case STATUS_OK:
+    		header.append("HTTP/1.1 200 OK\r\n");
+			break;
+		case STATUS_MOVED_PERMANENTLY:
+    		header.append("HTTP/1.1 301 Moved Permanently\r\n");
+    		//header.append("Location: \r\n");
+			break;
+		case STATUS_BAD_REQUEST:
+    		header.append("HTTP/1.1 400 Bad Request\r\n");
+			break;
+		case STATUS_FORBIDDEN:
+    		header.append("HTTP/1.1 403 Forbidden\r\n");
+			break;
+		case STATUS_NOT_FOUND:
+    		header.append("HTTP/1.1 404 Not Found\r\n");
+			break;
+		case STATUS_METHOD_NOT_ALLOWED:
+    		header.append("HTTP/1.1 405 Method Not Allowed\r\n");
+			break;
+		case STATUS_PAYLOAD_TOO_LARGE:
+    		header.append("HTTP/1.1 413 Payload Too Large\r\n");
+			break;
+		case STATUS_INTERNAL_SERVER_ERROR:
+    		header.append("HTTP/1.1 500 Internal Server Error\r\n");
+			break;
+		case STATUS_NOT_IMPLEMENTED:
+    		header.append("HTTP/1.1 501 Not Implemented\r\n");
+			break;
+	}
+    header.append("Content-Type: text/html; charset=UTF-8\r\n");
+    header.append(oss.str());
+    header.append("Connection: Keep-alive\r\n");
+    header.append("\r\n");
 }
 
 //ステータスコード200の場合のヘッダー作成

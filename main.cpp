@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/06 21:40:53 by rtomishi          #+#    #+#             */
-/*   Updated: 2021/12/06 16:59:26 by rtomishi         ###   ########.fr       */
+/*   Updated: 2021/12/13 13:21:39 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -123,7 +123,9 @@ int	main(int argc, char **argv)
 					{
 //						std::cout << "situation:read_size > 0" << std::endl;
 						buf[read_size] = '\0';
-						recv_str.append(buf);
+						//バイナリで処理したいため一文字ずつとする。対応しないと画像などのバイナリファイル対応できない。
+						for (int i = 0; i < read_size; ++i)
+        					recv_str += buf[i];
 					//	std::cout << "read_size:" << read_size << std::endl;
 					//	std::cout << "[buf]\n" << buf << std::endl;
 					}
@@ -143,7 +145,7 @@ int	main(int argc, char **argv)
 					}
 					else if (read_size == -1 && recv_str.find("Content-Type") != std::string::npos && recv_str.find("\r\n\r\n") == recv_str.length() - 4)
 					{
-//						std::cout << "situation:read_size = -1 and Content-Type + CRLF found" << std::endl;
+//						std::cout << "situation:read_size = -1 and Content-Type + tail is CRLF" << std::endl;
 						read_size = 0;
 						continue ;						
 					}
@@ -164,24 +166,34 @@ int	main(int argc, char **argv)
 								str = line.substr(epos + 1, line.length() - (epos + 1 + 1));
 							}
 						}
-						if (recv_str.find(str + "--\r\n") == std::string::npos)
+						if (recv_str.rfind(str + "--\r\n") == std::string::npos)
 						{
 							read_size = 0;
 							continue ;
 						}
 					}
 				}
+				if (read_size == 0)
+					break ;
 				//Response
-//				std::cout << "[recv_str]\n" << recv_str << std::endl;
-				//std::cout << "recv_length:" << recv_str.length() << std::endl;
+
+//				for (unsigned long i = 0; i < recv_str.size(); ++i)
+//        			std::cout << recv_str[i];
+				//std::cout << "[recv_str]\n" << recv_str.c_str() << std::endl;
+//				std::cout << "recv_length:" << recv_str.length() << std::endl;
+//				std::cout << "recv_size:" << recv_str.size()*sizeof(std::string::value_type) << std::endl;
 				RequestParser 	request(recv_str);
 				Response		response(request);
 
-				std::string		response_str = response.get_header() + response.get_body();
+				std::string		response_str;
 				ssize_t			write_size = 0;
 
+				if (request.get_method() == "HEAD")
+					response_str = response.get_header();
+				else
+					response_str = response.get_header() + response.get_body();
 //				std::cout << "[response]\n" << response_str << std::endl;
-				while (write_size >=0)
+				while (write_size >= 0)
 				{
 					write_size += write(accfd[i], response_str.c_str(),
 									response_str.length());
