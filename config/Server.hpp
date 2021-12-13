@@ -36,6 +36,10 @@ namespace webservconfig
       const Server &operator=(const Server &rhs);
 
       void ParseServerBlock();
+
+      std::ostream& PutServer(std::ostream& os, std::string first_indent, std::string indent) const;
+
+      const std::vector<Location> &GetLocation() const;
   };
 };
 

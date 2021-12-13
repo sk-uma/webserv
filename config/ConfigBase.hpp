@@ -18,7 +18,7 @@ namespace webservconfig
 {
   class ConfigBase
   {
-    protected:
+    public:
       typedef std::map<int, std::string>                error_page_type;
       typedef long long                                 body_size_type;
       typedef std::vector<std::string>                  index_type;
@@ -26,7 +26,6 @@ namespace webservconfig
       typedef std::pair<int, std::string>               return_type;
 
     protected:
-      std::string               file_path_;
       std::vector<std::string>  index_;
       error_page_type           error_page_;
       bool                      autoindex_;
@@ -62,21 +61,34 @@ namespace webservconfig
       ConfigBase(const ConfigBase &other);
       const ConfigBase &operator=(const ConfigBase &other);
 
-      error_page_type GetErrorPage() const;
-      std::string     GetErrorPage(std::string code) const;
-      std::string     GetErrorPage(int code) const;
-      index_type      GetIndex() const;
-      bool            GetAutoIndex() const;
-      body_size_type  GetClientMaxBodySize() const;
-      std::string     GetRoot() const;
-      listen_type     GetListenV4() const;
-      listen_type     GetListenV6() const;
-      std::string     GetServerName() const;
-      return_type     GetReturn() const;
+      const error_page_type &GetErrorPage() const;
+      const std::string     &GetErrorPage(std::string code) const;
+      const std::string     &GetErrorPage(int code) const;
+      const index_type      &GetIndex() const;
+      bool                  GetAutoIndex() const;
+      body_size_type        GetClientMaxBodySize() const;
+      const std::string     &GetRoot() const;
+      const listen_type     &GetListenV4() const;
+      const listen_type     &GetListenV6() const;
+      const std::string     &GetServerName() const;
+      const return_type     &GetReturn() const;
 
 
-      std::string     GetUplocaPass() const;
-      std::string     GetUploadStore() const;
+      const std::string     &GetUploadPass() const;
+      const std::string     &GetUploadStore() const;
+
+
+      void            PutIndex(std::ostream &os, std::string indent) const;
+      void            PutErrorPage(std::ostream &os, std::string indent) const;
+      void            PutAutoIndex(std::ostream &os, std::string indent) const;
+      void            PutClientMaxBodySize(std::ostream &os, std::string indent) const;
+      void            PutRoot(std::ostream &os, std::string indent) const;
+      void            PutListenV4(std::ostream &os, std::string indent) const;
+      void            PutListenV6(std::ostream &os, std::string indent) const;
+      void            PutServerName(std::ostream &os, std::string indent) const;
+      void            PutReturn(std::ostream &os, std::string indent) const;
+      void            PutUploadPass(std::ostream &os, std::string indent) const;
+      void            PutUploadStore(std::ostream &os, std::string indent) const;
   };
 }
 
