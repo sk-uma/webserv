@@ -82,21 +82,21 @@ const std::vector<webservconfig::Server> &webservconfig::Config::GetServer() con
 
 std::ostream& webservconfig::Config::PutConfig(std::ostream& os) const
 {
-
+  os << "Config [" << this->file_path_ << "]" << std::endl;
   PutIndex(os, "├── ");
   PutErrorPage(os, "├── ");
   PutAutoIndex(os, "├── ");
   PutClientMaxBodySize(os, "├── ");
-  if (GetServer().size() != 0) {
+  if (this->server_.size() != 0) {
     PutRoot(os, "├── ");
   } else {
     PutRoot(os, "└── ");
   }
-  if (GetServer().size() != 0) {
-    int size = GetServer().size();
+  if (this->server_.size() != 0) {
+    int size = this->server_.size();
     int i = 1;
-    for (std::vector<webservconfig::Server>::const_iterator iter = GetServer().begin();
-         iter != (GetServer().end()); iter++) {
+    for (std::vector<webservconfig::Server>::const_iterator iter = this->server_.begin();
+         iter != (this->server_.end()); iter++) {
       if (i != size) {
         iter->PutServer(os, "├── ", "│   ");
       } else {

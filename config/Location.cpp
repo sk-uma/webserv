@@ -75,3 +75,17 @@ void webservconfig::Location::ParseLocationBlock()
   }
   (void)i;
 }
+
+void webservconfig::Location::PutLocation(std::ostream& os, std::string first_indent, std::string indent) const
+{
+  os << first_indent << "Locaton [" << this->location_ << "]" << std::endl;
+  PutIndex(os, indent + "├── ");
+  PutErrorPage(os, indent + "├── ");
+  PutAutoIndex(os, indent + "├── ");
+  PutClientMaxBodySize(os, indent + "├── ");
+  // PutlimitExcept(os, indent + "├── ");
+  PutReturn(os, indent + "├── ");
+  PutUploadPass(os, indent + "├── ");
+  PutUploadStore(os, indent + "├── ");
+  PutRoot(os, indent + "└── ");
+}

@@ -69,8 +69,6 @@ void webservconfig::Server::ParseServerBlock()
       InitRoot(rtv);
     } else if (rtv[0] == "listen") {
       InitListen(rtv);
-      // std::cout << (GetListenV4().begin())->first << std::endl;
-      // std::cout << GetListenV4().size() << std::endl;
     } else if (rtv[0] == "server_name") {
       InitServerName(rtv);
     } else if (rtv[0] == "return") {
@@ -83,7 +81,7 @@ void webservconfig::Server::ParseServerBlock()
     (*iter).ParseLocationBlock();
   }
   (void)i;
-  std::cout << "init: " << (GetListenV4().begin())->first << ":" << (GetListenV4().begin())->second << std::endl;
+  // std::cout << "init: " << (GetListenV4().begin())->first << ":" << (GetListenV4().begin())->second << std::endl;
 }
 
 void webservconfig::Server::InitLocation(std::vector<std::string> line, std::istringstream &input)
@@ -102,14 +100,14 @@ void webservconfig::Server::InitLocation(std::vector<std::string> line, std::ist
   this->location_.push_back(location);
 }
 
-std::vector<webservconfig::Location> webservconfig::Server::GetLocation() const
+const std::vector<webservconfig::Location> &webservconfig::Server::GetLocation() const
 {
   return (this->location_);
 }
 
 std::ostream& webservconfig::Server::PutServer(std::ostream& os, std::string first_indent, std::string indent) const
 {
-  os << first_indent << "Server: " << GetServerName() << std::endl;
+  os << first_indent << "Server [" << this->server_name_ << "]" << std::endl;
   // std::cout << "put: " << (GetListenV4().begin())->first << ":" << (GetListenV4().begin())->second << std::endl;
   PutListenV4(os, indent + "├── ");
   PutListenV6(os, indent + "├── ");
@@ -122,10 +120,23 @@ std::ostream& webservconfig::Server::PutServer(std::ostream& os, std::string fir
   PutReturn(os, indent + "├── ");
   PutUploadPass(os, indent + "├── ");
   PutUploadStore(os, indent + "├── ");
-  if (GetLocation().size() != 0) {
+  if (this->location_.size() != 0) {
     PutRoot(os, indent + "├── ");
   } else {
     PutRoot(os, indent + "└── ");
+  }
+  if (this->location_.size() != 0) {
+    int size = this->location_.size();
+    int i = 1;
+    for (std::vector<webservconfig::Location>::const_iterator iter = this->location_.begin();
+         iter != this->location_.end(); iter++) {
+      if (i != size) {
+        iter->PutLocation(os, indent + "├── ", indent + "│   ");
+      } else {
+        iter->PutLocation(os, indent + "└── ", indent + "    ");
+      }
+      i++;
+    }
   }
   return (os);
 }

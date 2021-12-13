@@ -45,7 +45,7 @@ const webservconfig::ConfigBase &webservconfig::ConfigBase::operator=(const Conf
 void webservconfig::ConfigBase::InitIndex(std::vector<std::string> line)
 {
   CheckNumberOfArgument(line, 2, -1);
-  if (!this->index_flag_) {
+  if (this->index_flag_) {
     this->index_.clear();
     this->index_flag_ = false;
   }
@@ -106,8 +106,6 @@ void webservconfig::ConfigBase::InitListen(std::vector<std::string> line)
     if (!IsComposed(address, "1234567890."))
       throw std::runtime_error("Invalid address");
     this->v4_listen_.push_back(std::make_pair(address, port_number));
-    // this->v4_listen_.push_back(std::pair<std::string, int>(address, port_number));
-    // std::cout << &((GetListenV4().begin() - 1)->first) << std::endl;
   } else {
     throw std::runtime_error("unknown address format");
   }
@@ -204,24 +202,26 @@ std::vector<std::string> webservconfig::ConfigBase::SplitLine(std::string line)
   return (rtv);
 }
 
-webservconfig::ConfigBase::error_page_type webservconfig::ConfigBase::GetErrorPage() const
+const webservconfig::ConfigBase::error_page_type &webservconfig::ConfigBase::GetErrorPage() const
 {
   return (this->error_page_);
 }
 
-std::string webservconfig::ConfigBase::GetErrorPage(std::string code) const
+const std::string &webservconfig::ConfigBase::GetErrorPage(std::string code) const
 {
   (void)code;
-  return (NULL);
+  std::string res("");
+  return (this->root_);
 }
 
-std::string webservconfig::ConfigBase::GetErrorPage(int code) const
+const std::string &webservconfig::ConfigBase::GetErrorPage(int code) const
 {
   (void)code;
-  return (NULL);
+  std::string res("");
+  return (this->root_);
 }
 
-webservconfig::ConfigBase::index_type webservconfig::ConfigBase::GetIndex() const
+const webservconfig::ConfigBase::index_type &webservconfig::ConfigBase::GetIndex() const
 {
   return (this->index_);
 }
@@ -236,27 +236,27 @@ webservconfig::ConfigBase::body_size_type webservconfig::ConfigBase::GetClientMa
   return (this->client_max_body_size_);
 }
 
-std::string webservconfig::ConfigBase::GetRoot() const
+const std::string &webservconfig::ConfigBase::GetRoot() const
 {
   return (this->root_);
 }
 
-webservconfig::ConfigBase::listen_type webservconfig::ConfigBase::GetListenV4() const
+const webservconfig::ConfigBase::listen_type &webservconfig::ConfigBase::GetListenV4() const
 {
   return (this->v4_listen_);
 }
 
-webservconfig::ConfigBase::listen_type webservconfig::ConfigBase::GetListenV6() const
+const webservconfig::ConfigBase::listen_type &webservconfig::ConfigBase::GetListenV6() const
 {
   return (this->v6_listen_);
 }
 
-std::string webservconfig::ConfigBase::GetServerName() const
+const std::string &webservconfig::ConfigBase::GetServerName() const
 {
   return (this->server_name_);
 }
 
-webservconfig::ConfigBase::return_type webservconfig::ConfigBase::GetReturn() const
+const webservconfig::ConfigBase::return_type &webservconfig::ConfigBase::GetReturn() const
 {
   return (this->return_);
 }
@@ -330,7 +330,7 @@ void webservconfig::ConfigBase::PutListenV6(std::ostream &os, std::string indent
     for (listen_type::const_iterator iter = this->v6_listen_.begin(); iter != (this->v6_listen_.end() - 1); iter++) {
       os << iter->first << ":" << iter->second << ", ";
     }
-    os << (this->v6_listen_.end() - 1)->first << ":" << (this->v6_listen_.end() - 1)->second;
+    os << "[" << (this->v6_listen_.end() - 1)->first << "]:" << (this->v6_listen_.end() - 1)->second;
   }
   os << std::endl;
 }
@@ -342,12 +342,12 @@ void webservconfig::ConfigBase::PutServerName(std::ostream &os, std::string inde
 
 void webservconfig::ConfigBase::PutReturn(std::ostream &os, std::string indent) const
 {
-  os << indent << "return              : " << std::endl;
+  os << indent << "return              : xxxxxx" << std::endl;
 }
 
 void webservconfig::ConfigBase::PutUploadPass(std::ostream &os, std::string indent) const
 {
-  os << indent << "upload_pass         : xxxxx" << std::endl;
+  os << indent << "upload_pass         : xxxxxx" << std::endl;
 }
 
 void webservconfig::ConfigBase::PutUploadStore(std::ostream &os, std::string indent) const

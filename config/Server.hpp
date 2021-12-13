@@ -39,7 +39,7 @@ namespace webservconfig
 
       std::ostream& PutServer(std::ostream& os, std::string first_indent, std::string indent) const;
 
-      std::vector<Location> GetLocation() const;
+      const std::vector<Location> &GetLocation() const;
   };
 };
 

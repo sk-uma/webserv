@@ -19,6 +19,8 @@ namespace webservconfig
       const Location &operator=(const Location &location);
 
       void ParseLocationBlock();
+
+      void PutLocation(std::ostream& os, std::string first_indent, std::string indent) const;
   };
 };
 
