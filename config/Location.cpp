@@ -22,7 +22,6 @@ webservconfig::Location::Location(const Location &other)
 const webservconfig::Location &webservconfig::Location::operator=(const Location &rhs)
 {
   if (this != &rhs) {
-    this->file_path_ = rhs.file_path_;
     this->index_ = rhs.index_;
     this->error_page_ = rhs.error_page_;
     this->autoindex_ = rhs.autoindex_;
@@ -75,4 +74,18 @@ void webservconfig::Location::ParseLocationBlock()
     }
   }
   (void)i;
+}
+
+void webservconfig::Location::PutLocation(std::ostream& os, std::string first_indent, std::string indent) const
+{
+  os << first_indent << "Locaton [" << this->location_ << "]" << std::endl;
+  PutIndex(os, indent + "├── ");
+  PutErrorPage(os, indent + "├── ");
+  PutAutoIndex(os, indent + "├── ");
+  PutClientMaxBodySize(os, indent + "├── ");
+  // PutlimitExcept(os, indent + "├── ");
+  PutReturn(os, indent + "├── ");
+  PutUploadPass(os, indent + "├── ");
+  PutUploadStore(os, indent + "├── ");
+  PutRoot(os, indent + "└── ");
 }

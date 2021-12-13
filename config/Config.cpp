@@ -1,24 +1,14 @@
 #include "Config.hpp"
 
 webservconfig::Config::Config():
-  file_path_(""),
-  index_(),
-  error_page_(),
-  autoindex_(false),
-  client_max_body_size_(1048576),
-  root_("/var/www/html"),
-  index_flag_(false),
+  ConfigBase(),
+  file_path_(),
   server_()
 { }
 
 webservconfig::Config::Config(std::string path):
+  ConfigBase(),
   file_path_(path),
-  index_(),
-  error_page_(),
-  autoindex_(false),
-  client_max_body_size_(1048576),
-  root_("/var/www/html"),
-  index_flag_(false),
   server_()
 {
   std::ifstream input_file(this->file_path_.c_str());
@@ -61,46 +51,6 @@ webservconfig::Config::Config(std::string path):
 webservconfig::Config::~Config()
 { }
 
-void webservconfig::Config::InitIndex(std::vector<std::string> line)
-{
-  CheckNumberOfArgument(line, 2, -1);
-  if (this->index_flag_) {
-    this->index_.clear();
-    this->index_flag_ = false;
-  }
-  this->index_.insert(this->index_.end(), line.begin() + 1, line.end());
-}
-
-void webservconfig::Config::InitAutoindex(std::vector<std::string> line)
-{
-  CheckNumberOfArgument(line, 2, 2);
-  if (line[1] == "on") {
-    this->autoindex_ = true;
-  } else if (line[1] == "off") {
-    this->autoindex_ = false;
-  } else {
-    throw std::runtime_error("\"autoindex\" directive, it must be \"on\" or \"off\"");
-  }
-}
-
-void webservconfig::Config::InitClientMaxBodySize(std::vector<std::string> line)
-{
-  body_size_type body_size;
-
-  CheckNumberOfArgument(line, 2, 2);
-  if ((body_size = strtoll(line[1])) < 0) {
-    throw std::runtime_error("\"client_max_body_size\" directive invalid value");
-  } else {
-    this->client_max_body_size_ = body_size;
-  }
-}
-
-void webservconfig::Config::InitRoot(std::vector<std::string> line)
-{
-  CheckNumberOfArgument(line, 2, 2);
-  this->root_ = line[1];
-}
-
 void webservconfig::Config::InitServer(std::vector<std::string> line, std::ifstream &input_file)
 {
   std::string block, buf;
@@ -114,37 +64,51 @@ void webservconfig::Config::InitServer(std::vector<std::string> line, std::ifstr
       block += buf + "\n";
     }
   }
-  // std::cout << "in serv" << std::endl;
-  // std::cout << block << std::endl;
   webservconfig::Server server(block);
   this->server_.push_back(server);
   (void)input_file;
   (void)line;
 }
 
-void webservconfig::Config::CheckNumberOfArgument(std::vector<std::string> line, int min_size, int max_size) const
+std::string webservconfig::Config::GetFilePath() const
 {
-  int size = line.size();
-
-  if ((min_size >= 0 && min_size > size) && (max_size >= 0 && max_size < size)) {
-    throw std::runtime_error(std::string("invalid number of arguments in \"")
-                              + line[0] + std::string("\" directive"));
-  }
+  return (this->file_path_);
 }
 
-webservconfig::Config::body_size_type webservconfig::Config::strtoll(std::string str) const
+const std::vector<webservconfig::Server> &webservconfig::Config::GetServer() const
 {
-  body_size_type rtv = 0;
+  return (this->server_);
+}
 
-  for (std::string::iterator iter = str.begin(); iter != str.end(); iter++) {
-    if (!std::isdigit(*iter))
-      return (-1);
+std::ostream& webservconfig::Config::PutConfig(std::ostream& os) const
+{
+  os << "Config [" << this->file_path_ << "]" << std::endl;
+  PutIndex(os, "├── ");
+  PutErrorPage(os, "├── ");
+  PutAutoIndex(os, "├── ");
+  PutClientMaxBodySize(os, "├── ");
+  if (this->server_.size() != 0) {
+    PutRoot(os, "├── ");
+  } else {
+    PutRoot(os, "└── ");
   }
-  errno = 0;
-  rtv = atoll(str.c_str());
-  if (errno) {
-    errno = 0;
-    return (-1);
+  if (this->server_.size() != 0) {
+    int size = this->server_.size();
+    int i = 1;
+    for (std::vector<webservconfig::Server>::const_iterator iter = this->server_.begin();
+         iter != (this->server_.end()); iter++) {
+      if (i != size) {
+        iter->PutServer(os, "├── ", "│   ");
+      } else {
+        iter->PutServer(os, "└── ", "    ");
+      }
+      i++;
+    }
   }
-  return (rtv);
+  return (os);
+}
+
+std::ostream& operator<<(std::ostream& os, const webservconfig::Config& config)
+{
+  return (config.PutConfig(os));
 }
