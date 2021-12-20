@@ -13,6 +13,7 @@ RUN mkdir -p /usr/lib/cgi-bin
 COPY default /etc/nginx/sites-available/default
 COPY fcgiwrap.conf /etc/nginx/fcgiwrap.conf
 COPY cgifile /usr/lib/cgi-bin
+COPY en.subject.pdf /var/www/html
 
 COPY setup.sh /root/setup.sh
 

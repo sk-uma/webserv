@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/06 21:40:53 by rtomishi          #+#    #+#             */
-/*   Updated: 2021/12/13 13:21:39 by rtomishi         ###   ########.fr       */
+/*   Updated: 2021/12/19 00:12:37 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,8 +15,28 @@
 #include "RequestParser.hpp"
 #include "Response.hpp"
 
+int		g_SIGPIPE_FLAG = 0;
+
+//SIGPIPE対応の関数。フラグを上げる。
+void	sigpipe_handler(int sig)
+{
+	(void)sig;
+	g_SIGPIPE_FLAG = 1;
+}
+
+//SIGPIPEが来た時のセッティング。
+void	sigpipe_wait(void)
+{
+	struct sigaction	act;
+
+	memset(&act, 0, sizeof(struct sigaction));
+	act.sa_handler = sigpipe_handler;
+	sigaction(SIGPIPE, &act, NULL);
+}
+
 int	main(int argc, char **argv)
 {
+	sigpipe_wait();
 	(void)argc;
 		//環境変数EXE_DIRに実行ファイルのディレクトリを格納する
 	setenv_exedir(argv);
@@ -51,6 +71,7 @@ int	main(int argc, char **argv)
 	//FD_SETで監視対象のディスクリプタをセットする
 	while (1)
 	{
+
 		int		nfd = (*(sock.end() - 1)).get_listenfd() + 1;
 
 		FD_ZERO(&rfd);
@@ -132,7 +153,7 @@ int	main(int argc, char **argv)
 					else if (read_size == 0)
 					{
 //						std::cout << "situation:read_size = 0" << std::endl;
-						std::cerr << "read() failed." << std::endl;
+						std::cerr << "read_size 0" << std::endl;
 						close(accfd[i]);
 						accfd[i] = -1;
 						break ;
@@ -179,7 +200,7 @@ int	main(int argc, char **argv)
 
 //				for (unsigned long i = 0; i < recv_str.size(); ++i)
 //        			std::cout << recv_str[i];
-				//std::cout << "[recv_str]\n" << recv_str.c_str() << std::endl;
+				std::cout << "[recv_str]\n" << recv_str.c_str() << std::endl;
 //				std::cout << "recv_length:" << recv_str.length() << std::endl;
 //				std::cout << "recv_size:" << recv_str.size()*sizeof(std::string::value_type) << std::endl;
 				RequestParser 	request(recv_str);
@@ -187,25 +208,29 @@ int	main(int argc, char **argv)
 
 				std::string		response_str;
 				ssize_t			write_size = 0;
+				ssize_t			ret_size;
+				std::size_t		chunk_size = RESPONSE_BUFFER_SIZE;
 
 				if (request.get_method() == "HEAD")
 					response_str = response.get_header();
 				else
 					response_str = response.get_header() + response.get_body();
-//				std::cout << "[response]\n" << response_str << std::endl;
+				std::cout << "[response_header]\n" << response.get_header() << std::endl;
 				while (write_size >= 0)
 				{
-					write_size += write(accfd[i], response_str.c_str(),
-									response_str.length());
-					if (write_size == (long)response_str.length())
-						break ;
-					//ノンブロッキングの制御で修正必要かも
-					else if (write_size == -1)
+					if (response_str.size() - write_size < chunk_size)
+						chunk_size = response_str.size() - write_size;
+					ret_size = write(accfd[i], response_str.c_str() + write_size, chunk_size);
+					//ソケットが壊れたときにSIGPIPEが送られる。プロセスを終了させないために対応
+					if (g_SIGPIPE_FLAG == 1)
 					{
-				//		std::cout << "errorno:" << strerror(errno) << std::endl;
-						std::cerr << "write() failed." << std::endl;
+						g_SIGPIPE_FLAG = 0;
 						break ;
 					}
+					if (ret_size > 0)
+						write_size += ret_size;
+					if (write_size == (long)response_str.size())
+						break ;
 				}
 				close(accfd[i]);
 				accfd[i] = -1;

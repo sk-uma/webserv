@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/14 21:09:14 by rtomishi          #+#    #+#             */
-/*   Updated: 2021/12/13 22:26:42 by rtomishi         ###   ########.fr       */
+/*   Updated: 2021/12/17 21:51:41 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 Response::Response(void) {}
 
 //コンストラクタ
-Response::Response(RequestParser &request)
+Response::Response(RequestParser &request):content_type("text/html; charset=UTF-8")
 {
 	std::string 		html_file;
 	struct stat			eval_directory;
@@ -89,6 +89,8 @@ Response::Response(RequestParser &request)
     std::ostringstream oss;
 
 	oss << "Content-Length: " << body.length() << "\r\n";
+//	oss << "Content-Type: " << content_type << "; charset=UTF-8\r\n";
+	oss << "Content-Type: " << content_type << "\r\n";
 	header_set(oss);
 }
 
@@ -113,6 +115,7 @@ Response &Response::operator=(Response const &obj)
 //ゲッター
 std::string Response::get_header(void) {return (header);}
 std::string Response::get_body(void) {return (body);}
+std::string Response::get_content_type(void) {return (content_type);}
 int			Response::get_status(void) {return (status);}
 
 //indexファイルのvectorからファイル検索をして、ファイルが存在するもののパスを与える
@@ -235,17 +238,27 @@ int		Response::cgi_exe(std::string const cgi_file, RequestParser &request, struc
 //html_file:表示させるファイルのパス
 int		Response::open_html(std::string html_file)
 {
-	std::ifstream 	output_file(html_file.c_str());
+	std::ifstream 	output_file(html_file.c_str(), std::ios::binary);
 	std::string		temp_str;
 	int				ret = STATUS_OK;
 	int				file_exist = 0;
 
+	char	buf;
+	FILE	*file;
+
 	if ((file_exist = output_file.fail()))
 		return (STATUS_NOT_FOUND);
-	while (getline(output_file, temp_str))
-		body.append(temp_str + "\r\n");
+//	while (getline(output_file, temp_str))
+//		body.append(temp_str + "\r\n");
+	file = fopen(html_file.c_str(), "rb");
+	while (fread(&buf, sizeof(buf), 1, file) > 0)
+		body += buf;
+	body += "\r\n";
+	fclose(file);
 	if (status == STATUS_MOVED_PERMANENTLY)
 		ret = STATUS_MOVED_PERMANENTLY;
+	else
+		content_type_set(html_file);
 	return (ret);
 }
 
@@ -407,7 +420,7 @@ void	Response::check_redirect(RequestParser &request)
 {
 	//（修正予定）後でエラーファイルを選択できるようにする
 	std::map<std::string, std::string>	redirect_map;
-	redirect_map.insert(std::make_pair("/42webserv", "/index.html"));
+	redirect_map.insert(std::make_pair("/42webserv", "/301.html"));
 
 	if (redirect_map.count(request.get_uri()))
 	{
@@ -458,7 +471,7 @@ void	Response::header_set(std::ostringstream &oss)
 			break;
 		case STATUS_MOVED_PERMANENTLY:
     		header.append("HTTP/1.1 301 Moved Permanently\r\n");
-    		//header.append("Location: \r\n");
+    		header.append("Location: https://youtube.com\r\n");
 			break;
 		case STATUS_BAD_REQUEST:
     		header.append("HTTP/1.1 400 Bad Request\r\n");
@@ -482,7 +495,7 @@ void	Response::header_set(std::ostringstream &oss)
     		header.append("HTTP/1.1 501 Not Implemented\r\n");
 			break;
 	}
-    header.append("Content-Type: text/html; charset=UTF-8\r\n");
+//    header.append("Content-Type: text/html; charset=UTF-8\r\n");
     header.append(oss.str());
     header.append("Connection: Keep-alive\r\n");
     header.append("\r\n");
@@ -508,4 +521,42 @@ void	Response::header_not_found(std::ostringstream &oss)
 	header.append(oss.str());
 	header.append("Connection: Keep-alive\r\n");
 	header.append("\r\n");
+}
+
+void	Response::content_type_set(std::string file_path)
+{
+	std::ifstream	mime(MIME_FILE.c_str());
+	std::string		line;
+	std::size_t		pos;
+	std::string		extension = file_path.substr(file_path.rfind("/") + 1);
+	std::string		type;
+
+	if (mime.fail())
+	{
+		status = STATUS_INTERNAL_SERVER_ERROR;
+		return ;
+	}
+	if ((pos = extension.rfind(".")) != std::string::npos && pos != 0)
+	{
+		extension = extension.substr(pos + 1);
+		content_type = "text/plain";
+		while (getline(mime, line))
+		{
+			if (line.find(extension + ":") == 0)
+			{
+				if ((pos = line.find(":")) == std::string::npos)
+				{
+					status = STATUS_INTERNAL_SERVER_ERROR;
+					return ;
+				}
+				content_type = line.substr(pos + 1);
+				break ;
+			}
+		}
+	}
+	else
+	{
+		extension = "";
+		content_type = "application/octet-stream";
+	}
 }

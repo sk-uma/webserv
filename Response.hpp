@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/13 22:19:12 by rtomishi          #+#    #+#             */
-/*   Updated: 2021/12/13 17:43:51 by rtomishi         ###   ########.fr       */
+/*   Updated: 2021/12/15 22:30:51 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ class Response
 	private:
 		std::string	header;
 		std::string body;
+		std::string	content_type;
 		int			status;
 
 	public:
@@ -32,6 +33,7 @@ class Response
 
 		std::string	get_header(void);
 		std::string get_body(void);
+		std::string get_content_type(void);
 		int			get_status(void);
 
 		std::string	index_search(std::string root, std::vector<std::string> index);
@@ -48,7 +50,7 @@ class Response
 		void		header_set(std::ostringstream &oss);
 		void		header_ok(std::ostringstream &oss);
 		void		header_not_found(std::ostringstream &oss);
-
+		void		content_type_set(std::string file_path);
 };
 
 #endif

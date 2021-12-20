@@ -4,50 +4,265 @@
 !_TAG_PROGRAM_NAME	Exuberant Ctags	//
 !_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
 !_TAG_PROGRAM_VERSION	5.8	//
+AUTOINDEX	config.hpp	/^const bool	AUTOINDEX = true;$/;"	v
+AUTOINDEX_CGI	config.hpp	/^const std::string	AUTOINDEX_CGI = ".\/GenIndex.py";$/;"	v
 BUF_SIZE	config.hpp	/^const int			BUF_SIZE = 1024;$/;"	v
+CGI_BUF	config.hpp	/^const int			CGI_BUF = 100;$/;"	v
+CGI_EXE	config.hpp	/^const std::string	CGI_EXE = "\/usr\/local\/bin\/python3";$/;"	v
+CGI_PATH	config.hpp	/^const std::string	CGI_PATH = "\/cgi-bin\/";$/;"	v
+CLIENT_MAX_BODY	config.hpp	/^const unsigned long	CLIENT_MAX_BODY = 10000000;$/;"	v
+CONFIGBASE_HPP	config/ConfigBase.hpp	/^# define CONFIGBASE_HPP$/;"	d
+CONFIGUTILS_HPP	config/ConfigUtils.hpp	/^# define CONFIGUTILS_HPP$/;"	d
 CONFIG_HPP	config.hpp	/^# define CONFIG_HPP$/;"	d
+CONFIG_HPP	config/Config.hpp	/^# define CONFIG_HPP$/;"	d
 CXX	Makefile	/^CXX = clang++ $(STDLIB)$/;"	m
 CXXFLAGS	Makefile	/^CXXFLAGS = -Wall -Werror -Wextra$/;"	m
-HTML_FILE	config.hpp	/^const std::string	HTML_FILE = "www";$/;"	v
-HTTP1HEADER_HPP	http1header.hpp	/^# define HTTP1HEADER_HPP$/;"	d
-HTTP1PARSER_HPP	http1parser.hpp	/^# define HTTP1PARSER_HPP$/;"	d
-HTTP1RESPONSE_HPP	http1response.hpp	/^# define HTTP1RESPONSE_HPP$/;"	d
-HTTP1_Header	http1header.hpp	/^class HTTP1_Header$/;"	c
-HTTP1_PORT	config.hpp	/^const int			HTTP1_PORT = 5000;$/;"	v
-HTTP1_Parser	http1parser.hpp	/^class HTTP1_Parser$/;"	c
-HTTP1_Response	http1response.hpp	/^class HTTP1_Response$/;"	c
-HTTP_VERSION	config.hpp	/^const int			HTTP_VERSION = 1;$/;"	v
+CheckNumberOfArgument	config/ConfigBase.cpp	/^void webservconfig::ConfigBase::CheckNumberOfArgument(std::vector<std::string> line, int min_size, int max_size) const$/;"	f	class:webservconfig::ConfigBase
+Config	config/Config.cpp	/^webservconfig::Config::Config():$/;"	f	class:webservconfig::Config
+Config	config/Config.cpp	/^webservconfig::Config::Config(std::string path):$/;"	f	class:webservconfig::Config
+Config	config/Config.hpp	/^  class Config: public ConfigBase$/;"	c	namespace:webservconfig
+ConfigBase	config/ConfigBase.cpp	/^webservconfig::ConfigBase::ConfigBase():$/;"	f	class:webservconfig::ConfigBase
+ConfigBase	config/ConfigBase.cpp	/^webservconfig::ConfigBase::ConfigBase(const ConfigBase &other)$/;"	f	class:webservconfig::ConfigBase
+ConfigBase	config/ConfigBase.hpp	/^  class ConfigBase$/;"	c	namespace:webservconfig
+CountFrontSpace	config/ConfigUtils.cpp	/^int webservconfig::CountFrontSpace(std::string line)$/;"	f	class:webservconfig
+ERROR_MESSAGE_HPP	config/ErrorMessage.hpp	/^# define ERROR_MESSAGE_HPP$/;"	d
+ERROR_MSG_INVALID_NUM_OF_ARG	config/ErrorMessage.hpp	/^# define ERROR_MSG_INVALID_NUM_OF_ARG(/;"	d
+ERROR_MSG_NO_SUCH_FILE	config/ErrorMessage.hpp	/^# define ERROR_MSG_NO_SUCH_FILE /;"	d
+EXIT_FAIL	config/ConfigUtils.hpp	/^#  define EXIT_FAIL /;"	d
+EXIT_SUCCESS	config/ConfigUtils.hpp	/^#  define EXIT_SUCCESS /;"	d
+GetAutoIndex	config/ConfigBase.cpp	/^bool webservconfig::ConfigBase::GetAutoIndex() const$/;"	f	class:webservconfig::ConfigBase
+GetClientMaxBodySize	config/ConfigBase.cpp	/^webservconfig::ConfigBase::body_size_type webservconfig::ConfigBase::GetClientMaxBodySize() const$/;"	f	class:webservconfig::ConfigBase
+GetErrorPage	config/ConfigBase.cpp	/^const std::string &webservconfig::ConfigBase::GetErrorPage(int code) const$/;"	f	class:webservconfig::ConfigBase
+GetErrorPage	config/ConfigBase.cpp	/^const std::string &webservconfig::ConfigBase::GetErrorPage(std::string code) const$/;"	f	class:webservconfig::ConfigBase
+GetErrorPage	config/ConfigBase.cpp	/^const webservconfig::ConfigBase::error_page_type &webservconfig::ConfigBase::GetErrorPage() const$/;"	f	class:webservconfig::ConfigBase
+GetFilePath	config/Config.cpp	/^std::string webservconfig::Config::GetFilePath() const$/;"	f	class:webservconfig::Config
+GetIndex	config/ConfigBase.cpp	/^const webservconfig::ConfigBase::index_type &webservconfig::ConfigBase::GetIndex() const$/;"	f	class:webservconfig::ConfigBase
+GetListenV4	config/ConfigBase.cpp	/^const webservconfig::ConfigBase::listen_type &webservconfig::ConfigBase::GetListenV4() const$/;"	f	class:webservconfig::ConfigBase
+GetListenV6	config/ConfigBase.cpp	/^const webservconfig::ConfigBase::listen_type &webservconfig::ConfigBase::GetListenV6() const$/;"	f	class:webservconfig::ConfigBase
+GetLocation	config/Server.cpp	/^const std::vector<webservconfig::Location> &webservconfig::Server::GetLocation() const$/;"	f	class:webservconfig::Server
+GetReturn	config/ConfigBase.cpp	/^const webservconfig::ConfigBase::return_type &webservconfig::ConfigBase::GetReturn() const$/;"	f	class:webservconfig::ConfigBase
+GetRoot	config/ConfigBase.cpp	/^const std::string &webservconfig::ConfigBase::GetRoot() const$/;"	f	class:webservconfig::ConfigBase
+GetServer	config/Config.cpp	/^const std::vector<webservconfig::Server> &webservconfig::Config::GetServer() const$/;"	f	class:webservconfig::Config
+GetServerName	config/ConfigBase.cpp	/^const std::string &webservconfig::ConfigBase::GetServerName() const$/;"	f	class:webservconfig::ConfigBase
+HTML_PATH	config.hpp	/^const std::string	HTML_PATH = "\/www";$/;"	v
+InitAutoindex	config/ConfigBase.cpp	/^void webservconfig::ConfigBase::InitAutoindex(std::vector<std::string> line)$/;"	f	class:webservconfig::ConfigBase
+InitClientMaxBodySize	config/ConfigBase.cpp	/^void webservconfig::ConfigBase::InitClientMaxBodySize(std::vector<std::string> line)$/;"	f	class:webservconfig::ConfigBase
+InitErrorPage	config/ConfigBase.cpp	/^void webservconfig::ConfigBase::InitErrorPage(std::vector<std::string> line)$/;"	f	class:webservconfig::ConfigBase
+InitIndex	config/ConfigBase.cpp	/^void webservconfig::ConfigBase::InitIndex(std::vector<std::string> line)$/;"	f	class:webservconfig::ConfigBase
+InitListen	config/ConfigBase.cpp	/^void webservconfig::ConfigBase::InitListen(std::vector<std::string> line)$/;"	f	class:webservconfig::ConfigBase
+InitLocation	config/Server.cpp	/^void webservconfig::Server::InitLocation(std::vector<std::string> line, std::istringstream &input)$/;"	f	class:webservconfig::Server
+InitReturn	config/ConfigBase.cpp	/^void webservconfig::ConfigBase::InitReturn(std::vector<std::string> line)$/;"	f	class:webservconfig::ConfigBase
+InitRoot	config/ConfigBase.cpp	/^void webservconfig::ConfigBase::InitRoot(std::vector<std::string> line)$/;"	f	class:webservconfig::ConfigBase
+InitServer	config/Config.cpp	/^void webservconfig::Config::InitServer(std::vector<std::string> line, std::ifstream &input_file)$/;"	f	class:webservconfig::Config
+InitServerName	config/ConfigBase.cpp	/^void webservconfig::ConfigBase::InitServerName(std::vector<std::string> line)$/;"	f	class:webservconfig::ConfigBase
+IsComposed	config/ConfigBase.cpp	/^bool webservconfig::ConfigBase::IsComposed(std::string str, std::string charset)$/;"	f	class:webservconfig::ConfigBase
+LOCATION_HPP	config/Location.hpp	/^# define LOCATION_HPP$/;"	d
+Location	config/Location.cpp	/^webservconfig::Location::Location():$/;"	f	class:webservconfig::Location
+Location	config/Location.cpp	/^webservconfig::Location::Location(const Location &other)$/;"	f	class:webservconfig::Location
+Location	config/Location.cpp	/^webservconfig::Location::Location(std::string block, std::string location):$/;"	f	class:webservconfig::Location
+Location	config/Location.hpp	/^  class Location: public ConfigBase$/;"	c	namespace:webservconfig
 MAX_SESSION	config.hpp	/^const int			MAX_SESSION = 10;$/;"	v
+MIME_FILE	config.hpp	/^const std::string	MIME_FILE = "mime";$/;"	v
 NAME	Makefile	/^NAME = webserv$/;"	m
+NOT_FOUND_FILE	config.hpp	/^const std::string	NOT_FOUND_FILE = "\/404.html";$/;"	v
 OBJ	Makefile	/^OBJ = $(SRC:.cpp=.o)$/;"	m
+ParseLocationBlock	config/Location.cpp	/^void webservconfig::Location::ParseLocationBlock()$/;"	f	class:webservconfig::Location
+ParseServerBlock	config/Server.cpp	/^void webservconfig::Server::ParseServerBlock()$/;"	f	class:webservconfig::Server
+PutAutoIndex	config/ConfigBase.cpp	/^void webservconfig::ConfigBase::PutAutoIndex(std::ostream &os, std::string indent) const$/;"	f	class:webservconfig::ConfigBase
+PutClientMaxBodySize	config/ConfigBase.cpp	/^void webservconfig::ConfigBase::PutClientMaxBodySize(std::ostream &os, std::string indent) const$/;"	f	class:webservconfig::ConfigBase
+PutConfig	config/Config.cpp	/^std::ostream& webservconfig::Config::PutConfig(std::ostream& os) const$/;"	f	class:webservconfig::Config
+PutErrorPage	config/ConfigBase.cpp	/^void webservconfig::ConfigBase::PutErrorPage(std::ostream &os, std::string indent) const$/;"	f	class:webservconfig::ConfigBase
+PutIndex	config/ConfigBase.cpp	/^void webservconfig::ConfigBase::PutIndex(std::ostream &os, std::string indent) const$/;"	f	class:webservconfig::ConfigBase
+PutListenV4	config/ConfigBase.cpp	/^void webservconfig::ConfigBase::PutListenV4(std::ostream &os, std::string indent) const$/;"	f	class:webservconfig::ConfigBase
+PutListenV6	config/ConfigBase.cpp	/^void webservconfig::ConfigBase::PutListenV6(std::ostream &os, std::string indent) const$/;"	f	class:webservconfig::ConfigBase
+PutLocation	config/Location.cpp	/^void webservconfig::Location::PutLocation(std::ostream& os, std::string first_indent, std::string indent) const$/;"	f	class:webservconfig::Location
+PutReturn	config/ConfigBase.cpp	/^void webservconfig::ConfigBase::PutReturn(std::ostream &os, std::string indent) const$/;"	f	class:webservconfig::ConfigBase
+PutRoot	config/ConfigBase.cpp	/^void webservconfig::ConfigBase::PutRoot(std::ostream &os, std::string indent) const$/;"	f	class:webservconfig::ConfigBase
+PutServer	config/Server.cpp	/^std::ostream& webservconfig::Server::PutServer(std::ostream& os, std::string first_indent, std::string indent) const$/;"	f	class:webservconfig::Server
+PutServerName	config/ConfigBase.cpp	/^void webservconfig::ConfigBase::PutServerName(std::ostream &os, std::string indent) const$/;"	f	class:webservconfig::ConfigBase
+PutUploadPass	config/ConfigBase.cpp	/^void webservconfig::ConfigBase::PutUploadPass(std::ostream &os, std::string indent) const$/;"	f	class:webservconfig::ConfigBase
+PutUploadStore	config/ConfigBase.cpp	/^void webservconfig::ConfigBase::PutUploadStore(std::ostream &os, std::string indent) const$/;"	f	class:webservconfig::ConfigBase
+REQUESTPARSER_HPP	RequestParser.hpp	/^# define REQUESTPARSER_HPP$/;"	d
+RESPONSE_BUFFER_SIZE	config.hpp	/^const unsigned long	RESPONSE_BUFFER_SIZE = 1000;$/;"	v
+RESPONSE_HPP	Response.hpp	/^# define RESPONSE_HPP$/;"	d
 RM	Makefile	/^RM = rm -f$/;"	m
+RequestParser	RequestParser.cpp	/^RequestParser::RequestParser(RequestParser const &copy)$/;"	f	class:RequestParser
+RequestParser	RequestParser.cpp	/^RequestParser::RequestParser(std::string request_):request(request_),$/;"	f	class:RequestParser
+RequestParser	RequestParser.cpp	/^RequestParser::RequestParser(void) {}$/;"	f	class:RequestParser
+RequestParser	RequestParser.hpp	/^class RequestParser$/;"	c
+Response	Response.cpp	/^Response::Response(RequestParser &request):content_type("text\/html; charset=UTF-8")$/;"	f	class:Response
+Response	Response.cpp	/^Response::Response(Response const &copy)$/;"	f	class:Response
+Response	Response.cpp	/^Response::Response(void) {}$/;"	f	class:Response
+Response	Response.hpp	/^class Response$/;"	c
+SERVER_HPP	config/Server.hpp	/^# define SERVER_HPP$/;"	d
 SOCKET_HPP	socket.hpp	/^# define SOCKET_HPP$/;"	d
 SRC	Makefile	/^SRC =	.\/main.cpp \\$/;"	m
+STATUS_BAD_REQUEST	config.hpp	/^const int	STATUS_BAD_REQUEST = 400;$/;"	v
+STATUS_FORBIDDEN	config.hpp	/^const int	STATUS_FORBIDDEN = 403;$/;"	v
+STATUS_INTERNAL_SERVER_ERROR	config.hpp	/^const int	STATUS_INTERNAL_SERVER_ERROR = 500;$/;"	v
+STATUS_METHOD_NOT_ALLOWED	config.hpp	/^const int	STATUS_METHOD_NOT_ALLOWED = 405;$/;"	v
+STATUS_MOVED_PERMANENTLY	config.hpp	/^const int	STATUS_MOVED_PERMANENTLY = 301;$/;"	v
+STATUS_NOT_FOUND	config.hpp	/^const int	STATUS_NOT_FOUND = 404;$/;"	v
+STATUS_NOT_IMPLEMENTED	config.hpp	/^const int	STATUS_NOT_IMPLEMENTED = 501;$/;"	v
+STATUS_OK	config.hpp	/^const int	STATUS_OK = 200;$/;"	v
+STATUS_PAYLOAD_TOO_LARGE	config.hpp	/^const int	STATUS_PAYLOAD_TOO_LARGE = 413;$/;"	v
 STDLIB	Makefile	/^STDLIB = -std=c++98$/;"	m
+Server	config/Server.cpp	/^webservconfig::Server::Server():$/;"	f	class:webservconfig::Server
+Server	config/Server.cpp	/^webservconfig::Server::Server(const Server &other)$/;"	f	class:webservconfig::Server
+Server	config/Server.cpp	/^webservconfig::Server::Server(std::string block):$/;"	f	class:webservconfig::Server
+Server	config/Server.hpp	/^  class Server: public ConfigBase$/;"	c	namespace:webservconfig
 Socket	socket.cpp	/^Socket::Socket (Socket const &copy)$/;"	f	class:Socket
-Socket	socket.cpp	/^Socket::Socket(int port_):port(port_) {}$/;"	f	class:Socket
+Socket	socket.cpp	/^Socket::Socket(std::string port_):StrPort(port_), ai(NULL) {}$/;"	f	class:Socket
 Socket	socket.cpp	/^Socket::Socket(void) {}$/;"	f	class:Socket
 Socket	socket.hpp	/^class Socket$/;"	c
-argv_path_analizer	http1parser.cpp	/^std::string	HTTP1_Parser::argv_path_analizer$/;"	f	class:HTTP1_Parser
-get_filename	http1parser.cpp	/^char *HTTP1_Parser::get_filename(const char *excutive_file)$/;"	f	class:HTTP1_Parser
+SplitLine	config/ConfigBase.cpp	/^std::vector<std::string> webservconfig::ConfigBase::SplitLine(std::string line)$/;"	f	class:webservconfig::ConfigBase
+SplitLine	config/ConfigUtils.cpp	/^std::vector<std::string> webservconfig::SplitLine(std::string line)$/;"	f	class:webservconfig
+StrPort	socket.hpp	/^		std::string			StrPort;$/;"	m	class:Socket
+UPLOAD_PATH	config.hpp	/^const std::string	UPLOAD_PATH = "\/upload_file\/";$/;"	v
+ai	socket.hpp	/^		struct addrinfo		*ai;$/;"	m	class:Socket	typeref:struct:Socket::addrinfo
+autoindex_	config/ConfigBase.hpp	/^      bool                      autoindex_;$/;"	m	class:webservconfig::ConfigBase
+autoindex_c	Response.cpp	/^int		Response::autoindex_c(const char *path, RequestParser &request, bool autoindex)$/;"	f	class:Response
+block_	config/Location.hpp	/^      std::string block_;$/;"	m	class:webservconfig::Location
+block_	config/Server.hpp	/^      std::string block_;$/;"	m	class:webservconfig::Server
+body	RequestParser.hpp	/^		std::string					body;$/;"	m	class:RequestParser
+body	Response.hpp	/^		std::string body;$/;"	m	class:Response
+body	www/cgi-bin/delete_cgi.py	/^    body = file_name + ' has been removed.'$/;"	v
+body	www/cgi-bin/delete_cgi.py	/^    body = file_name + ' is not found.'$/;"	v
+body	www/cgi-bin/upload_cgi.py	/^    body = file_name + ' already exists.'$/;"	v
+body	www/cgi-bin/upload_cgi.py	/^    body = file_name + ' has been uploaded.'$/;"	v
+body_size_type	config/ConfigBase.hpp	/^      typedef long long                                 body_size_type;$/;"	t	class:webservconfig::ConfigBase
+cgi	www/cgi-bin/delete_cgi.py	/^import cgi$/;"	i
+cgi	www/cgi-bin/sample.py	/^import cgi$/;"	i
+cgi	www/cgi-bin/upload_cgi.py	/^import cgi$/;"	i
+cgi_exe	Response.cpp	/^int		Response::cgi_exe(std::string const cgi_file, RequestParser &request, struct stat eval_cgi)$/;"	f	class:Response
+cgitb	www/cgi-bin/delete_cgi.py	/^import cgitb$/;"	i
+cgitb	www/cgi-bin/sample.py	/^import cgitb$/;"	i
+cgitb	www/cgi-bin/upload_cgi.py	/^import cgitb$/;"	i
+check_redirect	Response.cpp	/^void	Response::check_redirect(RequestParser &request)$/;"	f	class:Response
+chunk	www/cgi-bin/upload_cgi.py	/^        chunk = item.file.read(1000000)$/;"	v
+chunked_split	RequestParser.cpp	/^void		RequestParser::chunked_split(void)$/;"	f	class:RequestParser
+client_max_body_size_	config/ConfigBase.hpp	/^      body_size_type            client_max_body_size_;$/;"	m	class:webservconfig::ConfigBase
+content_length	RequestParser.hpp	/^		std::string					content_length;$/;"	m	class:RequestParser
+content_type	RequestParser.hpp	/^		std::string					content_type;$/;"	m	class:RequestParser
+content_type	Response.hpp	/^		std::string	content_type;$/;"	m	class:Response
+content_type_set	Response.cpp	/^void	Response::content_type_set(std::string file_path)$/;"	f	class:Response
+cwd	GenIndex.py	/^cwd = (env["REQUEST_URI"])$/;"	v
+delete_file	Response.cpp	/^int		Response::delete_file(const char *path)$/;"	f	class:Response
+env	GenIndex.py	/^env = os.environ$/;"	v
+environ	docker_nginx/cgifile/put_env.py	/^environ = os.environ$/;"	v
+error_body_set	Response.cpp	/^void	Response::error_body_set(std::string error_path)$/;"	f	class:Response
+error_page_	config/ConfigBase.hpp	/^      error_page_type           error_page_;$/;"	m	class:webservconfig::ConfigBase
+error_page_type	config/ConfigBase.hpp	/^      typedef std::map<int, std::string>                error_page_type;$/;"	t	class:webservconfig::ConfigBase
+file_name	www/cgi-bin/delete_cgi.py	/^file_name = form["delfile"].value$/;"	v
+file_name	www/cgi-bin/upload_cgi.py	/^file_name = form["upfile"].filename$/;"	v
+file_path_	config/Config.hpp	/^      std::string           file_path_;$/;"	m	class:webservconfig::Config
+files	GenIndex.py	/^files = sorted(os.listdir("www" + cwd))$/;"	v
+form	www/cgi-bin/delete_cgi.py	/^form = cgi.FieldStorage()$/;"	v
+form	www/cgi-bin/sample.py	/^form = cgi.FieldStorage()$/;"	v
+form	www/cgi-bin/upload_cgi.py	/^form = cgi.FieldStorage()$/;"	v
+g_SIGPIPE_FLAG	main.cpp	/^int		g_SIGPIPE_FLAG = 0;$/;"	v
+get_body	RequestParser.cpp	/^std::string	RequestParser::get_body(void) {return (this->body);}$/;"	f	class:RequestParser
+get_body	Response.cpp	/^std::string Response::get_body(void) {return (body);}$/;"	f	class:Response
+get_content_length	RequestParser.cpp	/^std::string	RequestParser::get_content_length(void) {return (this->content_length);}$/;"	f	class:RequestParser
+get_content_type	RequestParser.cpp	/^std::string	RequestParser::get_content_type(void) {return (this->content_type);}$/;"	f	class:RequestParser
+get_content_type	Response.cpp	/^std::string Response::get_content_type(void) {return (content_type);}$/;"	f	class:Response
+get_field	RequestParser.cpp	/^std::string	RequestParser::get_field(std::string key)$/;"	f	class:RequestParser
+get_header	RequestParser.cpp	/^std::string	RequestParser::get_header(void) {return (this->header);}$/;"	f	class:RequestParser
+get_header	Response.cpp	/^std::string Response::get_header(void) {return (header);}$/;"	f	class:Response
 get_listenfd	socket.cpp	/^int		Socket::get_listenfd() const$/;"	f	class:Socket
-get_requestline_path	http1parser.cpp	/^std::string	HTTP1_Parser::get_requestline_path(char pbuf[BUF_SIZE])$/;"	f	class:HTTP1_Parser
+get_method	RequestParser.cpp	/^std::string	RequestParser::get_method(void) {return (this->method);}$/;"	f	class:RequestParser
+get_path_info	RequestParser.cpp	/^std::string	RequestParser::get_path_info(void) {return (this->path_info);}$/;"	f	class:RequestParser
+get_path_translated	RequestParser.cpp	/^std::string	RequestParser::get_path_translated(void) {return (this->path_translated);}$/;"	f	class:RequestParser
+get_query_string	RequestParser.cpp	/^std::string	RequestParser::get_query_string(void) {return (this->query_string);}$/;"	f	class:RequestParser
+get_script_name	RequestParser.cpp	/^std::string	RequestParser::get_script_name(void) {return (this->script_name);}$/;"	f	class:RequestParser
+get_status	Response.cpp	/^int			Response::get_status(void) {return (status);}$/;"	f	class:Response
+get_transfer_encoding	RequestParser.cpp	/^std::string	RequestParser::get_transfer_encoding(void) {return (this->transfer_encoding);}$/;"	f	class:RequestParser
+get_uri	RequestParser.cpp	/^std::string	RequestParser::get_uri(void) {return (this->uri);}$/;"	f	class:RequestParser
+glob	GenIndex.py	/^import glob$/;"	i
+header	RequestParser.hpp	/^		std::string					header;$/;"	m	class:RequestParser
+header	Response.hpp	/^		std::string	header;$/;"	m	class:Response
+header_not_found	Response.cpp	/^void	Response::header_not_found(std::ostringstream &oss)$/;"	f	class:Response
+header_ok	Response.cpp	/^void	Response::header_ok(std::ostringstream &oss)$/;"	f	class:Response
+header_set	Response.cpp	/^void	Response::header_set(std::ostringstream &oss)$/;"	f	class:Response
+header_split	RequestParser.cpp	/^void		RequestParser::header_split(void)$/;"	f	class:RequestParser
+hints	socket.hpp	/^		struct addrinfo		hints;$/;"	m	class:Socket	typeref:struct:Socket::addrinfo
+index_	config/ConfigBase.hpp	/^      std::vector<std::string>  index_;$/;"	m	class:webservconfig::ConfigBase
+index_flag_	config/ConfigBase.hpp	/^      bool                      index_flag_;$/;"	m	class:webservconfig::ConfigBase
+index_search	Response.cpp	/^std::string	Response::index_search(std::string root, std::vector<std::string> index)$/;"	f	class:Response
+index_type	config/ConfigBase.hpp	/^      typedef std::vector<std::string>                  index_type;$/;"	t	class:webservconfig::ConfigBase
+input	docker_nginx/cgifile/test.py	/^input = sys.stdin.read()$/;"	v
+input	www/cgi-bin/test.py	/^input = sys.stdin.read()$/;"	v
+item	www/cgi-bin/upload_cgi.py	/^    item = form['upfile']$/;"	v
+listen_type	config/ConfigBase.hpp	/^      typedef std::vector<std::pair<std::string, int> > listen_type;$/;"	t	class:webservconfig::ConfigBase
 listenfd	socket.hpp	/^		int					listenfd;$/;"	m	class:Socket
-main	main.cpp	/^int	main()$/;"	f
-main	pre_test.c	/^int main(void) {$/;"	f
-main	test.c	/^int main()$/;"	f
-make_body	http1response.cpp	/^void HTTP1_Response::make_body$/;"	f	class:HTTP1_Response
-make_header	http1response.cpp	/^std::vector<std::string> &HTTP1_Response::make_header$/;"	f	class:HTTP1_Response
-make_response	http1response.cpp	/^std::string	HTTP1_Response::make_response$/;"	f	class:HTTP1_Response
-make_response200	http1header.cpp	/^std::vector<std::string>	&HTTP1_Header::make_response200(int body_length)$/;"	f	class:HTTP1_Header
-make_response302	http1header.cpp	/^std::vector<std::string>	&HTTP1_Header::make_response302(std::string path)$/;"	f	class:HTTP1_Header
-make_response404	http1header.cpp	/^std::vector<std::string>	&HTTP1_Header::make_response404()$/;"	f	class:HTTP1_Header
-make_responseUpgrade	http1header.cpp	/^std::vector<std::string>	&HTTP1_Header::make_responseUpgrade()$/;"	f	class:HTTP1_Header
+location_	config/Location.hpp	/^      std::string location_;$/;"	m	class:webservconfig::Location
+location_	config/Server.hpp	/^      std::vector<Location> location_;$/;"	m	class:webservconfig::Server
+main	config/main.cpp	/^int main(int argc, char *argv[])$/;"	f
+main	main.cpp	/^int	main(int argc, char **argv)$/;"	f
+main	www/upload_file/main.c	/^int		main(int argc, char **argv)$/;"	f
+method	RequestParser.hpp	/^		std::string					method;$/;"	m	class:RequestParser
+method_allowed	Response.cpp	/^bool	Response::method_allowed(std::vector<std::string> allowed, RequestParser &request)$/;"	f	class:Response
+method_limited	Response.cpp	/^bool	Response::method_limited(std::vector<std::string> limited, RequestParser &request)$/;"	f	class:Response
+open_html	Response.cpp	/^int		Response::open_html(std::string html_file)$/;"	f	class:Response
+operator <<	config/Config.cpp	/^std::ostream& operator<<(std::ostream& os, const webservconfig::Config& config)$/;"	f
+operator =	RequestParser.cpp	/^RequestParser &RequestParser::operator=(RequestParser const &obj)$/;"	f	class:RequestParser
+operator =	Response.cpp	/^Response &Response::operator=(Response const &obj)$/;"	f	class:Response
+operator =	config/ConfigBase.cpp	/^const webservconfig::ConfigBase &webservconfig::ConfigBase::operator=(const ConfigBase &rhs)$/;"	f	class:webservconfig::ConfigBase
+operator =	config/Location.cpp	/^const webservconfig::Location &webservconfig::Location::operator=(const Location &rhs)$/;"	f	class:webservconfig::Location
+operator =	config/Server.cpp	/^const webservconfig::Server &webservconfig::Server::operator=(const Server &rhs)$/;"	f	class:webservconfig::Server
 operator =	socket.cpp	/^Socket &Socket::operator=(Socket const &obj)$/;"	f	class:Socket
-port	socket.hpp	/^		int					port;$/;"	m	class:Socket
-serv_addr	socket.hpp	/^		struct sockaddr_in	serv_addr;$/;"	m	class:Socket	typeref:struct:Socket::sockaddr_in
+os	GenIndex.py	/^import os$/;"	i
+os	docker_nginx/cgifile/put_env.py	/^import os$/;"	i
+os	www/cgi-bin/delete_cgi.py	/^import os$/;"	i
+os	www/cgi-bin/sample.py	/^import os$/;"	i
+os	www/cgi-bin/upload_cgi.py	/^import os$/;"	i
+path	www/cgi-bin/delete_cgi.py	/^path = upload_path + file_name$/;"	v
+path	www/cgi-bin/upload_cgi.py	/^path = upload_path + file_name$/;"	v
+path_info	RequestParser.hpp	/^		std::string					path_info;$/;"	m	class:RequestParser
+path_translated	RequestParser.hpp	/^		std::string					path_translated;$/;"	m	class:RequestParser
+query_string	RequestParser.hpp	/^		std::string					query_string;$/;"	m	class:RequestParser
+request	RequestParser.hpp	/^		std::string					request;$/;"	m	class:RequestParser
+return_	config/ConfigBase.hpp	/^      return_type     return_;$/;"	m	class:webservconfig::ConfigBase
+return_type	config/ConfigBase.hpp	/^      typedef std::pair<int, std::string>               return_type;$/;"	t	class:webservconfig::ConfigBase
+root_	config/ConfigBase.hpp	/^      std::string               root_;$/;"	m	class:webservconfig::ConfigBase
+script_name	RequestParser.hpp	/^		std::string					script_name;$/;"	m	class:RequestParser
+server_	config/Config.hpp	/^      std::vector<Server>   server_;$/;"	m	class:webservconfig::Config
+server_name_	config/ConfigBase.hpp	/^      std::string     server_name_;$/;"	m	class:webservconfig::ConfigBase
+set_cgi_env	RequestParser.cpp	/^void		RequestParser::set_cgi_env(void)$/;"	f	class:RequestParser
 set_listenfd	socket.cpp	/^void	Socket::set_listenfd()$/;"	f	class:Socket
+set_method_and_uri	RequestParser.cpp	/^void		RequestParser::set_method_and_uri(void)$/;"	f	class:RequestParser
 set_sockaddr_in	socket.cpp	/^void	Socket::set_sockaddr_in()$/;"	f	class:Socket
 set_socket	socket.cpp	/^int		Socket::set_socket()$/;"	f	class:Socket
-tes	pre_test.c	/^void tes()$/;"	f
+set_uri	RequestParser.cpp	/^void		RequestParser::set_uri(std::string uri_)$/;"	f	class:RequestParser
+setenv_exedir	util_func.cpp	/^void	setenv_exedir(char **argv)$/;"	f
+sigpipe_handler	main.cpp	/^void	sigpipe_handler(int sig)$/;"	f
+sigpipe_wait	main.cpp	/^void	sigpipe_wait(void)$/;"	f
+status	Response.hpp	/^		int			status;$/;"	m	class:Response
+strtoll	config/ConfigBase.cpp	/^webservconfig::ConfigBase::body_size_type webservconfig::ConfigBase::strtoll(std::string str) const$/;"	f	class:webservconfig::ConfigBase
+sys	docker_nginx/cgifile/put_parameter.py	/^import sys$/;"	i
+sys	docker_nginx/cgifile/test.py	/^import sys$/;"	i
+sys	www/cgi-bin/test.py	/^import sys$/;"	i
+transfer_encoding	RequestParser.hpp	/^		std::string					transfer_encoding;$/;"	m	class:RequestParser
+upload_file	Response.cpp	/^int		Response::upload_file(const char *path, RequestParser &request)$/;"	f	class:Response
+upload_pass_	config/ConfigBase.hpp	/^      std::string     upload_pass_;$/;"	m	class:webservconfig::ConfigBase
+upload_path	www/cgi-bin/delete_cgi.py	/^upload_path = 'www\/upload_file\/'$/;"	v
+upload_path	www/cgi-bin/sample.py	/^upload_path = 'www\/upload_file\/'$/;"	v
+upload_path	www/cgi-bin/upload_cgi.py	/^upload_path = 'www\/upload_file\/'$/;"	v
+upload_store_	config/ConfigBase.hpp	/^      std::string     upload_store_;$/;"	m	class:webservconfig::ConfigBase
+uploaded_file	www/cgi-bin/upload_cgi.py	/^    uploaded_file = open(path, 'wb')$/;"	v
+uri	RequestParser.hpp	/^		std::string					uri;$/;"	m	class:RequestParser
+v4_listen_	config/ConfigBase.hpp	/^      listen_type     v4_listen_;$/;"	m	class:webservconfig::ConfigBase
+v6_listen_	config/ConfigBase.hpp	/^      listen_type     v6_listen_;$/;"	m	class:webservconfig::ConfigBase
+value	www/cgi-bin/sample.py	/^    value = form[key].value$/;"	v
+webservconfig	config/Config.hpp	/^namespace webservconfig$/;"	n
+webservconfig	config/ConfigBase.hpp	/^namespace webservconfig$/;"	n
+webservconfig	config/ConfigUtils.hpp	/^namespace webservconfig$/;"	n
+webservconfig	config/Location.hpp	/^namespace webservconfig$/;"	n
+webservconfig	config/Server.hpp	/^namespace webservconfig$/;"	n
+~Config	config/Config.cpp	/^webservconfig::Config::~Config()$/;"	f	class:webservconfig::Config
+~ConfigBase	config/ConfigBase.cpp	/^webservconfig::ConfigBase::~ConfigBase()$/;"	f	class:webservconfig::ConfigBase
+~Location	config/Location.cpp	/^webservconfig::Location::~Location()$/;"	f	class:webservconfig::Location
+~RequestParser	RequestParser.cpp	/^RequestParser::~RequestParser(void) {}$/;"	f	class:RequestParser
+~Response	Response.cpp	/^Response::~Response(void) {}$/;"	f	class:Response
+~Server	config/Server.cpp	/^webservconfig::Server::~Server()$/;"	f	class:webservconfig::Server
 ~Socket	socket.cpp	/^Socket::~Socket(void) {}$/;"	f	class:Socket

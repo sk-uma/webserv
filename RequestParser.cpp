@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/12 22:00:34 by rtomishi          #+#    #+#             */
-/*   Updated: 2021/12/09 17:03:36 by rtomishi         ###   ########.fr       */
+/*   Updated: 2021/12/15 21:06:30 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -189,8 +189,8 @@ void		RequestParser::set_cgi_env(void)
 				i--;
 			path_info = uri.substr(i);
 		}
+		script_name = (path_info == "" ? uri : uri.substr(0, CGI_PATH.length() + script_start + info_start));
 	}
-	script_name = (path_info == "" ? uri : uri.substr(0, CGI_PATH.length() + script_start + info_start));
 	//PATH_TRANSLATEDの指定。環境変数EXE_DIRが相対パス/絶対パスの場合で指定方法を分ける
 	if (std::string(getenv("EXE_DIR")).find("/") == 0)
 		path_translated = std::string(getenv("EXE_DIR")) + path_info;
