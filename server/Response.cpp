@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/14 21:09:14 by rtomishi          #+#    #+#             */
-/*   Updated: 2021/12/17 21:51:41 by rtomishi         ###   ########.fr       */
+/*   Updated: 2021/12/20 17:56:50 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -248,17 +248,16 @@ int		Response::open_html(std::string html_file)
 
 	if ((file_exist = output_file.fail()))
 		return (STATUS_NOT_FOUND);
-//	while (getline(output_file, temp_str))
-//		body.append(temp_str + "\r\n");
+	content_type_set(html_file);
+	if (status == STATUS_INTERNAL_SERVER_ERROR)
+		return (STATUS_INTERNAL_SERVER_ERROR);
 	file = fopen(html_file.c_str(), "rb");
 	while (fread(&buf, sizeof(buf), 1, file) > 0)
 		body += buf;
 	body += "\r\n";
-	fclose(file);
 	if (status == STATUS_MOVED_PERMANENTLY)
-		ret = STATUS_MOVED_PERMANENTLY;
-	else
-		content_type_set(html_file);
+		return (STATUS_MOVED_PERMANENTLY);
+	fclose(file);
 	return (ret);
 }
 
@@ -495,7 +494,6 @@ void	Response::header_set(std::ostringstream &oss)
     		header.append("HTTP/1.1 501 Not Implemented\r\n");
 			break;
 	}
-//    header.append("Content-Type: text/html; charset=UTF-8\r\n");
     header.append(oss.str());
     header.append("Connection: Keep-alive\r\n");
     header.append("\r\n");

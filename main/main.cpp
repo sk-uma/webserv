@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/06 21:40:53 by rtomishi          #+#    #+#             */
-/*   Updated: 2021/12/19 00:12:37 by rtomishi         ###   ########.fr       */
+/*   Updated: 2021/12/20 21:14:37 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -200,7 +200,7 @@ int	main(int argc, char **argv)
 
 //				for (unsigned long i = 0; i < recv_str.size(); ++i)
 //        			std::cout << recv_str[i];
-				std::cout << "[recv_str]\n" << recv_str.c_str() << std::endl;
+//				std::cout << "[recv_str]\n" << recv_str.c_str() << std::endl;
 //				std::cout << "recv_length:" << recv_str.length() << std::endl;
 //				std::cout << "recv_size:" << recv_str.size()*sizeof(std::string::value_type) << std::endl;
 				RequestParser 	request(recv_str);
@@ -215,7 +215,7 @@ int	main(int argc, char **argv)
 					response_str = response.get_header();
 				else
 					response_str = response.get_header() + response.get_body();
-				std::cout << "[response_header]\n" << response.get_header() << std::endl;
+//				std::cout << "[response_header]\n" << response.get_header() << std::endl;
 				while (write_size >= 0)
 				{
 					if (response_str.size() - write_size < chunk_size)

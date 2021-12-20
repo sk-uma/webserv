@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/06 21:26:18 by rtomishi          #+#    #+#             */
-/*   Updated: 2021/12/19 00:15:02 by rtomishi         ###   ########.fr       */
+/*   Updated: 2021/12/20 17:24:12 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ const std::string	UPLOAD_PATH = "/upload_file/";
 const std::string	AUTOINDEX_CGI = "./GenIndex.py";
 const std::string	CGI_EXE = "/usr/local/bin/python3";
 const std::string	NOT_FOUND_FILE = "/404.html";
-const std::string	MIME_FILE = "mime";
+const std::string	MIME_FILE = "./server/mime";
 const int			MAX_SESSION = 10;
 const std::string	HTML_PATH = "/www";
 extern char			**environ;
