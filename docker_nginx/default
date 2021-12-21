@@ -26,6 +26,7 @@ server {
 
     root /var/www/html;
     autoindex on;
+	error_page 405 =200 $uri;
 
     index index.html index.htm index.nginx-debian.html;
     server_name _;
