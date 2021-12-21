@@ -42,6 +42,16 @@ const webservconfig::ConfigBase &webservconfig::ConfigBase::operator=(const Conf
   return (*this);
 }
 
+/**
+ * Init*
+ * 
+ * 引数
+ *   line: 分割後のconfigファイルの1行
+ * 説明
+ *   メンバ引数に値をセット又は追加する
+ *   内容に誤りがある場合には例外を投げる
+ */
+
 void webservconfig::ConfigBase::InitIndex(std::vector<std::string> line)
 {
   CheckNumberOfArgument(line, 2, -1);
@@ -144,6 +154,18 @@ void webservconfig::ConfigBase::InitErrorPage(std::vector<std::string> line)
   }
 }
 
+/**
+ * IsComposed
+ * 
+ * 引数
+ *   str: 対象の文字列
+ *   charset: 文字セット
+ * 戻り値
+ *   すべてcharsetで構成されていた場合はtrueそうでなければfalse
+ * 説明
+ *   strがcharset内の文字で構成されているかどうかを確認する
+ */
+
 bool webservconfig::ConfigBase::IsComposed(std::string str, std::string charset)
 {
   for (std::string::iterator iter = str.begin(); iter != str.end(); iter++) {
@@ -154,6 +176,17 @@ bool webservconfig::ConfigBase::IsComposed(std::string str, std::string charset)
   return (true);
 }
 
+/**
+ * CheckNumberOfArgument
+ * 
+ * 引数
+ *   line: 分割後のconfigファイルの1行
+ *   max_line: lineの許容される最大値(マイナスの場合は無視される)
+ *   min_line: lineの許容される最小値(マイナスの場合は無視される)
+ * 説明
+ *   引数の数が適切でない場合に例外を投げる
+ */
+
 void webservconfig::ConfigBase::CheckNumberOfArgument(std::vector<std::string> line, int min_size, int max_size) const
 {
   int size = line.size();
@@ -163,6 +196,18 @@ void webservconfig::ConfigBase::CheckNumberOfArgument(std::vector<std::string> l
                               + line[0] + std::string("\" directive"));
   }
 }
+
+/**
+ * strtoll
+ * 
+ * 引数
+ *   str: 数値変換したい文字列
+ * 戻り値
+ *   返還後の数値(0>)
+ *   数字以外が含まれていたまたは, long longを超えた場合(-1)
+ * 説明
+ *   stringをintに変換する
+ */
 
 webservconfig::ConfigBase::body_size_type webservconfig::ConfigBase::strtoll(std::string str) const
 {
@@ -180,6 +225,17 @@ webservconfig::ConfigBase::body_size_type webservconfig::ConfigBase::strtoll(std
   }
   return (rtv);
 }
+
+/**
+ * SplitLine
+ * 
+ * 引数
+ *   line: configファイルの一行
+ * 戻り値
+ *   分割されたline
+ * 説明
+ *   一つの単語ごとに分割する
+ */
 
 std::vector<std::string> webservconfig::ConfigBase::SplitLine(std::string line)
 {
@@ -205,20 +261,6 @@ std::vector<std::string> webservconfig::ConfigBase::SplitLine(std::string line)
 const webservconfig::ConfigBase::error_page_type &webservconfig::ConfigBase::GetErrorPage() const
 {
   return (this->error_page_);
-}
-
-const std::string &webservconfig::ConfigBase::GetErrorPage(std::string code) const
-{
-  (void)code;
-  std::string res("");
-  return (this->root_);
-}
-
-const std::string &webservconfig::ConfigBase::GetErrorPage(int code) const
-{
-  (void)code;
-  std::string res("");
-  return (this->root_);
 }
 
 const webservconfig::ConfigBase::index_type &webservconfig::ConfigBase::GetIndex() const
@@ -259,6 +301,35 @@ const std::string &webservconfig::ConfigBase::GetServerName() const
 const webservconfig::ConfigBase::return_type &webservconfig::ConfigBase::GetReturn() const
 {
   return (this->return_);
+}
+
+const std::string &webservconfig::ConfigBase::GetUploadPass() const
+{
+  return (this->upload_pass_);
+}
+
+const std::string &webservconfig::ConfigBase::GetUploadStore() const
+{
+  return (this->upload_store_);
+}
+
+const webservconfig::ConfigBase::extension_list_type &webservconfig::ConfigBase::GetAllowExtension() const
+{
+  return (this->allow_extension_);
+}
+
+const std::string &webservconfig::ConfigBase::GetErrorPage(std::string code) const
+{
+  (void)code;
+  std::string res("");
+  return (this->root_);
+}
+
+const std::string &webservconfig::ConfigBase::GetErrorPage(int code) const
+{
+  (void)code;
+  std::string res("");
+  return (this->root_);
 }
 
 void webservconfig::ConfigBase::PutIndex(std::ostream &os, std::string indent) const
