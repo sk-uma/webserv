@@ -6,6 +6,17 @@ webservconfig::Config::Config():
   server_()
 { }
 
+/**
+ * Config(std::string path)
+ * 
+ * 引数
+ *   path: configファイルのパス
+ * 説明
+ *   configファイルの内容を解析しメンバ変数に代入する
+ *   内容に誤りがある場合には例外を投げる
+ *   ディレクティブを解析したのちにServerディレクティブのパースに移る
+ */
+
 webservconfig::Config::Config(std::string path):
   ConfigBase(),
   file_path_(path),
@@ -40,18 +51,41 @@ webservconfig::Config::Config(std::string path):
       InitClientMaxBodySize(rtv);
     } else if (rtv[0] == "root") {
       InitRoot(rtv);
+    } else if (rtv[0] == "cgi_extension") {
+      InitCgiExtension(rtv);
     } else {
       throw std::runtime_error(std::string("not allowed directive \"") + rtv[0] + std::string("\""));
     }
   }
   for (std::vector<Server>::iterator iter = this->server_.begin(); iter != this->server_.end(); iter++) {
-    (*iter).ParseServerBlock();
+    iter->SetIndex(this->index_);
+    iter->SetErrorPage(this->error_page_);
+    iter->SetAutoIndex(this->autoindex_);
+    iter->SetClientMaxBodySize(this->client_max_body_size_);
+    iter->SetRoot(this->root_);
+    iter->SetCgiExtension(this->cgi_extension_);
+    iter->ParseServerBlock();
   }
   (void)i;
 }
 
 webservconfig::Config::~Config()
 { }
+
+webservconfig::Config::Config(const Config &other)
+{
+  *this = other;
+}
+
+const webservconfig::Config &webservconfig::Config::operator=(const Config &rhs)
+{
+  if (this != &rhs) {
+    ConfigBase::operator=(rhs);
+    this->file_path_ = rhs.file_path_;
+    this->server_ = rhs.server_;
+  }
+  return (*this);
+}
 
 void webservconfig::Config::InitServer(std::vector<std::string> line, std::ifstream &input_file)
 {
@@ -89,10 +123,11 @@ std::ostream& webservconfig::Config::PutConfig(std::ostream& os) const
   PutErrorPage(os, "├── ");
   PutAutoIndex(os, "├── ");
   PutClientMaxBodySize(os, "├── ");
+  PutRoot(os, "├── ");
   if (this->server_.size() != 0) {
-    PutRoot(os, "├── ");
+    PutCgiExtension(os, "├── ");
   } else {
-    PutRoot(os, "└── ");
+    PutCgiExtension(os, "└── ");
   }
   if (this->server_.size() != 0) {
     int size = this->server_.size();

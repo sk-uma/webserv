@@ -22,21 +22,21 @@ webservconfig::Location::Location(const Location &other)
 const webservconfig::Location &webservconfig::Location::operator=(const Location &rhs)
 {
   if (this != &rhs) {
-    this->index_ = rhs.index_;
-    this->error_page_ = rhs.error_page_;
-    this->autoindex_ = rhs.autoindex_;
-    this->client_max_body_size_ = rhs.client_max_body_size_;
-    this->root_ = rhs.root_;
-    this->index_flag_ = rhs.index_flag_;
-    this->v4_listen_ = rhs.v4_listen_;
-    this->v6_listen_ = rhs.v6_listen_;
-    this->server_name_ = rhs.server_name_;
-    this->return_ = rhs.return_;
+    // this->index_ = rhs.index_;
+    // this->error_page_ = rhs.error_page_;
+    // this->autoindex_ = rhs.autoindex_;
+    // this->client_max_body_size_ = rhs.client_max_body_size_;
+    // this->root_ = rhs.root_;
+    // this->index_flag_ = rhs.index_flag_;
+    // this->v4_listen_ = rhs.v4_listen_;
+    // this->v6_listen_ = rhs.v6_listen_;
+    // this->server_name_ = rhs.server_name_;
+    // this->return_ = rhs.return_;
     // this->upload_pass_ = rhs.upload_pass_;
     // this->upload_store_ = rhs.upload_store_;
-    this->upload_path_ = rhs.upload_path_;
+    // this->upload_path_ = rhs.upload_path_;
+    ConfigBase::operator=(rhs);
     this->block_ = rhs.block_;
-
     this->location_ = rhs.location_;
   }
   return (*this);
@@ -62,16 +62,22 @@ void webservconfig::Location::ParseLocationBlock()
       continue;
     } else if (rtv[0] == "index") {
       InitIndex(rtv);
+    } else if (rtv[0] == "error_page") {
+      InitErrorPage(rtv);
     } else if (rtv[0] == "autoindex") {
       InitAutoindex(rtv);
     } else if (rtv[0] == "client_max_body_size") {
       InitClientMaxBodySize(rtv);
-    } else if (rtv[0] == "root") {
-      InitRoot(rtv);
+    } else if (rtv[0] == "limit_except_by_deny_all") {
+      InitLimitExceptByDenyAll(rtv);
     } else if (rtv[0] == "return") {
       InitReturn(rtv);
     } else if (rtv[0] == "upload_path") {
       InitUploadPath(rtv);
+    } else if (rtv[0] == "root") {
+      InitRoot(rtv);
+    } else if (rtv[0] == "cgi_extension") {
+      InitCgiExtension(rtv);
     } else {
       throw std::runtime_error(std::string("not allowed directive \"") + rtv[0] + std::string("\""));
     }
@@ -86,10 +92,9 @@ void webservconfig::Location::PutLocation(std::ostream& os, std::string first_in
   PutErrorPage(os, indent + "├── ");
   PutAutoIndex(os, indent + "├── ");
   PutClientMaxBodySize(os, indent + "├── ");
-  // PutlimitExcept(os, indent + "├── ");
+  PutLimitExceptByDenyAll(os, indent + "├── ");
   PutReturn(os, indent + "├── ");
-  // PutUploadPass(os, indent + "├── ");
-  // PutUploadStore(os, indent + "├── ");
   PutUploadPath(os, indent + "├── ");
-  PutRoot(os, indent + "└── ");
+  PutRoot(os, indent + "├── ");
+  PutCgiExtension(os, indent + "└── ");
 }

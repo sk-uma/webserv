@@ -1,20 +1,26 @@
 #include "ConfigBase.hpp"
 
 webservconfig::ConfigBase::ConfigBase():
+  v4_listen_(),
+  v6_listen_(),
   index_(),
   error_page_(),
   autoindex_(false),
   client_max_body_size_(1048576),
-  root_("/var/www/html"),
-  index_flag_(false),
-  v4_listen_(),
-  v6_listen_(),
+  limit_except_(),
   server_name_(),
   return_(std::make_pair(-1, "")),
-  // upload_pass_(),
-  // upload_store_()
-  upload_path_()
-{ }
+  upload_path_(),
+  root_("/var/www/html"),
+  cgi_extension_(),
+  index_flag_(false),
+  cgi_extension_flag_(false)
+{
+  this->limit_except_["HEAD"] = true;
+  this->limit_except_["GET"] = true;
+  this->limit_except_["POST"] = true;
+  this->limit_except_["DELETE"] = true;
+}
 
 webservconfig::ConfigBase::ConfigBase(const ConfigBase &other)
 {
@@ -27,19 +33,21 @@ webservconfig::ConfigBase::~ConfigBase()
 const webservconfig::ConfigBase &webservconfig::ConfigBase::operator=(const ConfigBase &rhs)
 {
   if (this != &rhs) {
+    this->v4_listen_ = rhs.v4_listen_;
+    this->v6_listen_ = rhs.v6_listen_;
     this->index_ = rhs.index_;
     this->error_page_ = rhs.error_page_;
     this->autoindex_ = rhs.autoindex_;
     this->client_max_body_size_ = rhs.client_max_body_size_;
-    this->root_ = rhs.root_;
-    this->index_flag_ = rhs.index_flag_;
-    this->v4_listen_ = rhs.v4_listen_;
-    this->v6_listen_ = rhs.v6_listen_;
+    this->limit_except_ = rhs.limit_except_;
     this->server_name_ = rhs.server_name_;
     this->return_ = rhs.return_;
-    // this->upload_pass_ = rhs.upload_pass_;
-    // this->upload_store_ = rhs.upload_store_;
     this->upload_path_ = rhs.upload_path_;
+    this->root_ = rhs.root_;
+    this->cgi_extension_ = rhs.cgi_extension_;
+
+    this->index_flag_ = rhs.index_flag_;
+    this->cgi_extension_flag_ = rhs.cgi_extension_flag_;
   }
   return (*this);
 }
@@ -85,19 +93,23 @@ void webservconfig::ConfigBase::InitListen(std::vector<std::string> line)
 
 void webservconfig::ConfigBase::InitIndex(std::vector<std::string> line)
 {
-  CheckNumberOfArgument(line, 2, -1);
-  if (this->index_flag_) {
+  CheckNumberOfArgument(line, 1, -1);
+  if (!this->index_flag_) {
     this->index_.clear();
-    this->index_flag_ = false;
+    this->index_flag_ = true;
   }
-  this->index_.insert(this->index_.end(), line.begin() + 1, line.end());
+  if (line.size() == 1) {
+    this->index_.clear();
+  } else {
+    this->index_.insert(this->index_.end(), line.begin() + 1, line.end());
+  }
 }
 
 void webservconfig::ConfigBase::InitErrorPage(std::vector<std::string> line)
 {
   CheckNumberOfArgument(line, 3, -1);
 
-  for (std::vector<std::string>::iterator iter = line.begin() - 1; iter != line.end(); iter++) {
+  for (std::vector<std::string>::iterator iter = line.begin() + 1; iter != line.end() - 1; iter++) {
     int code = strtoll(*iter);
     if (code < 0) {
       throw std::runtime_error("Invalid code");
@@ -133,9 +145,32 @@ void webservconfig::ConfigBase::InitClientMaxBodySize(std::vector<std::string> l
   }
 }
 
-/**
- * not yet InitLimitExceptByDenyAll()
- */
+void webservconfig::ConfigBase::InitLimitExceptByDenyAll(std::vector<std::string> line)
+{
+  CheckNumberOfArgument(line, 1, -1);
+
+  // if (!this->limit_except_flag_) {
+  //   this->limit_except_.clear();
+  //   this->limit_except_flag_ = true;
+  // }
+  // if (line.size() == 1) {
+  //   this->limit_except_.clear();
+  // } else {
+  //   this->limit_except_.insert(this->limit_except_.end(), line.begin() + 1, line.end());
+  // }
+  this->limit_except_["HEAD"] = false;
+  this->limit_except_["POST"] = false;
+  this->limit_except_["GET"] = false;
+  this->limit_except_["DELETE"] = false;
+  for (std::vector<std::string>::iterator iter = line.begin() + 1; iter != line.end(); iter++) {
+    if (this->limit_except_.count(*iter) == 0) {
+      std::cout << *iter << std::endl;
+      throw std::runtime_error("unknown method");
+    } else {
+      this->limit_except_[*iter] = true;
+    }
+  }
+}
 
 void webservconfig::ConfigBase::InitServerName(std::vector<std::string> line)
 {
@@ -167,8 +202,23 @@ void webservconfig::ConfigBase::InitRoot(std::vector<std::string> line)
   this->root_ = line[1];
 }
 
+void webservconfig::ConfigBase::InitCgiExtension(std::vector<std::string> line)
+{
+  CheckNumberOfArgument(line, 1, -1);
+
+  if (!this->cgi_extension_flag_) {
+    this->cgi_extension_.clear();
+    this->cgi_extension_flag_ = true;
+  }
+  if (line.size() == 1) {
+    this->cgi_extension_.clear();
+  } else {
+    this->cgi_extension_.insert(this->cgi_extension_.end(), line.begin() + 1, line.end());
+  }
+}
+
 /**
- * not yet InitCgiExtension()
+ * Utility関数
  */
 
 /**
@@ -275,82 +325,43 @@ std::vector<std::string> webservconfig::ConfigBase::SplitLine(std::string line)
   return (rtv);
 }
 
-const webservconfig::ConfigBase::listen_type &webservconfig::ConfigBase::GetListenV4() const
-{
-  return (this->v4_listen_);
-}
-
-const webservconfig::ConfigBase::listen_type &webservconfig::ConfigBase::GetListenV6() const
-{
-  return (this->v6_listen_);
-}
-
-const webservconfig::ConfigBase::index_type &webservconfig::ConfigBase::GetIndex() const
-{
-  return (this->index_);
-}
-
-const webservconfig::ConfigBase::error_page_type &webservconfig::ConfigBase::GetErrorPage() const
-{
-  return (this->error_page_);
-}
-
-bool webservconfig::ConfigBase::GetAutoIndex() const
-{
-  return (this->autoindex_);
-}
-
-webservconfig::ConfigBase::body_size_type webservconfig::ConfigBase::GetClientMaxBodySize() const
-{
-  return (this->client_max_body_size_);
-}
-
 /**
- * not yet GetLimitExceptByDenyAll()
+ * Setter
  */
 
-const std::string &webservconfig::ConfigBase::GetServerName() const
-{
-  return (this->server_name_);
-}
-
-const webservconfig::ConfigBase::return_type &webservconfig::ConfigBase::GetReturn() const
-{
-  return (this->return_);
-}
-
-const std::string &webservconfig::ConfigBase::GetUploadPath() const
-{
-  return (this->upload_path_);
-}
-
-const std::string &webservconfig::ConfigBase::GetRoot() const
-{
-  return (this->root_);
-}
+void webservconfig::ConfigBase::SetListenV4(const webservconfig::ConfigBase::listen_type &listen) { this->v4_listen_ = listen; }
+void webservconfig::ConfigBase::SetListenV6(const webservconfig::ConfigBase::listen_type &listen) { this->v6_listen_ = listen; }
+void webservconfig::ConfigBase::SetIndex(const webservconfig::ConfigBase::index_type &index) { this->index_ = index; }
+void webservconfig::ConfigBase::SetErrorPage(const webservconfig::ConfigBase::error_page_type &error_page) { this->error_page_ = error_page; }
+void webservconfig::ConfigBase::SetAutoIndex(bool autoindex) { this->autoindex_ = autoindex; }
+void webservconfig::ConfigBase::SetClientMaxBodySize(webservconfig::ConfigBase::body_size_type size) { this->client_max_body_size_ = size; }
+void webservconfig::ConfigBase::SetLimitExceptByDenyAll(const limit_except_type &limit_except) { this->limit_except_ = limit_except; }
+void webservconfig::ConfigBase::SetServerName(const std::string &server_name) { this->server_name_ = server_name; }
+void webservconfig::ConfigBase::SetReturn(const webservconfig::ConfigBase::return_type &rt) { this->return_ = rt; }
+void webservconfig::ConfigBase::SetUploadPath(const std::string &path) { this->upload_path_ = path; }
+void webservconfig::ConfigBase::SetRoot(const std::string &path) { this->root_ = path; }
+void webservconfig::ConfigBase::SetCgiExtension(const extension_list_type &extension) { this->cgi_extension_ = extension; }
 
 /**
- * not yet GetCgiExtension()
+ * Getter
  */
 
-// const std::string &webservconfig::ConfigBase::GetUploadPass() const
-// {
-//   return (this->upload_pass_);
-// }
-
-// const std::string &webservconfig::ConfigBase::GetUploadStore() const
-// {
-//   return (this->upload_store_);
-// }
+const webservconfig::ConfigBase::listen_type &webservconfig::ConfigBase::GetListenV4() const { return (this->v4_listen_); }
+const webservconfig::ConfigBase::listen_type &webservconfig::ConfigBase::GetListenV6() const { return (this->v6_listen_); }
+const webservconfig::ConfigBase::index_type &webservconfig::ConfigBase::GetIndex() const { return (this->index_); }
+const webservconfig::ConfigBase::error_page_type &webservconfig::ConfigBase::GetErrorPage() const { return (this->error_page_); }
+bool webservconfig::ConfigBase::GetAutoIndex() const { return (this->autoindex_); }
+webservconfig::ConfigBase::body_size_type webservconfig::ConfigBase::GetClientMaxBodySize() const { return (this->client_max_body_size_); }
+const webservconfig::ConfigBase::limit_except_type &webservconfig::ConfigBase::GetLimitExceptByDenyAll() const { return (this->limit_except_); }
+const std::string &webservconfig::ConfigBase::GetServerName() const { return (this->server_name_); }
+const webservconfig::ConfigBase::return_type &webservconfig::ConfigBase::GetReturn() const { return (this->return_); }
+const std::string &webservconfig::ConfigBase::GetUploadPath() const { return (this->upload_path_); }
+const std::string &webservconfig::ConfigBase::GetRoot() const { return (this->root_); }
+const webservconfig::ConfigBase::extension_list_type &webservconfig::ConfigBase::GetCgiExtension() const { return (this->cgi_extension_); }
 
 /**
  * Utility Getter
  */
-
-const webservconfig::ConfigBase::extension_list_type &webservconfig::ConfigBase::GetAllowExtension() const
-{
-  return (this->allow_extension_);
-}
 
 const std::string &webservconfig::ConfigBase::GetErrorPage(std::string code) const
 {
@@ -396,8 +407,6 @@ void webservconfig::ConfigBase::PutListenV6(std::ostream &os, std::string indent
 
 void webservconfig::ConfigBase::PutIndex(std::ostream &os, std::string indent) const
 {
-  std::string rtv;
-
   os << indent << "index               : ";
   if (this->index_.size() != 0) {
     for (index_type::const_iterator iter = this->index_.begin();
@@ -439,9 +448,24 @@ void webservconfig::ConfigBase::PutClientMaxBodySize(std::ostream &os, std::stri
   os << indent << "client_max_body_size: " << this->client_max_body_size_ << std::endl;
 }
 
-/**
- * not yet PutLimitExceptByDenyAll()
- */
+void webservconfig::ConfigBase::PutLimitExceptByDenyAll(std::ostream &os, std::string indent) const
+{
+  bool first_flag = true;
+
+  os << indent << "limit_except(Allow) : ";
+  for (limit_except_type::const_iterator iter = this->limit_except_.begin();
+       iter != this->limit_except_.end(); iter++) {
+    if (iter->second) {
+      if (first_flag) {
+        first_flag = false;
+      } else {
+        os << ", ";
+      }
+      os << iter->first;
+    }
+  }
+  os << std::endl;
+}
 
 void webservconfig::ConfigBase::PutServerName(std::ostream &os, std::string indent) const
 {
@@ -463,16 +487,15 @@ void webservconfig::ConfigBase::PutRoot(std::ostream &os, std::string indent) co
   os << indent << "root                : " << this->root_ << std::endl;
 }
 
-/**
- * not yet PutCgiExtension()
- */
-
-// void webservconfig::ConfigBase::PutUploadPass(std::ostream &os, std::string indent) const
-// {
-//   os << indent << "upload_pass         : xxxxxx" << std::endl;
-// }
-
-// void webservconfig::ConfigBase::PutUploadStore(std::ostream &os, std::string indent) const
-// {
-//   os << indent << "upload_store        : xxxxxx" << std::endl;
-// }
+void webservconfig::ConfigBase::PutCgiExtension(std::ostream &os, std::string indent) const
+{
+  os << indent << "cgi_extension       : ";
+  if (this->cgi_extension_.size() != 0) {
+    for (extension_list_type::const_iterator iter = this->cgi_extension_.begin();
+         iter != (this->cgi_extension_.end() - 1); iter++) {
+      os << *iter << ", ";
+    }
+    os << *(this->cgi_extension_.end() - 1);
+  }
+  os << std::endl;
+}

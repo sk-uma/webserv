@@ -20,6 +20,6 @@ int main(int argc, char *argv[])
     // std::cout << "in main: " << config.GetServer().begin()->GetListenV4().begin()->first << std::endl;
     std::cout << config;
   } catch (const std::exception &e) {
-    std::cout << "exception: " << e.what() << std::endl;
+    std::cerr << "exception: " << e.what() << std::endl;
   }
 }
