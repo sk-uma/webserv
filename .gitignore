@@ -3,3 +3,6 @@
 
 # object file
 *.o
+
+# exec file
+a.out
