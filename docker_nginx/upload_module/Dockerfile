@@ -72,4 +72,4 @@ COPY cgifile /usr/lib/cgi-bin
 RUN chmod -R 755 /usr/lib/cgi-bin
 RUN sed -i -e 's/#user  nobody/user www-data/g' /etc/nginx/nginx.conf
 
-CMD /bin/sh /root/setup.sh
+CMD /bin/bash /root/setup.sh
