@@ -370,7 +370,7 @@ int		Response::upload_file(const char *path, RequestParser &request)
 		output = (*it).substr((*it).find("\r\n\r\n") + std::string("\r\n\r\n").length());
 		output = output.substr(0, output.length() - 2);
 
-		std::ofstream		ofs(std::string(path) + filename, std::ios::binary);
+		std::ofstream		ofs((std::string(path) + filename).c_str(), std::ios::binary);
 		if (!ofs)
 			return(STATUS_INTERNAL_SERVER_ERROR);
 		else
