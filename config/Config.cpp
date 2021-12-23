@@ -32,6 +32,8 @@ webservconfig::Config::Config(std::string path):
       InitServer(rtv, input_file);
     } else if (rtv[0] == "index") {
       InitIndex(rtv);
+    } else if (rtv[0] == "error_page") {
+      InitErrorPage(rtv);
     } else if (rtv[0] == "autoindex") {
       InitAutoindex(rtv);
     } else if (rtv[0] == "client_max_body_size") {
