@@ -10,9 +10,10 @@ webservconfig::ConfigBase::ConfigBase():
   v4_listen_(),
   v6_listen_(),
   server_name_(),
-  return_(),
-  upload_pass_(),
-  upload_store_()
+  return_(std::make_pair(-1, "")),
+  // upload_pass_(),
+  // upload_store_()
+  upload_path_()
 { }
 
 webservconfig::ConfigBase::ConfigBase(const ConfigBase &other)
@@ -36,8 +37,9 @@ const webservconfig::ConfigBase &webservconfig::ConfigBase::operator=(const Conf
     this->v6_listen_ = rhs.v6_listen_;
     this->server_name_ = rhs.server_name_;
     this->return_ = rhs.return_;
-    this->upload_pass_ = rhs.upload_pass_;
-    this->upload_store_ = rhs.upload_store_;
+    // this->upload_pass_ = rhs.upload_pass_;
+    // this->upload_store_ = rhs.upload_store_;
+    this->upload_path_ = rhs.upload_path_;
   }
   return (*this);
 }
@@ -152,6 +154,13 @@ void webservconfig::ConfigBase::InitErrorPage(std::vector<std::string> line)
       this->error_page_[code] = *(line.end() - 1);
     }
   }
+}
+
+void webservconfig::ConfigBase::InitUploadPath(std::vector<std::string> line)
+{
+  CheckNumberOfArgument(line, 2, 2);
+
+  this->upload_path_ = line[1];
 }
 
 /**
@@ -303,14 +312,19 @@ const webservconfig::ConfigBase::return_type &webservconfig::ConfigBase::GetRetu
   return (this->return_);
 }
 
-const std::string &webservconfig::ConfigBase::GetUploadPass() const
-{
-  return (this->upload_pass_);
-}
+// const std::string &webservconfig::ConfigBase::GetUploadPass() const
+// {
+//   return (this->upload_pass_);
+// }
 
-const std::string &webservconfig::ConfigBase::GetUploadStore() const
+// const std::string &webservconfig::ConfigBase::GetUploadStore() const
+// {
+//   return (this->upload_store_);
+// }
+
+const std::string &webservconfig::ConfigBase::GetUploadPath() const
 {
-  return (this->upload_store_);
+  return (this->upload_path_);
 }
 
 const webservconfig::ConfigBase::extension_list_type &webservconfig::ConfigBase::GetAllowExtension() const
@@ -413,15 +427,20 @@ void webservconfig::ConfigBase::PutServerName(std::ostream &os, std::string inde
 
 void webservconfig::ConfigBase::PutReturn(std::ostream &os, std::string indent) const
 {
-  os << indent << "return              : xxxxxx" << std::endl;
+  os << indent << "return              : " << this->return_.first << ", " << this->return_.second << std::endl;
 }
 
-void webservconfig::ConfigBase::PutUploadPass(std::ostream &os, std::string indent) const
-{
-  os << indent << "upload_pass         : xxxxxx" << std::endl;
-}
+// void webservconfig::ConfigBase::PutUploadPass(std::ostream &os, std::string indent) const
+// {
+//   os << indent << "upload_pass         : xxxxxx" << std::endl;
+// }
 
-void webservconfig::ConfigBase::PutUploadStore(std::ostream &os, std::string indent) const
+// void webservconfig::ConfigBase::PutUploadStore(std::ostream &os, std::string indent) const
+// {
+//   os << indent << "upload_store        : xxxxxx" << std::endl;
+// }
+
+void webservconfig::ConfigBase::PutUploadPath(std::ostream &os, std::string indent) const
 {
-  os << indent << "upload_store        : xxxxxx" << std::endl;
+  os << indent << "upload_path         : " << this->upload_path_ << std::endl;
 }

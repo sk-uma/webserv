@@ -32,8 +32,9 @@ const webservconfig::Location &webservconfig::Location::operator=(const Location
     this->v6_listen_ = rhs.v6_listen_;
     this->server_name_ = rhs.server_name_;
     this->return_ = rhs.return_;
-    this->upload_pass_ = rhs.upload_pass_;
-    this->upload_store_ = rhs.upload_store_;
+    // this->upload_pass_ = rhs.upload_pass_;
+    // this->upload_store_ = rhs.upload_store_;
+    this->upload_path_ = rhs.upload_path_;
     this->block_ = rhs.block_;
 
     this->location_ = rhs.location_;
@@ -69,6 +70,8 @@ void webservconfig::Location::ParseLocationBlock()
       InitRoot(rtv);
     } else if (rtv[0] == "return") {
       InitReturn(rtv);
+    } else if (rtv[0] == "upload_path") {
+      InitUploadPath(rtv);
     } else {
       throw std::runtime_error(std::string("not allowed directive \"") + rtv[0] + std::string("\""));
     }
@@ -85,7 +88,8 @@ void webservconfig::Location::PutLocation(std::ostream& os, std::string first_in
   PutClientMaxBodySize(os, indent + "├── ");
   // PutlimitExcept(os, indent + "├── ");
   PutReturn(os, indent + "├── ");
-  PutUploadPass(os, indent + "├── ");
-  PutUploadStore(os, indent + "├── ");
+  // PutUploadPass(os, indent + "├── ");
+  // PutUploadStore(os, indent + "├── ");
+  PutUploadPath(os, indent + "├── ");
   PutRoot(os, indent + "└── ");
 }

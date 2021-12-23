@@ -37,8 +37,9 @@ namespace webservconfig
       listen_type               v6_listen_;
       std::string               server_name_;
       return_type               return_;
-      std::string               upload_pass_;
-      std::string               upload_store_;
+      // std::string               upload_pass_;
+      // std::string               upload_store_;
+      std::string               upload_path_;
       extension_list_type       allow_extension_;
 
     protected:
@@ -55,8 +56,9 @@ namespace webservconfig
       void  InitServerName(std::vector<std::string> line);
       void  InitReturn(std::vector<std::string> line);
       void  InitErrorPage(std::vector<std::string> line);
-      void  InitUploadPass(std::vector<std::string> line);
-      void  InitUploadStore(std::vector<std::string> line);
+      // void  InitUploadPass(std::vector<std::string> line);
+      // void  InitUploadStore(std::vector<std::string> line);
+      void  InitUploadPath(std::vector<std::string> line);
       void  InitAllowExtension(std::vector<std::string> line);
 
 /**
@@ -87,8 +89,9 @@ namespace webservconfig
       const listen_type         &GetListenV6() const;
       const std::string         &GetServerName() const;
       const return_type         &GetReturn() const;
-      const std::string         &GetUploadPass() const;
-      const std::string         &GetUploadStore() const;
+      // const std::string         &GetUploadPass() const;
+      // const std::string         &GetUploadStore() const;
+      const std::string         &GetUploadPath() const;
       const extension_list_type &GetAllowExtension() const;
 
 /**
@@ -111,8 +114,9 @@ namespace webservconfig
       void            PutListenV6(std::ostream &os, std::string indent) const;
       void            PutServerName(std::ostream &os, std::string indent) const;
       void            PutReturn(std::ostream &os, std::string indent) const;
-      void            PutUploadPass(std::ostream &os, std::string indent) const;
-      void            PutUploadStore(std::ostream &os, std::string indent) const;
+      // void            PutUploadPass(std::ostream &os, std::string indent) const;
+      // void            PutUploadStore(std::ostream &os, std::string indent) const;
+      void            PutUploadPath(std::ostream &os, std::string indent) const;
   };
 }
 
