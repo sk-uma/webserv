@@ -6,6 +6,8 @@
 # include <map>
 # include <vector>
 
+# include "Config.hpp"
+
 # ifndef EXIT_SUCCESS
 #  define EXIT_SUCCESS 1
 # endif

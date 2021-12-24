@@ -22,19 +22,6 @@ webservconfig::Location::Location(const Location &other)
 const webservconfig::Location &webservconfig::Location::operator=(const Location &rhs)
 {
   if (this != &rhs) {
-    // this->index_ = rhs.index_;
-    // this->error_page_ = rhs.error_page_;
-    // this->autoindex_ = rhs.autoindex_;
-    // this->client_max_body_size_ = rhs.client_max_body_size_;
-    // this->root_ = rhs.root_;
-    // this->index_flag_ = rhs.index_flag_;
-    // this->v4_listen_ = rhs.v4_listen_;
-    // this->v6_listen_ = rhs.v6_listen_;
-    // this->server_name_ = rhs.server_name_;
-    // this->return_ = rhs.return_;
-    // this->upload_pass_ = rhs.upload_pass_;
-    // this->upload_store_ = rhs.upload_store_;
-    // this->upload_path_ = rhs.upload_path_;
     ConfigBase::operator=(rhs);
     this->block_ = rhs.block_;
     this->location_ = rhs.location_;
@@ -42,12 +29,13 @@ const webservconfig::Location &webservconfig::Location::operator=(const Location
   return (*this);
 }
 
-// upload, allow_method
+std::string webservconfig::Location::GetLocationPath() const
+{
+  return (this->location_);
+}
 
 void webservconfig::Location::ParseLocationBlock()
 {
-  // std::cout << "ParseBlock" << std::endl;
-  // std::cout << this->block_;
   std::istringstream iss(this->block_);
   std::string line;
 

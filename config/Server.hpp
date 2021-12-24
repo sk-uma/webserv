@@ -39,7 +39,17 @@ namespace webservconfig
 
       std::ostream& PutServer(std::ostream& os, std::string first_indent, std::string indent) const;
 
+/**
+ * Getter
+ */
+
       const std::vector<Location> &GetLocation() const;
+
+/**
+ * Utility Getter
+ */
+
+      std::pair<int, const webservconfig::Location &> GetLocation(const std::string &path) const;
   };
 };
 

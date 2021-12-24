@@ -73,7 +73,7 @@ namespace webservconfig
 
     public:
       ConfigBase();
-      ~ConfigBase();
+      virtual ~ConfigBase();
       ConfigBase(const ConfigBase &other);
       const ConfigBase &operator=(const ConfigBase &other);
 

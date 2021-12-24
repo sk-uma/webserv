@@ -12,6 +12,8 @@
 # include <cstring>
 # include <stdlib.h>
 # include <cerrno>
+# include <netdb.h>
+# include <arpa/inet.h>
 
 # include "ConfigUtils.hpp"
 # include "Server.hpp"
@@ -48,6 +50,10 @@ namespace webservconfig
       const std::vector<Server> &GetServer() const;
 
       std::ostream& PutConfig(std::ostream& os) const;
+      // std::pair<int, const webservconfig::ConfigBase &> GetConfigBase(std::string port,
+      //   std::string address, bool is_v6, std::string hostname,std::string path) const;
+      std::pair<int, webservconfig::ConfigBase *> GetConfigBase(
+        struct addrinfo ai, const std::string &hostname, const std::string &path) const;
   };
 };
 

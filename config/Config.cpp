@@ -116,6 +116,79 @@ const std::vector<webservconfig::Server> &webservconfig::Config::GetServer() con
   return (this->server_);
 }
 
+// std::pair<int, const webservconfig::ConfigBase &> webservconfig::Config::GetConfigBase(
+//   std::string port, std::string address, bool is_v6, std::string hostnae,std::string path) const
+// {
+//   for (std::vector<Server>::const_iterator iter = this->server_.begin();
+//        iter != this->server_.end(); iter++) {
+//     iter->GetListenV4();
+//   }
+// }
+
+void *get_in_addr(struct sockaddr *sa)
+{
+  if (sa->sa_family == AF_INET)
+    return &(((struct sockaddr_in*)sa)->sin_addr);
+  return &(((struct sockaddr_in6*)sa)->sin6_addr);
+}
+
+u_short get_in_port(struct sockaddr *sa)
+{
+  if (sa->sa_family == AF_INET)
+    return ntohs(((struct sockaddr_in *)sa)->sin_port);
+  return ntohs(((struct sockaddr_in6 *)sa)->sin6_port);
+}
+
+/**
+ * !!!!!!!!!! 廃棄予定 !!!!!!!!!!
+ * 
+ * GetConfigBase(struct sockaddr sa, const std::string& hostname, const std::string& path);
+ * 
+ * 引数
+ *   sa: socketにバインドしたアドレス
+ *   hostname: configファイルで設定されたserver_name
+ *   path: リクエストがきたURI中のpath
+ * 戻り値
+ *   first: configBaseの種別 0=Config(当てはまるserverが見つからない), 1=Server, 2=Location
+ *   second: configBaseにキャストしたポインタ
+ * 説明
+ *   引数で与えられたヒントに一致するConfigBaseを返す.
+ */
+
+std::pair<int, webservconfig::ConfigBase *> webservconfig::Config::GetConfigBase(
+  struct addrinfo ai, const std::string &hostname, const std::string &path) const
+{
+  (void)ai;
+  (void)hostname;
+  (void)path;
+  struct addrinfo *p = &ai;
+  char s[INET6_ADDRSTRLEN];
+  const char *res = inet_ntop(p->ai_family, get_in_addr((struct sockaddr *)p->ai_addr), s, sizeof(s));
+  int port = get_in_port(p->ai_addr);
+  if (res) {
+    std::cout << "Requests:" << std::endl;
+    std::cout << s << std::endl;
+    std::cout << port << std::endl;
+  }
+  for (std::vector<Server>::const_iterator iter = this->server_.begin();
+       iter != this->server_.end(); iter++) {
+    webservconfig::ConfigBase::listen_type listen_vector;
+    if (p->ai_addr->sa_family == AF_INET) {
+      listen_vector = iter->GetListenV4();
+    } else {
+      listen_vector = iter->GetListenV6();
+    }
+    for (webservconfig::ConfigBase::listen_type::const_iterator it = listen_vector.begin();
+         it != listen_vector.end(); it++) {
+      std::cout << it->first << ", " << it->second << std::endl;
+      if (it->second == port && it->first == std::string(res)) {
+        std::cout << "match!!" << std::endl;
+      }
+    }
+  }
+  return std::make_pair(0, (ConfigBase *)this);
+}
+
 std::ostream& webservconfig::Config::PutConfig(std::ostream& os) const
 {
   os << "Config [" << this->file_path_ << "]" << std::endl;

@@ -21,19 +21,6 @@ webservconfig::Server::Server(const Server &other)
 const webservconfig::Server &webservconfig::Server::operator=(const Server &rhs)
 {
   if (this != &rhs) {
-    // this->index_ = rhs.index_;
-    // this->error_page_ = rhs.error_page_;
-    // this->autoindex_ = rhs.autoindex_;
-    // this->client_max_body_size_ = rhs.client_max_body_size_;
-    // this->root_ = rhs.root_;
-    // this->index_flag_ = rhs.index_flag_;
-    // this->v4_listen_ = rhs.v4_listen_;
-    // this->v6_listen_ = rhs.v6_listen_;
-    // this->server_name_ = rhs.server_name_;
-    // this->return_ = rhs.return_;
-    // this->upload_pass_ = rhs.upload_pass_;
-    // this->upload_store_ = rhs.upload_store_;
-    // this->upload_path_ = rhs.upload_path_;
     ConfigBase::operator=(rhs);
     this->block_ = rhs.block_;
     this->location_ = rhs.location_;
@@ -41,12 +28,8 @@ const webservconfig::Server &webservconfig::Server::operator=(const Server &rhs)
   return (*this);
 }
 
-// upload, allow_method
-
 void webservconfig::Server::ParseServerBlock()
 {
-  // std::cout << "ParseBlock" << std::endl;
-  // std::cout << this->block_;
   std::istringstream iss(this->block_);
   std::string line;
 
@@ -103,7 +86,6 @@ void webservconfig::Server::ParseServerBlock()
     iter->ParseLocationBlock();
   }
   (void)i;
-  // std::cout << "init: " << (GetListenV4().begin())->first << ":" << (GetListenV4().begin())->second << std::endl;
 }
 
 void webservconfig::Server::InitLocation(std::vector<std::string> line, std::istringstream &input)
@@ -122,15 +104,39 @@ void webservconfig::Server::InitLocation(std::vector<std::string> line, std::ist
   this->location_.push_back(location);
 }
 
+/**
+ * Getter
+ */
+
 const std::vector<webservconfig::Location> &webservconfig::Server::GetLocation() const
 {
   return (this->location_);
 }
 
+/**
+ * Utility Getter
+ */
+
+std::pair<int, const webservconfig::Location &> webservconfig::Server::GetLocation(const std::string &path) const
+{
+  int compare_len = -1;
+  webservconfig::Location compare_location;
+
+  for (std::vector<Location>::const_iterator iter = this->location_.begin();
+       iter != this->location_.end(); iter++) {
+    if (iter->GetLocationPath().compare(0, iter->GetLocationPath().size(), path)) {
+      if (compare_len < (int)iter->GetLocationPath().size()) {
+        compare_len = iter->GetLocationPath().size();
+        compare_location = *iter;
+      }
+    }
+  }
+  return std::make_pair(compare_len, compare_location);
+}
+
 std::ostream& webservconfig::Server::PutServer(std::ostream& os, std::string first_indent, std::string indent) const
 {
   os << first_indent << "Server [" << this->server_name_ << "]" << std::endl;
-  // std::cout << "put: " << (GetListenV4().begin())->first << ":" << (GetListenV4().begin())->second << std::endl;
   PutListenV4(os, indent + "├── ");
   PutListenV6(os, indent + "├── ");
   PutIndex(os, indent + "├── ");
