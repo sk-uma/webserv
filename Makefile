@@ -19,6 +19,8 @@ SRC =	./main/main.cpp \
 		./server/Response.cpp \
 		./server/util_func.cpp
 
+SRC += $(wildcard config/*.cpp)
+
 OBJ = $(SRC:.cpp=.o)
 
 CXXFLAGS = -Wall -Werror -Wextra -I ./temp_config -I ./server
