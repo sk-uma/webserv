@@ -1,6 +1,6 @@
-#include "Config.hpp"
+#include "ServerCollection.hpp"
 
-webservconfig::Config::Config():
+webservconfig::ServerCollection::ServerCollection():
   ConfigBase(),
   file_path_(),
   server_()
@@ -17,7 +17,7 @@ webservconfig::Config::Config():
  *   ディレクティブを解析したのちにServerディレクティブのパースに移る
  */
 
-webservconfig::Config::Config(std::string path):
+webservconfig::ServerCollection::ServerCollection(std::string path):
   ConfigBase(),
   file_path_(path),
   server_()
@@ -69,15 +69,15 @@ webservconfig::Config::Config(std::string path):
   (void)i;
 }
 
-webservconfig::Config::~Config()
+webservconfig::ServerCollection::~ServerCollection()
 { }
 
-webservconfig::Config::Config(const Config &other)
+webservconfig::ServerCollection::ServerCollection(const ServerCollection &other)
 {
   *this = other;
 }
 
-const webservconfig::Config &webservconfig::Config::operator=(const Config &rhs)
+const webservconfig::ServerCollection &webservconfig::ServerCollection::operator=(const ServerCollection &rhs)
 {
   if (this != &rhs) {
     ConfigBase::operator=(rhs);
@@ -87,7 +87,7 @@ const webservconfig::Config &webservconfig::Config::operator=(const Config &rhs)
   return (*this);
 }
 
-void webservconfig::Config::InitServer(std::vector<std::string> line, std::ifstream &input_file)
+void webservconfig::ServerCollection::InitServer(std::vector<std::string> line, std::ifstream &input_file)
 {
   std::string block, buf;
 
@@ -106,17 +106,17 @@ void webservconfig::Config::InitServer(std::vector<std::string> line, std::ifstr
   (void)line;
 }
 
-std::string webservconfig::Config::GetFilePath() const
+std::string webservconfig::ServerCollection::GetFilePath() const
 {
   return (this->file_path_);
 }
 
-const std::vector<webservconfig::Server> &webservconfig::Config::GetServer() const
+const std::vector<webservconfig::Server> &webservconfig::ServerCollection::GetServer() const
 {
   return (this->server_);
 }
 
-// std::pair<int, const webservconfig::ConfigBase &> webservconfig::Config::GetConfigBase(
+// std::pair<int, const webservconfig::ConfigBase &> webservconfig::ServerCollection::GetConfigBase(
 //   std::string port, std::string address, bool is_v6, std::string hostnae,std::string path) const
 // {
 //   for (std::vector<Server>::const_iterator iter = this->server_.begin();
@@ -155,7 +155,7 @@ u_short get_in_port(struct sockaddr *sa)
  *   引数で与えられたヒントに一致するConfigBaseを返す.
  */
 
-std::pair<int, webservconfig::ConfigBase *> webservconfig::Config::GetConfigBase(
+std::pair<int, webservconfig::ConfigBase *> webservconfig::ServerCollection::GetConfigBase(
   struct addrinfo ai, const std::string &hostname, const std::string &path) const
 {
   (void)ai;
@@ -189,7 +189,7 @@ std::pair<int, webservconfig::ConfigBase *> webservconfig::Config::GetConfigBase
   return std::make_pair(0, (ConfigBase *)this);
 }
 
-std::ostream& webservconfig::Config::PutConfig(std::ostream& os) const
+std::ostream& webservconfig::ServerCollection::PutConfig(std::ostream& os) const
 {
   os << "Config [" << this->file_path_ << "]" << std::endl;
   PutIndex(os, "├── ");
@@ -218,7 +218,7 @@ std::ostream& webservconfig::Config::PutConfig(std::ostream& os) const
   return (os);
 }
 
-std::ostream& operator<<(std::ostream& os, const webservconfig::Config& config)
+std::ostream& operator<<(std::ostream& os, const webservconfig::ServerCollection& config)
 {
   return (config.PutConfig(os));
 }

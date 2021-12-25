@@ -14,26 +14,43 @@
 # define SOCKET_HPP
 
 # include "config.hpp"
+# include "Config.hpp"
+# include "Server.hpp"
+
 
 class Socket
 {
 	private:
-		int					listenfd;
-		std::string			StrPort;
+		int								listenfd;
+		std::string				StrPort;
+		std::string       address;
 		struct addrinfo		hints;
 		struct addrinfo		*ai;
-	
+		std::map<std::string, webservconfig::Server> server;
+
 	public:
 		Socket(void);
 		explicit Socket(std::string port_);
+		explicit Socket(std::string port, const std::string &address);
 		~Socket(void);
 		Socket (Socket const &copy);
 		Socket &operator=(Socket const &obj);
-		
+
+/**
+ * Setter
+ */
+
 		void	set_listenfd();
-		void	set_sockaddr_in();
+		int		set_sockaddr_in();
 		int		set_socket();
+
+/**
+ * Getter
+ */
+
 		int		get_listenfd() const;
+		const std::string &get_port() const;
+		const std::string &get_address() const;
 };
 
 #endif

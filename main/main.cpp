@@ -14,6 +14,7 @@
 #include "socket.hpp"
 #include "RequestParser.hpp"
 #include "Response.hpp"
+#include "ServerCollection.hpp"
 
 int		g_SIGPIPE_FLAG = 0;
 
@@ -36,10 +37,17 @@ void	sigpipe_wait(void)
 
 int	main(int argc, char **argv)
 {
+	if (argc != 2) {
+		std::cerr << "usage: webserv [config file path]" << std::endl;
+	}
+	webservconfig::ServerCollection config(argv[1]);
+
 	sigpipe_wait();
 	(void)argc;
 		//環境変数EXE_DIRに実行ファイルのディレクトリを格納する
 	setenv_exedir(argv);
+
+	// std::cout << "in main" << std::endl;
 
 	//複数のポートを使用できるようにvector<Socket> sockを作成する
 	//現状、お試しでvector<string> ports を作成してから、

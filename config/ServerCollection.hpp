@@ -1,5 +1,5 @@
-#ifndef CONFIG_HPP
-# define CONFIG_HPP
+#ifndef SERVERCOLLECTION_HPP
+# define SERVERCOLLECTION_HPP
 
 # include <iostream>
 # include <vector>
@@ -16,11 +16,12 @@
 # include <arpa/inet.h>
 
 # include "ConfigUtils.hpp"
+# include "ConfigBase.hpp"
 # include "Server.hpp"
 
 namespace webservconfig
 {
-  class Config: public ConfigBase
+  class ServerCollection: public ConfigBase
   {
 
   /**
@@ -40,11 +41,11 @@ namespace webservconfig
    * normalize
    */
 
-      Config();
-      Config(std::string path);
-      ~Config();
-      Config(const Config &other);
-      const Config &operator=(const Config &rhs);
+      ServerCollection();
+      ServerCollection(std::string path);
+      ~ServerCollection();
+      ServerCollection(const ServerCollection &other);
+      const ServerCollection &operator=(const ServerCollection &rhs);
 
       std::string GetFilePath() const;
       const std::vector<Server> &GetServer() const;
@@ -57,6 +58,6 @@ namespace webservconfig
   };
 };
 
-std::ostream& operator<<(std::ostream& os, const webservconfig::Config& dt);
+std::ostream& operator<<(std::ostream& os, const webservconfig::ServerCollection& dt);
 
 #endif

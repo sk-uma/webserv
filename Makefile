@@ -23,7 +23,7 @@ SRC += $(wildcard config/*.cpp)
 
 OBJ = $(SRC:.cpp=.o)
 
-CXXFLAGS = -Wall -Werror -Wextra -I ./temp_config -I ./server
+CXXFLAGS = -Wall -Werror -Wextra -I ./temp_config -I ./server -I ./config
 
 
 STDLIB = -std=c++98
