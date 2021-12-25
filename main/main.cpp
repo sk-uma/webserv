@@ -15,6 +15,7 @@
 #include "RequestParser.hpp"
 #include "Response.hpp"
 #include "ServerCollection.hpp"
+#include "SocketCollection.hpp"
 
 int		g_SIGPIPE_FLAG = 0;
 
@@ -41,6 +42,7 @@ int	main(int argc, char **argv)
 		std::cerr << "usage: webserv [config file path]" << std::endl;
 	}
 	webservconfig::ServerCollection config(argv[1]);
+	SocketCollection socket_c(config);
 
 	sigpipe_wait();
 	(void)argc;

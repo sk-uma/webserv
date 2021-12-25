@@ -13,13 +13,15 @@
 
 NAME = webserv
 
-SRC =	./main/main.cpp \
-		./server/socket.cpp \
-		./server/RequestParser.cpp \
-		./server/Response.cpp \
-		./server/util_func.cpp
+# SRC =	./main/main.cpp \
+# 		./server/socket.cpp \
+# 		./server/RequestParser.cpp \
+# 		./server/Response.cpp \
+# 		./server/util_func.cpp
 
+SRC = ./main/main.cpp
 SRC += $(wildcard config/*.cpp)
+SRC += $(wildcard server/*.cpp)
 
 OBJ = $(SRC:.cpp=.o)
 
