@@ -19,11 +19,16 @@ NAME = webserv
 # 		./server/Response.cpp \
 # 		./server/util_func.cpp
 
-SRC = ./main/main.cpp
+MAIN = ./main/main.cpp
 SRC += $(wildcard config/*.cpp)
 SRC += $(wildcard server/*.cpp)
 
 OBJ = $(SRC:.cpp=.o)
+MAIN_OBJ = $(MAIN:.cpp=.o)
+
+CONFIGTEST_NAME = webserv_t
+CONFIGTEST_MAIN = ./config/test/main.cpp
+CONFIGTEST_OBJ = $(CONFIGTEST_MAIN:.cpp=.o)
 
 CXXFLAGS = -Wall -Werror -Wextra -I ./temp_config -I ./server -I ./config
 
@@ -37,15 +42,18 @@ RM = rm -f
 
 all: $(NAME) $(NAME0)
 
-$(NAME): $(OBJ)
-	$(CXX) $(CXXFLAGS) $(OBJ) -o $(NAME)
+$(NAME): $(OBJ) $(MAIN_OBJ)
+	$(CXX) $(CXXFLAGS) $(OBJ) $(MAIN_OBJ) -o $(NAME)
 
 clean:
-	$(RM) $(OBJ)
+	$(RM) $(OBJ) $(MAIN_OBJ)
 
 fclean: clean
-	$(RM) $(NAME)
+	$(RM) $(NAME) $(CONFIGTEST_NAME)
 
 re: fclean all
 
-.PHONY: all clean fclean re
+test: $(OBJ) $(CONFIGTEST_OBJ)
+	$(CXX) $(CXXFLAGS) $(OBJ) $(CONFIGTEST_OBJ) -o $(CONFIGTEST_NAME)
+
+.PHONY: all clean fclean re config_t

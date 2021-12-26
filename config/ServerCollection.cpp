@@ -155,39 +155,39 @@ u_short get_in_port(struct sockaddr *sa)
  *   引数で与えられたヒントに一致するConfigBaseを返す.
  */
 
-std::pair<int, webservconfig::ConfigBase *> webservconfig::ServerCollection::GetConfigBase(
-  struct addrinfo ai, const std::string &hostname, const std::string &path) const
-{
-  (void)ai;
-  (void)hostname;
-  (void)path;
-  struct addrinfo *p = &ai;
-  char s[INET6_ADDRSTRLEN];
-  const char *res = inet_ntop(p->ai_family, get_in_addr((struct sockaddr *)p->ai_addr), s, sizeof(s));
-  int port = get_in_port(p->ai_addr);
-  if (res) {
-    std::cout << "Requests:" << std::endl;
-    std::cout << s << std::endl;
-    std::cout << port << std::endl;
-  }
-  for (std::vector<Server>::const_iterator iter = this->server_.begin();
-       iter != this->server_.end(); iter++) {
-    webservconfig::ConfigBase::listen_type listen_vector;
-    if (p->ai_addr->sa_family == AF_INET) {
-      listen_vector = iter->GetListenV4();
-    } else {
-      listen_vector = iter->GetListenV6();
-    }
-    for (webservconfig::ConfigBase::listen_type::const_iterator it = listen_vector.begin();
-         it != listen_vector.end(); it++) {
-      std::cout << it->first << ", " << it->second << std::endl;
-      if (it->second == port && it->first == std::string(res)) {
-        std::cout << "match!!" << std::endl;
-      }
-    }
-  }
-  return std::make_pair(0, (ConfigBase *)this);
-}
+// std::pair<int, webservconfig::ConfigBase *> webservconfig::ServerCollection::GetConfigBase(
+//   struct addrinfo ai, const std::string &hostname, const std::string &path) const
+// {
+//   (void)ai;
+//   (void)hostname;
+//   (void)path;
+//   struct addrinfo *p = &ai;
+//   char s[INET6_ADDRSTRLEN];
+//   const char *res = inet_ntop(p->ai_family, get_in_addr((struct sockaddr *)p->ai_addr), s, sizeof(s));
+//   int port = get_in_port(p->ai_addr);
+//   if (res) {
+//     std::cout << "Requests:" << std::endl;
+//     std::cout << s << std::endl;
+//     std::cout << port << std::endl;
+//   }
+//   for (std::vector<Server>::const_iterator iter = this->server_.begin();
+//        iter != this->server_.end(); iter++) {
+//     webservconfig::ConfigBase::listen_type listen_vector;
+//     if (p->ai_addr->sa_family == AF_INET) {
+//       listen_vector = iter->GetListenV4();
+//     } else {
+//       listen_vector = iter->GetListenV6();
+//     }
+//     for (webservconfig::ConfigBase::listen_type::const_iterator it = listen_vector.begin();
+//          it != listen_vector.end(); it++) {
+//       std::cout << it->first << ", " << it->second << std::endl;
+//       if (it->second == port && it->first == std::string(res)) {
+//         std::cout << "match!!" << std::endl;
+//       }
+//     }
+//   }
+//   return std::make_pair(0, (ConfigBase *)this);
+// }
 
 std::ostream& webservconfig::ServerCollection::PutConfig(std::ostream& os) const
 {

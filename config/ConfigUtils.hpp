@@ -5,6 +5,8 @@
 # include <vector>
 # include <map>
 # include <vector>
+# include <netdb.h>
+# include <arpa/inet.h>
 
 # include "Config.hpp"
 
@@ -19,6 +21,9 @@ namespace webservconfig
 {
   std::vector<std::string>  SplitLine(std::string line);
   int                       CountFrontSpace(std::string line);
+  int                       GetAddressInfo(const std::string &address, const std::string &port, struct addrinfo **dst);
 };
+
+std::ostream& operator<<(std::ostream& os, struct addrinfo ai);
 
 #endif

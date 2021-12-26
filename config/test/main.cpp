@@ -1,4 +1,4 @@
-#include "Config.hpp"
+#include "ServerCollection.hpp"
 #include <string>
 #include <fstream>
 #include <iostream>
@@ -26,13 +26,11 @@ int main(int argc, char *argv[])
 
   filename = argv[1];
   try {
-    webservconfig::Config config(filename);
+    webservconfig::ServerCollection config(filename);
     // std::cout << "in main: " << config.GetServer().begin()->GetListenV4().begin()->first << std::endl;
     std::cout << config;
     err = getaddrinfo(hostname, service, &hints, &res);
     std::cout << "err: " << gai_strerror(err) << std::endl;
-    if (!err)
-      config.GetConfigBase(*res, "example.com", "");
   } catch (const std::exception &e) {
     std::cerr << "exception: " << e.what() << std::endl;
   }

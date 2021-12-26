@@ -1,8 +1,9 @@
 #include "ConfigBase.hpp"
 
 webservconfig::ConfigBase::ConfigBase():
-  v4_listen_(),
-  v6_listen_(),
+  // v4_listen_(),
+  // v6_listen_(),
+  listen_(),
   index_(),
   error_page_(),
   autoindex_(false),
@@ -33,8 +34,9 @@ webservconfig::ConfigBase::~ConfigBase()
 const webservconfig::ConfigBase &webservconfig::ConfigBase::operator=(const ConfigBase &rhs)
 {
   if (this != &rhs) {
-    this->v4_listen_ = rhs.v4_listen_;
-    this->v6_listen_ = rhs.v6_listen_;
+    // this->v4_listen_ = rhs.v4_listen_;
+    // this->v6_listen_ = rhs.v6_listen_;
+    this->listen_ = rhs.listen_;
     this->index_ = rhs.index_;
     this->error_page_ = rhs.error_page_;
     this->autoindex_ = rhs.autoindex_;
@@ -65,31 +67,65 @@ const webservconfig::ConfigBase &webservconfig::ConfigBase::operator=(const Conf
 void webservconfig::ConfigBase::InitListen(std::vector<std::string> line)
 {
   CheckNumberOfArgument(line, 2, 2);
-  const char *char_address = line[1].c_str();
+  const char *listen = line[1].c_str();
 
-  char *char_port = std::strrchr(char_address, ':') + 1;
-  if (char_port == NULL) {
+  char *port = std::strrchr(listen, ':') + 1;
+  if (port == NULL) {
     throw std::runtime_error("Port and address are not explicitly stated");
   }
-  std::string address = line[1].substr(0, char_port - char_address - 1);
-  std::string port(char_port);
-  int port_number = strtoll(port);
-  if (port_number == -1) {
-    throw std::runtime_error("Invalid port");
-  }
+  std::string address = line[1].substr(0, port - listen - 1);
+  struct addrinfo *ai;
+  int res;
   if (address.size() >= 2 && address[0] == '[' && *(address.end() - 1) == ']') {
     address = address.substr(1, address.size() - 2);
+    std::cout << address << ":" << port << std::endl;
+    if ((res = webservconfig::GetAddressInfo(address, port, &ai))) {
+      throw std::runtime_error(gai_strerror(res));
+    }
     if (!IsComposed(address, "1234567890:"))
       throw std::runtime_error("Invalid address");
-    this->v6_listen_.push_back(std::make_pair(address, port_number));
+    this->listen_.push_back(ai);
   } else if (address.size() >= 2 && address[0] != '[' && *(address.end() - 1) != ']') {
+    std::cout << address << ":" << port << std::endl;
+    if ((res = webservconfig::GetAddressInfo(address, port, &ai))) {
+      throw std::runtime_error(gai_strerror(res));
+    }
     if (!IsComposed(address, "1234567890."))
       throw std::runtime_error("Invalid address");
-    this->v4_listen_.push_back(std::make_pair(address, port_number));
+    this->listen_.push_back(ai);
   } else {
     throw std::runtime_error("unknown address format");
   }
 }
+
+// void webservconfig::ConfigBase::InitListen(std::vector<std::string> line)
+// {
+//   CheckNumberOfArgument(line, 2, 2);
+//   const char *char_address = line[1].c_str();
+
+//   char *char_port = std::strrchr(char_address, ':') + 1;
+//   if (char_port == NULL) {
+//     throw std::runtime_error("Port and address are not explicitly stated");
+//   }
+//   std::string address = line[1].substr(0, char_port - char_address - 1);
+//   std::string port(char_port);
+//   int port_number = strtoll(port);
+//   if (port_number == -1) {
+//     throw std::runtime_error("Invalid port");
+//   }
+//   if (address.size() >= 2 && address[0] == '[' && *(address.end() - 1) == ']') {
+//     address = address.substr(1, address.size() - 2);
+//     if (!IsComposed(address, "1234567890:"))
+//       throw std::runtime_error("Invalid address");
+//     this->v6_listen_.push_back(std::make_pair(address, port_number));
+//   } else if (address.size() >= 2 && address[0] != '[' && *(address.end() - 1) != ']') {
+//     if (!IsComposed(address, "1234567890."))
+//       throw std::runtime_error("Invalid address");
+//     this->v4_listen_.push_back(std::make_pair(address, port_number));
+//   } else {
+//     throw std::runtime_error("unknown address format");
+//   }
+// }
 
 void webservconfig::ConfigBase::InitIndex(std::vector<std::string> line)
 {
@@ -329,8 +365,9 @@ std::vector<std::string> webservconfig::ConfigBase::SplitLine(std::string line)
  * Setter
  */
 
-void webservconfig::ConfigBase::SetListenV4(const webservconfig::ConfigBase::listen_type &listen) { this->v4_listen_ = listen; }
-void webservconfig::ConfigBase::SetListenV6(const webservconfig::ConfigBase::listen_type &listen) { this->v6_listen_ = listen; }
+// void webservconfig::ConfigBase::SetListenV4(const webservconfig::ConfigBase::listen_type &listen) { this->v4_listen_ = listen; }
+// void webservconfig::ConfigBase::SetListenV6(const webservconfig::ConfigBase::listen_type &listen) { this->v6_listen_ = listen; }
+void webservconfig::ConfigBase::SetListen(const webservconfig::ConfigBase::listen_type &listen) { this->listen_ = listen; }
 void webservconfig::ConfigBase::SetIndex(const webservconfig::ConfigBase::index_type &index) { this->index_ = index; }
 void webservconfig::ConfigBase::SetErrorPage(const webservconfig::ConfigBase::error_page_type &error_page) { this->error_page_ = error_page; }
 void webservconfig::ConfigBase::SetAutoIndex(bool autoindex) { this->autoindex_ = autoindex; }
@@ -346,8 +383,9 @@ void webservconfig::ConfigBase::SetCgiExtension(const extension_list_type &exten
  * Getter
  */
 
-const webservconfig::ConfigBase::listen_type &webservconfig::ConfigBase::GetListenV4() const { return (this->v4_listen_); }
-const webservconfig::ConfigBase::listen_type &webservconfig::ConfigBase::GetListenV6() const { return (this->v6_listen_); }
+// const webservconfig::ConfigBase::listen_type &webservconfig::ConfigBase::GetListenV4() const { return (this->v4_listen_); }
+// const webservconfig::ConfigBase::listen_type &webservconfig::ConfigBase::GetListenV6() const { return (this->v6_listen_); }
+const webservconfig::ConfigBase::listen_type &webservconfig::ConfigBase::GetListen() const { return (this->listen_); }
 const webservconfig::ConfigBase::index_type &webservconfig::ConfigBase::GetIndex() const { return (this->index_); }
 const webservconfig::ConfigBase::error_page_type &webservconfig::ConfigBase::GetErrorPage() const { return (this->error_page_); }
 bool webservconfig::ConfigBase::GetAutoIndex() const { return (this->autoindex_); }
@@ -381,26 +419,38 @@ const std::string &webservconfig::ConfigBase::GetErrorPage(int code) const
  * 出力用関数
  */
 
-void webservconfig::ConfigBase::PutListenV4(std::ostream &os, std::string indent) const
-{
-  os << indent << "listen v4           : ";
-  if (this->v4_listen_.size() != 0) {
-    for (listen_type::const_iterator iter = this->v4_listen_.begin(); iter != (this->v4_listen_.end() - 1); iter++) {
-      os << iter->first << ":" << iter->second << ", ";
-    }
-    os << (this->v4_listen_.end() - 1)->first << ":" << (this->v4_listen_.end() - 1)->second;
-  }
-  os << std::endl;
-}
+// void webservconfig::ConfigBase::PutListenV4(std::ostream &os, std::string indent) const
+// {
+//   os << indent << "listen v4           : ";
+//   if (this->v4_listen_.size() != 0) {
+//     for (listen_type::const_iterator iter = this->v4_listen_.begin(); iter != (this->v4_listen_.end() - 1); iter++) {
+//       os << iter->first << ":" << iter->second << ", ";
+//     }
+//     os << (this->v4_listen_.end() - 1)->first << ":" << (this->v4_listen_.end() - 1)->second;
+//   }
+//   os << std::endl;
+// }
 
-void webservconfig::ConfigBase::PutListenV6(std::ostream &os, std::string indent) const
+// void webservconfig::ConfigBase::PutListenV6(std::ostream &os, std::string indent) const
+// {
+//   os << indent << "listen v6           : ";
+//   if (this->v6_listen_.size() != 0) {
+//     for (listen_type::const_iterator iter = this->v6_listen_.begin(); iter != (this->v6_listen_.end() - 1); iter++) {
+//       os << iter->first << ":" << iter->second << ", ";
+//     }
+//     os << "[" << (this->v6_listen_.end() - 1)->first << "]:" << (this->v6_listen_.end() - 1)->second;
+//   }
+//   os << std::endl;
+// }
+
+void webservconfig::ConfigBase::PutListen(std::ostream &os, std::string indent) const
 {
-  os << indent << "listen v6           : ";
-  if (this->v6_listen_.size() != 0) {
-    for (listen_type::const_iterator iter = this->v6_listen_.begin(); iter != (this->v6_listen_.end() - 1); iter++) {
-      os << iter->first << ":" << iter->second << ", ";
+  os << indent << "listen              : ";
+  if (this->listen_.size() != 0) {
+    for (listen_type::const_iterator iter = this->listen_.begin(); iter != (this->listen_.end() - 1); iter++) {
+      os << **iter << ", ";
     }
-    os << "[" << (this->v6_listen_.end() - 1)->first << "]:" << (this->v6_listen_.end() - 1)->second;
+    os << **(this->listen_.end() - 1) << std::endl;
   }
   os << std::endl;
 }

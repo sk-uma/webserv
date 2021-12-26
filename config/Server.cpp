@@ -71,8 +71,9 @@ void webservconfig::Server::ParseServerBlock()
     }
   }
   for (std::vector<Location>::iterator iter = this->location_.begin(); iter != this->location_.end(); iter++) {
-    iter->SetListenV4(this->v4_listen_);
-    iter->SetListenV6(this->v6_listen_);
+    // iter->SetListenV4(this->v4_listen_);
+    // iter->SetListenV6(this->v6_listen_);
+    iter->SetListen(this->listen_);
     iter->SetIndex(this->index_);
     iter->SetErrorPage(this->error_page_);
     iter->SetAutoIndex(this->autoindex_);
@@ -137,8 +138,9 @@ std::pair<int, const webservconfig::Location &> webservconfig::Server::GetLocati
 std::ostream& webservconfig::Server::PutServer(std::ostream& os, std::string first_indent, std::string indent) const
 {
   os << first_indent << "Server [" << this->server_name_ << "]" << std::endl;
-  PutListenV4(os, indent + "├── ");
-  PutListenV6(os, indent + "├── ");
+  // PutListenV4(os, indent + "├── ");
+  // PutListenV6(os, indent + "├── ");
+  PutListen(os, indent + "├── ");
   PutIndex(os, indent + "├── ");
   PutErrorPage(os, indent + "├── ");
   PutAutoIndex(os, indent + "├── ");

@@ -33,3 +33,43 @@ int webservconfig::CountFrontSpace(std::string line)
   }
   return (len);
 }
+
+int webservconfig::GetAddressInfo(const std::string &address, const std::string &port, struct addrinfo **dst)
+{
+  struct addrinfo hints;
+  int res;
+
+  memset(&hints, 0, sizeof(hints));
+  hints.ai_family = AF_UNSPEC;
+  hints.ai_socktype = SOCK_STREAM;
+  hints.ai_flags = AI_PASSIVE;
+  res = getaddrinfo(address.c_str(), port.c_str(), &hints, dst);
+  return (res);
+}
+
+static void *get_in_addr(struct sockaddr *sa)
+{
+  if (sa->sa_family == AF_INET)
+    return &(((struct sockaddr_in*)sa)->sin_addr);
+  return &(((struct sockaddr_in6*)sa)->sin6_addr);
+}
+
+static u_short get_in_port(struct sockaddr *sa)
+{
+  if (sa->sa_family == AF_INET)
+    return ntohs(((struct sockaddr_in *)sa)->sin_port);
+  return ntohs(((struct sockaddr_in6 *)sa)->sin6_port);
+}
+
+std::ostream& operator<<(std::ostream& os, struct addrinfo ai)
+{
+  char s[INET6_ADDRSTRLEN];
+  const char *res = inet_ntop(ai.ai_family, get_in_addr((struct sockaddr *)ai.ai_addr), s, sizeof(s));
+  if (res) {
+    int port = get_in_port(ai.ai_addr);
+    os << "[" << res << "]:" << port;
+  } else {
+    os << "invalid address";
+  }
+  return (os);
+}

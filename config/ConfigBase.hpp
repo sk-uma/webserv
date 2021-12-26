@@ -13,13 +13,17 @@
 # include <stdlib.h>
 # include <cerrno>
 # include <sstream>
+# include <netdb.h>
+
+# include "ConfigUtils.hpp"
 
 namespace webservconfig
 {
   class ConfigBase
   {
     public:
-      typedef std::vector<std::pair<std::string, int> > listen_type;
+      // typedef std::vector<std::pair<std::string, int> > listen_type;
+      typedef std::vector<struct addrinfo *>            listen_type;
       typedef std::vector<std::string>                  index_type;
       typedef std::map<int, std::string>                error_page_type;
       typedef long long                                 body_size_type;
@@ -28,8 +32,9 @@ namespace webservconfig
       typedef std::map<std::string, bool>               limit_except_type;
 
     protected:
-      listen_type               v4_listen_;
-      listen_type               v6_listen_;
+      // listen_type               v4_listen_;
+      // listen_type               v6_listen_;
+      listen_type               listen_;
       index_type                index_;
       error_page_type           error_page_;
       bool                      autoindex_;
@@ -81,8 +86,9 @@ namespace webservconfig
  * Setter
  */
 
-      void SetListenV4(const listen_type &listen);
-      void SetListenV6(const listen_type &listen);
+      // void SetListenV4(const listen_type &listen);
+      // void SetListenV6(const listen_type &listen);
+      void SetListen(const listen_type &listen);
       void SetIndex(const index_type &index);
       void SetErrorPage(const error_page_type &error_page);
       void SetAutoIndex(bool autoindex);
@@ -98,8 +104,9 @@ namespace webservconfig
  * Getter
  */
 
-      const listen_type         &GetListenV4() const;
-      const listen_type         &GetListenV6() const;
+      // const listen_type         &GetListenV4() const;
+      // const listen_type         &GetListenV6() const;
+      const listen_type         &GetListen() const;
       const index_type          &GetIndex() const;
       const error_page_type     &GetErrorPage() const;
       bool                      GetAutoIndex() const;
@@ -122,8 +129,9 @@ namespace webservconfig
  * 出力用関数
  */
 
-      void PutListenV4(std::ostream &os, std::string indent) const;
-      void PutListenV6(std::ostream &os, std::string indent) const;
+      // void PutListenV4(std::ostream &os, std::string indent) const;
+      // void PutListenV6(std::ostream &os, std::string indent) const;
+      void PutListen(std::ostream &os, std::string indent) const;
       void PutIndex(std::ostream &os, std::string indent) const;
       void PutErrorPage(std::ostream &os, std::string indent) const;
       void PutAutoIndex(std::ostream &os, std::string indent) const;
