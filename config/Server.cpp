@@ -137,7 +137,8 @@ std::pair<int, const webservconfig::Location &> webservconfig::Server::GetLocati
 
 std::ostream& webservconfig::Server::PutServer(std::ostream& os, std::string first_indent, std::string indent) const
 {
-  os << first_indent << "Server [" << this->server_name_ << "]" << std::endl;
+  // os << first_indent << "Server [" << this->server_name_ << "]" << std::endl;
+  os << first_indent << "Server" << std::endl;
   // PutListenV4(os, indent + "├── ");
   // PutListenV6(os, indent + "├── ");
   PutListen(os, indent + "├── ");

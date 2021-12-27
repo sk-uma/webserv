@@ -22,25 +22,25 @@ namespace webservconfig
   class ConfigBase
   {
     public:
-      // typedef std::vector<std::pair<std::string, int> > listen_type;
-      typedef std::vector<struct addrinfo *>            listen_type;
-      typedef std::vector<std::string>                  index_type;
-      typedef std::map<int, std::string>                error_page_type;
-      typedef long long                                 body_size_type;
-      typedef std::pair<int, std::string>               return_type;
-      typedef std::vector<std::string>                  extension_list_type;
-      typedef std::map<std::string, bool>               limit_except_type;
+      typedef std::vector<std::pair<std::string, std::string> > listen_string_type;
+      typedef std::vector<struct addrinfo *>                    listen_type;
+      typedef std::vector<std::string>                          index_type;
+      typedef std::map<int, std::string>                        error_page_type;
+      typedef long long                                         body_size_type;
+      typedef std::pair<int, std::string>                       return_type;
+      typedef std::vector<std::string>                          extension_list_type;
+      typedef std::map<std::string, bool>                       limit_except_type;
+      typedef std::vector<std::string>                          server_name_list_type;
 
     protected:
-      // listen_type               v4_listen_;
-      // listen_type               v6_listen_;
+      listen_string_type        listen_string_;
       listen_type               listen_;
       index_type                index_;
       error_page_type           error_page_;
       bool                      autoindex_;
       body_size_type            client_max_body_size_;
       limit_except_type         limit_except_;
-      std::string               server_name_;
+      server_name_list_type     server_name_;
       return_type               return_;
       std::string               upload_path_;
       std::string               root_;
@@ -48,6 +48,7 @@ namespace webservconfig
 
       bool                      index_flag_;
       bool                      cgi_extension_flag_;
+      bool                      server_name_flag_;
 
     protected:
 
@@ -94,7 +95,7 @@ namespace webservconfig
       void SetAutoIndex(bool autoindex);
       void SetClientMaxBodySize(body_size_type size);
       void SetLimitExceptByDenyAll(const limit_except_type &limit_except);
-      void SetServerName(const std::string &server_name);
+      void SetServerName(const server_name_list_type &server_name);
       void SetReturn(const return_type &rt);
       void SetUploadPath(const std::string &path);
       void SetRoot(const std::string &path);
@@ -106,17 +107,18 @@ namespace webservconfig
 
       // const listen_type         &GetListenV4() const;
       // const listen_type         &GetListenV6() const;
-      const listen_type         &GetListen() const;
-      const index_type          &GetIndex() const;
-      const error_page_type     &GetErrorPage() const;
-      bool                      GetAutoIndex() const;
-      body_size_type            GetClientMaxBodySize() const;
-      const limit_except_type   &GetLimitExceptByDenyAll() const;
-      const std::string         &GetServerName() const;
-      const return_type         &GetReturn() const;
-      const std::string         &GetUploadPath() const;
-      const std::string         &GetRoot() const;
-      const extension_list_type &GetCgiExtension() const;
+      const listen_type           &GetListen() const;
+      const index_type            &GetIndex() const;
+      const listen_string_type    &GetListenString() const;
+      const error_page_type       &GetErrorPage() const;
+      bool                        GetAutoIndex() const;
+      body_size_type              GetClientMaxBodySize() const;
+      const limit_except_type     &GetLimitExceptByDenyAll() const;
+      const server_name_list_type &GetServerName() const;
+      const return_type           &GetReturn() const;
+      const std::string           &GetUploadPath() const;
+      const std::string           &GetRoot() const;
+      const extension_list_type   &GetCgiExtension() const;
 
 /**
  * Utility Getter

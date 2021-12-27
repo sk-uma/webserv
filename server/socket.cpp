@@ -20,13 +20,14 @@ Socket::Socket(std::string port_):
 	ai(NULL)
 { }
 
-Socket::Socket(std::string port, const std::string &address):
+Socket::Socket(const std::string &address, const std::string &port):
   StrPort(port),
 	address(address),
 	ai(NULL)
 { }
 
-Socket::~Socket(void) {}
+Socket::~Socket(void)
+{ }
 
 Socket::Socket (Socket const &copy)
 {
@@ -121,7 +122,7 @@ int		Socket::set_socket()
 		return (-1);
 	}
 	//ソケットアドレスのリストを解放する必要がある
-	freeaddrinfo(ai);
+	// freeaddrinfo(ai);
 	return (0);
 }
 
@@ -130,5 +131,11 @@ int		Socket::get_listenfd() const
 	return (listenfd);
 }
 
+void Socket::add_server(const webservconfig::Server &s)
+{
+	this->server.push_back(s);
+}
+
 const std::string &Socket::get_port() const { return (this->StrPort); }
 const std::string &Socket::get_address() const { return (this->address); }
+const struct addrinfo *Socket::get_ai() const { return (this->ai); }

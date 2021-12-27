@@ -26,12 +26,12 @@ class Socket
 		std::string       address;
 		struct addrinfo		hints;
 		struct addrinfo		*ai;
-		std::map<std::string, webservconfig::Server> server;
+		std::vector<webservconfig::Server>  server;
 
 	public:
 		Socket(void);
 		explicit Socket(std::string port_);
-		explicit Socket(std::string port, const std::string &address);
+		explicit Socket(const std::string &address, const std::string &port);
 		~Socket(void);
 		Socket (Socket const &copy);
 		Socket &operator=(Socket const &obj);
@@ -51,6 +51,9 @@ class Socket
 		int		get_listenfd() const;
 		const std::string &get_port() const;
 		const std::string &get_address() const;
+		const struct addrinfo *get_ai() const;
+
+		void add_server(const webservconfig::Server &s);
 };
 
 #endif

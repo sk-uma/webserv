@@ -125,19 +125,19 @@ const std::vector<webservconfig::Server> &webservconfig::ServerCollection::GetSe
 //   }
 // }
 
-void *get_in_addr(struct sockaddr *sa)
-{
-  if (sa->sa_family == AF_INET)
-    return &(((struct sockaddr_in*)sa)->sin_addr);
-  return &(((struct sockaddr_in6*)sa)->sin6_addr);
-}
+// void *get_in_addr(struct sockaddr *sa)
+// {
+//   if (sa->sa_family == AF_INET)
+//     return &(((struct sockaddr_in*)sa)->sin_addr);
+//   return &(((struct sockaddr_in6*)sa)->sin6_addr);
+// }
 
-u_short get_in_port(struct sockaddr *sa)
-{
-  if (sa->sa_family == AF_INET)
-    return ntohs(((struct sockaddr_in *)sa)->sin_port);
-  return ntohs(((struct sockaddr_in6 *)sa)->sin6_port);
-}
+// u_short get_in_port(struct sockaddr *sa)
+// {
+//   if (sa->sa_family == AF_INET)
+//     return ntohs(((struct sockaddr_in *)sa)->sin_port);
+//   return ntohs(((struct sockaddr_in6 *)sa)->sin6_port);
+// }
 
 /**
  * !!!!!!!!!! 廃棄予定 !!!!!!!!!!

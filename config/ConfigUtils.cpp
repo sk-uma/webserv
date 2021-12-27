@@ -47,14 +47,14 @@ int webservconfig::GetAddressInfo(const std::string &address, const std::string 
   return (res);
 }
 
-static void *get_in_addr(struct sockaddr *sa)
+void *webservconfig::get_in_addr(struct sockaddr *sa)
 {
   if (sa->sa_family == AF_INET)
     return &(((struct sockaddr_in*)sa)->sin_addr);
   return &(((struct sockaddr_in6*)sa)->sin6_addr);
 }
 
-static u_short get_in_port(struct sockaddr *sa)
+u_short webservconfig::get_in_port(struct sockaddr *sa)
 {
   if (sa->sa_family == AF_INET)
     return ntohs(((struct sockaddr_in *)sa)->sin_port);
@@ -64,9 +64,9 @@ static u_short get_in_port(struct sockaddr *sa)
 std::ostream& operator<<(std::ostream& os, struct addrinfo ai)
 {
   char s[INET6_ADDRSTRLEN];
-  const char *res = inet_ntop(ai.ai_family, get_in_addr((struct sockaddr *)ai.ai_addr), s, sizeof(s));
+  const char *res = inet_ntop(ai.ai_family, webservconfig::get_in_addr((struct sockaddr *)ai.ai_addr), s, sizeof(s));
   if (res) {
-    int port = get_in_port(ai.ai_addr);
+    int port = webservconfig::get_in_port(ai.ai_addr);
     os << "[" << res << "]:" << port;
   } else {
     os << "invalid address";

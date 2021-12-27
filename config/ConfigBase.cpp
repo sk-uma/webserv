@@ -78,20 +78,22 @@ void webservconfig::ConfigBase::InitListen(std::vector<std::string> line)
   int res;
   if (address.size() >= 2 && address[0] == '[' && *(address.end() - 1) == ']') {
     address = address.substr(1, address.size() - 2);
-    std::cout << address << ":" << port << std::endl;
+    // std::cout << address << ":" << port << std::endl;
     if ((res = webservconfig::GetAddressInfo(address, port, &ai))) {
       throw std::runtime_error(gai_strerror(res));
     }
     if (!IsComposed(address, "1234567890:"))
       throw std::runtime_error("Invalid address");
+    this->listen_string_.push_back(std::make_pair(address, std::string(port)));
     this->listen_.push_back(ai);
   } else if (address.size() >= 2 && address[0] != '[' && *(address.end() - 1) != ']') {
-    std::cout << address << ":" << port << std::endl;
+    // std::cout << address << ":" << port << std::endl;
     if ((res = webservconfig::GetAddressInfo(address, port, &ai))) {
       throw std::runtime_error(gai_strerror(res));
     }
     if (!IsComposed(address, "1234567890."))
       throw std::runtime_error("Invalid address");
+    this->listen_string_.push_back(std::make_pair(address, std::string(port)));
     this->listen_.push_back(ai);
   } else {
     throw std::runtime_error("unknown address format");
@@ -134,9 +136,7 @@ void webservconfig::ConfigBase::InitIndex(std::vector<std::string> line)
     this->index_.clear();
     this->index_flag_ = true;
   }
-  if (line.size() == 1) {
-    this->index_.clear();
-  } else {
+  if (line.size() != 1) {
     this->index_.insert(this->index_.end(), line.begin() + 1, line.end());
   }
 }
@@ -210,8 +210,15 @@ void webservconfig::ConfigBase::InitLimitExceptByDenyAll(std::vector<std::string
 
 void webservconfig::ConfigBase::InitServerName(std::vector<std::string> line)
 {
-  CheckNumberOfArgument(line, 2, 2);
-  this->server_name_ = line[1];
+  CheckNumberOfArgument(line, 2, -1);
+
+  if (!this->server_name_flag_) {
+    this->server_name_.clear();
+    this->server_name_flag_ = true;
+  }
+  if (line.size() != 1) {
+    this->server_name_.insert(this->server_name_.end(), line.begin() + 1, line.end());
+  }
 }
 
 void webservconfig::ConfigBase::InitReturn(std::vector<std::string> line)
@@ -246,9 +253,7 @@ void webservconfig::ConfigBase::InitCgiExtension(std::vector<std::string> line)
     this->cgi_extension_.clear();
     this->cgi_extension_flag_ = true;
   }
-  if (line.size() == 1) {
-    this->cgi_extension_.clear();
-  } else {
+  if (line.size() != 1) {
     this->cgi_extension_.insert(this->cgi_extension_.end(), line.begin() + 1, line.end());
   }
 }
@@ -373,7 +378,7 @@ void webservconfig::ConfigBase::SetErrorPage(const webservconfig::ConfigBase::er
 void webservconfig::ConfigBase::SetAutoIndex(bool autoindex) { this->autoindex_ = autoindex; }
 void webservconfig::ConfigBase::SetClientMaxBodySize(webservconfig::ConfigBase::body_size_type size) { this->client_max_body_size_ = size; }
 void webservconfig::ConfigBase::SetLimitExceptByDenyAll(const limit_except_type &limit_except) { this->limit_except_ = limit_except; }
-void webservconfig::ConfigBase::SetServerName(const std::string &server_name) { this->server_name_ = server_name; }
+void webservconfig::ConfigBase::SetServerName(const server_name_list_type &server_name) { this->server_name_ = server_name; }
 void webservconfig::ConfigBase::SetReturn(const webservconfig::ConfigBase::return_type &rt) { this->return_ = rt; }
 void webservconfig::ConfigBase::SetUploadPath(const std::string &path) { this->upload_path_ = path; }
 void webservconfig::ConfigBase::SetRoot(const std::string &path) { this->root_ = path; }
@@ -386,12 +391,13 @@ void webservconfig::ConfigBase::SetCgiExtension(const extension_list_type &exten
 // const webservconfig::ConfigBase::listen_type &webservconfig::ConfigBase::GetListenV4() const { return (this->v4_listen_); }
 // const webservconfig::ConfigBase::listen_type &webservconfig::ConfigBase::GetListenV6() const { return (this->v6_listen_); }
 const webservconfig::ConfigBase::listen_type &webservconfig::ConfigBase::GetListen() const { return (this->listen_); }
+const webservconfig::ConfigBase::listen_string_type &webservconfig::ConfigBase::GetListenString() const { return (this->listen_string_); }
 const webservconfig::ConfigBase::index_type &webservconfig::ConfigBase::GetIndex() const { return (this->index_); }
 const webservconfig::ConfigBase::error_page_type &webservconfig::ConfigBase::GetErrorPage() const { return (this->error_page_); }
 bool webservconfig::ConfigBase::GetAutoIndex() const { return (this->autoindex_); }
 webservconfig::ConfigBase::body_size_type webservconfig::ConfigBase::GetClientMaxBodySize() const { return (this->client_max_body_size_); }
 const webservconfig::ConfigBase::limit_except_type &webservconfig::ConfigBase::GetLimitExceptByDenyAll() const { return (this->limit_except_); }
-const std::string &webservconfig::ConfigBase::GetServerName() const { return (this->server_name_); }
+const webservconfig::ConfigBase::server_name_list_type &webservconfig::ConfigBase::GetServerName() const { return (this->server_name_); }
 const webservconfig::ConfigBase::return_type &webservconfig::ConfigBase::GetReturn() const { return (this->return_); }
 const std::string &webservconfig::ConfigBase::GetUploadPath() const { return (this->upload_path_); }
 const std::string &webservconfig::ConfigBase::GetRoot() const { return (this->root_); }
@@ -519,7 +525,16 @@ void webservconfig::ConfigBase::PutLimitExceptByDenyAll(std::ostream &os, std::s
 
 void webservconfig::ConfigBase::PutServerName(std::ostream &os, std::string indent) const
 {
-  os << indent << "server_name         : " << this->server_name_ << std::endl;
+  // os << indent << "server_name         : " << this->server_name_ << std::endl;
+  os << indent << "server_name         : ";
+  if (this->server_name_.size() != 0) {
+    for (index_type::const_iterator iter = this->server_name_.begin();
+         iter != (this->server_name_.end() - 1); iter++) {
+      os << *iter << ", ";
+    }
+    os << *(this->server_name_.end() - 1);
+  }
+  os << std::endl;
 }
 
 void webservconfig::ConfigBase::PutReturn(std::ostream &os, std::string indent) const
