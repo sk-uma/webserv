@@ -6,22 +6,35 @@
 #    By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/09/03 22:58:14 by rtomishi          #+#    #+#              #
-#    Updated: 2021/12/27 23:23:54 by rtomishi         ###   ########.fr        #
+#    Updated: 2021/12/23 17:39:50 by rtomishi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 
 NAME = webserv
 
+<<<<<<< HEAD
+SRC =	./main.cpp \
+		./server/Socket.cpp \
+		./server/RequestParser.cpp \
+		./server/Response.cpp \
+		./server/Util_func.cpp \
+		./config/Config.cpp \
+		./config/ConfigBase.cpp \
+		./config/ConfigUtils.cpp \
+		./config/Location.cpp \
+		./config/Server.cpp
+=======
 # SRC =	./main/main.cpp \
 # 		./server/socket.cpp \
 # 		./server/RequestParser.cpp \
 # 		./server/Response.cpp \
 # 		./server/util_func.cpp
 
-MAIN = ./main.cpp
+MAIN = ./main/main.cpp
 SRC += $(wildcard config/*.cpp)
 SRC += $(wildcard server/*.cpp)
+>>>>>>> origin
 
 OBJ = $(SRC:.cpp=.o)
 MAIN_OBJ = $(MAIN:.cpp=.o)
@@ -30,7 +43,12 @@ CONFIGTEST_NAME = webserv_t
 CONFIGTEST_MAIN = ./config/test/main.cpp
 CONFIGTEST_OBJ = $(CONFIGTEST_MAIN:.cpp=.o)
 
+<<<<<<< HEAD
 CXXFLAGS = -Wall -Werror -Wextra -I ./server -I ./config
+=======
+CXXFLAGS = -Wall -Werror -Wextra -I ./temp_config -I ./server -I ./config
+
+>>>>>>> origin
 
 STDLIB = -std=c++98
 

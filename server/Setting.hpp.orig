@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/06 21:26:18 by rtomishi          #+#    #+#             */
-/*   Updated: 2021/12/27 23:32:58 by rtomishi         ###   ########.fr       */
+/*   Updated: 2021/12/24 23:31:23 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,11 @@
 # include <dirent.h>
 # include <map>
 # include <signal.h>
+<<<<<<< HEAD:server/Setting.hpp
+# include "Config.hpp"
+=======
 # include <cerrno>
+>>>>>>> origin:temp_config/config.hpp
 
 const int			BUF_SIZE = 1024;
 const int			CGI_BUF = 100;
