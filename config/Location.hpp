@@ -21,6 +21,8 @@ namespace webservconfig
       void ParseLocationBlock();
 
       void PutLocation(std::ostream& os, std::string first_indent, std::string indent) const;
+
+      std::string GetLocationPath() const;
   };
 };
 

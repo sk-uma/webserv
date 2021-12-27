@@ -14,6 +14,8 @@
 #include "socket.hpp"
 #include "RequestParser.hpp"
 #include "Response.hpp"
+#include "ServerCollection.hpp"
+#include "SocketCollection.hpp"
 
 int		g_SIGPIPE_FLAG = 0;
 
@@ -36,27 +38,41 @@ void	sigpipe_wait(void)
 
 int	main(int argc, char **argv)
 {
+	if (argc != 2) {
+		std::cerr << "usage: webserv [config file path]" << std::endl;
+		return (-1);
+	}
+	webservconfig::ServerCollection config(argv[1]);
+	SocketCollection socket_c(config);
+
 	sigpipe_wait();
 	(void)argc;
 		//環境変数EXE_DIRに実行ファイルのディレクトリを格納する
 	setenv_exedir(argv);
 
+	// std::cout << "in main" << std::endl;
+
 	//複数のポートを使用できるようにvector<Socket> sockを作成する
 	//現状、お試しでvector<string> ports を作成してから、
 	//for ループで各ポートのSocketのインスタンスをvectorでつくる
-	std::vector<std::string>	ports;
-	std::vector<Socket>			sock;
-	ports.push_back("5050");
-	ports.push_back("6060");
-	ports.push_back("7070");
-	for (std::vector<std::string>::iterator	it = ports.begin(); it != ports.end(); it++)
-		sock.push_back(Socket(*it));
+	// std::vector<std::string>	ports;
+	// std::vector<Socket>			sock;
+	// ports.push_back("5050");
+	// ports.push_back("6060");
+	// ports.push_back("7070");
+	// for (std::vector<std::string>::iterator	it = ports.begin(); it != ports.end(); it++)
+	// 	sock.push_back(Socket(*it));
 	//各ポートのソケットのセットアップをする
 	//生成されたソケットのファイルディスクリプタをfcntlでノンブロッキングに設定する
-	for (std::vector<Socket>::iterator it = sock.begin(); it != sock.end(); it++)
-	{
-		(*it).set_socket();
-		fcntl((*it).get_listenfd(), F_SETFL, O_NONBLOCK);
+	// for (std::vector<Socket>::iterator it = sock.begin(); it != sock.end(); it++)
+	// {
+	// 	(*it).set_socket();
+	// 	fcntl((*it).get_listenfd(), F_SETFL, O_NONBLOCK);
+	// }
+	std::vector<Socket> sock = socket_c.GetSocket();
+	// std::cout << "fin sock set: " << sock.size() << std::endl;
+	for (std::vector<Socket>::const_iterator it = sock.begin(); it != sock.end(); it++) {
+		std::cout << it->get_address() << ":" << it->get_port() << std::endl;
 	}
 
 	//accfdは使用するファイルディスクリプタチェック

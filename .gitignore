@@ -1,0 +1,8 @@
+# vscode meta data
+.vscode
+
+# object file
+*.o
+
+# exec file
+a.out

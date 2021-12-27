@@ -34,6 +34,7 @@
 # include <dirent.h>
 # include <map>
 # include <signal.h>
+# include <cerrno>
 
 const int			BUF_SIZE = 1024;
 const int			CGI_BUF = 100;

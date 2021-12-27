@@ -14,9 +14,20 @@
 
 Socket::Socket(void) {}
 
-Socket::Socket(std::string port_):StrPort(port_), ai(NULL) {}
+Socket::Socket(std::string port_):
+	StrPort(port_),
+	address("0.0.0.0"),
+	ai(NULL)
+{ }
 
-Socket::~Socket(void) {}
+Socket::Socket(const std::string &address, const std::string &port):
+  StrPort(port),
+	address(address),
+	ai(NULL)
+{ }
+
+Socket::~Socket(void)
+{ }
 
 Socket::Socket (Socket const &copy)
 {
@@ -31,6 +42,7 @@ Socket &Socket::operator=(Socket const &obj)
 		StrPort = obj.StrPort;
 		hints = obj.hints;
 		ai = obj.ai;
+		this->address = obj.address;
 	}
 	return (*this);
 }
@@ -48,13 +60,20 @@ void	Socket::set_listenfd()
 	}
 }
 
-void	Socket::set_sockaddr_in()
+int	Socket::set_sockaddr_in()
 {
+	int res;
+
 	memset(&hints, 0, sizeof(hints));
-	hints.ai_family = AF_INET6; /* with IPv4 and IPv6 rule */
+	// hints.ai_family = AF_INET6; /* with IPv6 rule */
+	hints.ai_family = AF_UNSPEC; /* with IPv4 and IPv6 rule */
 	hints.ai_socktype = SOCK_STREAM; /* TCP socket type */
 	hints.ai_flags = AI_PASSIVE; /* In using bind case, requied*/
-	getaddrinfo(NULL, StrPort.c_str(), &hints, &ai); //第四引数にaddrinfoの結果が格納される
+	// getaddrinfo(NULL, StrPort.c_str(), &hints, &ai); //第四引数にaddrinfoの結果が格納される
+	res = getaddrinfo(this->address.c_str(), StrPort.c_str(), &hints, &ai);
+	// std::cout << this->address << ":" << this->StrPort << ", " << res << std::endl;
+	// std::cout << ai->ai_next << std::endl;
+	return (res);
 }
 
 int		Socket::set_socket()
@@ -63,9 +82,13 @@ int		Socket::set_socket()
 	int	ret_so;
 	int	ret_bi;
 	int ret_lis;
+	int res;
 
 	//ソケット通信方式の設定
-	Socket::set_sockaddr_in();
+	if ((res = Socket::set_sockaddr_in()) != 0) {
+		std::cerr << res << ":" << gai_strerror(res) << std::endl;
+		return (-1);
+	}
 	//addrinfoからソケットを生成する(待ち受けるファイルディスクリプタをつくる)
 	Socket::set_listenfd();
 	//ソケット関連のオプション設定
@@ -99,7 +122,7 @@ int		Socket::set_socket()
 		return (-1);
 	}
 	//ソケットアドレスのリストを解放する必要がある
-	freeaddrinfo(ai);
+	// freeaddrinfo(ai);
 	return (0);
 }
 
@@ -107,3 +130,12 @@ int		Socket::get_listenfd() const
 {
 	return (listenfd);
 }
+
+void Socket::add_server(const webservconfig::Server &s)
+{
+	this->server.push_back(s);
+}
+
+const std::string &Socket::get_port() const { return (this->StrPort); }
+const std::string &Socket::get_address() const { return (this->address); }
+const struct addrinfo *Socket::get_ai() const { return (this->ai); }
