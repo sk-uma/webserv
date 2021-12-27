@@ -6,14 +6,14 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/06 21:31:14 by rtomishi          #+#    #+#             */
-/*   Updated: 2021/10/03 09:58:09 by rtomishi         ###   ########.fr       */
+/*   Updated: 2021/12/23 17:42:43 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef SOCKET_HPP
 # define SOCKET_HPP
 
-# include "config.hpp"
+# include "Setting.hpp"
 
 class Socket
 {

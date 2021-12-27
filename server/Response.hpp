@@ -6,14 +6,14 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/13 22:19:12 by rtomishi          #+#    #+#             */
-/*   Updated: 2021/12/15 22:30:51 by rtomishi         ###   ########.fr       */
+/*   Updated: 2021/12/24 23:29:11 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef RESPONSE_HPP
 # define RESPONSE_HPP
 
-# include "config.hpp"
+# include "Setting.hpp"
 # include "RequestParser.hpp"
 
 class Response

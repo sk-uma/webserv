@@ -6,14 +6,15 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/06 21:40:53 by rtomishi          #+#    #+#             */
-/*   Updated: 2021/12/20 21:14:37 by rtomishi         ###   ########.fr       */
+/*   Updated: 2021/12/24 23:43:26 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "config.hpp"
-#include "socket.hpp"
+#include "Setting.hpp"
+#include "Socket.hpp"
 #include "RequestParser.hpp"
 #include "Response.hpp"
+#include "Config.hpp"
 
 int		g_SIGPIPE_FLAG = 0;
 
@@ -36,19 +37,36 @@ void	sigpipe_wait(void)
 
 int	main(int argc, char **argv)
 {
+	std::string filename;
+	std::string line;
+
+	if (argc != 2)
+		return (1);
+
+	filename = argv[1];
+	try {
+		webservconfig::Config config(filename);
+    // std::cout << "in main: " << config.GetServer().begin()->GetListenV4().begin()->first << std::endl;
+		std::cout << config;
+	} catch (const std::exception &e) {
+		std::cout << "exception: " << e.what() << std::endl;
+	}
+
+	webservconfig::Config config(filename);
+	std::vector<std::string>	ports = PortVec(config);
+
 	sigpipe_wait();
-	(void)argc;
-		//環境変数EXE_DIRに実行ファイルのディレクトリを格納する
+	//環境変数EXE_DIRに実行ファイルのディレクトリを格納する
 	setenv_exedir(argv);
 
 	//複数のポートを使用できるようにvector<Socket> sockを作成する
 	//現状、お試しでvector<string> ports を作成してから、
 	//for ループで各ポートのSocketのインスタンスをvectorでつくる
-	std::vector<std::string>	ports;
+//	std::vector<std::string>	ports;
 	std::vector<Socket>			sock;
-	ports.push_back("5050");
-	ports.push_back("6060");
-	ports.push_back("7070");
+//	ports.push_back("5050");
+//	ports.push_back("6060");
+//	ports.push_back("7070");
 	for (std::vector<std::string>::iterator	it = ports.begin(); it != ports.end(); it++)
 		sock.push_back(Socket(*it));
 	//各ポートのソケットのセットアップをする

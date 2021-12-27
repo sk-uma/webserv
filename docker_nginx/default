@@ -29,7 +29,7 @@ server {
 	error_page 405 =200 $uri;
 
     index index.html index.htm index.nginx-debian.html;
-    server_name _;
+    server_name abc.com;
 
     location / {
         try_files $uri $uri/ =404;

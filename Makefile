@@ -6,23 +6,27 @@
 #    By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/09/03 22:58:14 by rtomishi          #+#    #+#              #
-#    Updated: 2021/12/20 16:55:34 by rtomishi         ###   ########.fr        #
+#    Updated: 2021/12/23 17:39:50 by rtomishi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 
 NAME = webserv
 
-SRC =	./main/main.cpp \
-		./server/socket.cpp \
+SRC =	./main.cpp \
+		./server/Socket.cpp \
 		./server/RequestParser.cpp \
 		./server/Response.cpp \
-		./server/util_func.cpp
+		./server/Util_func.cpp \
+		./config/Config.cpp \
+		./config/ConfigBase.cpp \
+		./config/ConfigUtils.cpp \
+		./config/Location.cpp \
+		./config/Server.cpp
 
 OBJ = $(SRC:.cpp=.o)
 
-CXXFLAGS = -Wall -Werror -Wextra -I ./temp_config -I ./server
-
+CXXFLAGS = -Wall -Werror -Wextra -I ./server -I ./config
 
 STDLIB = -std=c++98
 

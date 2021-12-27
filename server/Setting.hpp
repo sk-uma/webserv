@@ -1,17 +1,17 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   config.hpp                                         :+:      :+:    :+:   */
+/*   Setting.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/06 21:26:18 by rtomishi          #+#    #+#             */
-/*   Updated: 2021/12/20 17:24:12 by rtomishi         ###   ########.fr       */
+/*   Updated: 2021/12/24 23:31:23 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef	CONFIG_HPP
-# define CONFIG_HPP
+#ifndef	SETTING_HPP
+# define SETTING_HPP
 
 # include <string>
 # include <iostream>
@@ -34,6 +34,7 @@
 # include <dirent.h>
 # include <map>
 # include <signal.h>
+# include "Config.hpp"
 
 const int			BUF_SIZE = 1024;
 const int			CGI_BUF = 100;
@@ -65,4 +66,6 @@ const int	STATUS_NOT_IMPLEMENTED = 501;
 void				setenv_exedir(char **argv);
 void				sigpipe_handler(int sig);
 void				sigpipe_wait(void);
+std::vector<std::string> PortVec(webservconfig::Config &config);
+
 #endif

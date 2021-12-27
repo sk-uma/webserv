@@ -87,7 +87,7 @@ void webservconfig::ConfigBase::InitListen(std::vector<std::string> line)
   CheckNumberOfArgument(line, 2, 2);
   const char *char_address = line[1].c_str();
 
-  char *char_port = std::strrchr(char_address, ':') + 1;
+  const char *char_port = std::strrchr(char_address, ':') + 1;
   if (char_port == NULL) {
     throw std::runtime_error("Port and address are not explicitly stated");
   }
