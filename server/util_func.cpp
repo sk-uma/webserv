@@ -22,18 +22,18 @@ void	setenv_exedir(char **argv)
 	setenv("EXE_DIR", exepath.substr(0, pos).c_str(), 1);
 }
 
-std::vector<std::string> PortVec(webservconfig::Config &config)
+std::vector<std::string> PortVec(webservconfig::ServerCollection &config)
 {
 	std::vector<std::string>	ret_vec;
 
 	for (std::vector<webservconfig::Server>::const_iterator it = config.GetServer().begin(); it != config.GetServer().end(); it++)
 	{
-		for (webservconfig::Config::listen_type::const_iterator sit = (*it).GetListenV4().begin(); sit != (*it).GetListenV4().end(); sit++)
-		{
-			std::stringstream	ss;
-			ss << (*sit).second;
-			ret_vec.push_back(ss.str());
-		}
+		// for (webservconfig::ServerCollection::listen_type::const_iterator sit = (*it).GetListenV4().begin(); sit != (*it).GetListenV4().end(); sit++)
+		// {
+		// 	std::stringstream	ss;
+		// 	ss << (*sit).second;
+		// 	ret_vec.push_back(ss.str());
+		// }
 	}
 	return (ret_vec);
 }

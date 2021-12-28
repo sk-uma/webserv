@@ -36,6 +36,8 @@
 # include <signal.h>
 # include <cerrno>
 
+# include "ServerCollection.hpp"
+
 const int			BUF_SIZE = 1024;
 const int			CGI_BUF = 100;
 const unsigned long	CLIENT_MAX_BODY = 10000000;
@@ -66,6 +68,6 @@ const int	STATUS_NOT_IMPLEMENTED = 501;
 void				setenv_exedir(char **argv);
 void				sigpipe_handler(int sig);
 void				sigpipe_wait(void);
-std::vector<std::string> PortVec(webservconfig::Config &config);
+std::vector<std::string> PortVec(webservconfig::ServerCollection &config);
 
 #endif

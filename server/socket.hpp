@@ -14,7 +14,7 @@
 # define SOCKET_HPP
 
 # include "Setting.hpp"
-# include "Config.hpp"
+# include "ServerCollection.hpp"
 # include "Server.hpp"
 
 

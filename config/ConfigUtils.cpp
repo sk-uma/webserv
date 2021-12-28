@@ -67,9 +67,10 @@ std::ostream& operator<<(std::ostream& os, struct addrinfo ai)
   const char *res = inet_ntop(ai.ai_family, webservconfig::get_in_addr((struct sockaddr *)ai.ai_addr), s, sizeof(s));
   if (res) {
     int port = webservconfig::get_in_port(ai.ai_addr);
-    os << "[" << res << "]:" << port;
+    os << std::string("[") << std::string(res) << std::string("]:");
+    (void)port;
   } else {
-    os << "invalid address";
+    os << std::string("invalid address");
   }
   return (os);
 }
