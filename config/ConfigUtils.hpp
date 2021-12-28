@@ -7,8 +7,7 @@
 # include <vector>
 # include <netdb.h>
 # include <arpa/inet.h>
-
-# include "Config.hpp"
+# include <cstring>
 
 # ifndef EXIT_SUCCESS
 #  define EXIT_SUCCESS 1

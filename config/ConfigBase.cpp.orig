@@ -212,12 +212,15 @@ void webservconfig::ConfigBase::InitServerName(std::vector<std::string> line)
 {
   CheckNumberOfArgument(line, 2, -1);
 
-//  const char *char_port = std::strrchr(char_address, ':') + 1;
-//  if (char_port == NULL) {
-//    throw std::runtime_error("Port and address are not explicitly stated");
+<<<<<<< HEAD
+  const char *char_port = std::strrchr(char_address, ':') + 1;
+  if (char_port == NULL) {
+    throw std::runtime_error("Port and address are not explicitly stated");
+=======
   if (!this->server_name_flag_) {
     this->server_name_.clear();
     this->server_name_flag_ = true;
+>>>>>>> origin
   }
   if (line.size() != 1) {
     this->server_name_.insert(this->server_name_.end(), line.begin() + 1, line.end());
