@@ -73,7 +73,9 @@ void webservconfig::Server::ParseServerBlock()
   for (std::vector<Location>::iterator iter = this->location_.begin(); iter != this->location_.end(); iter++) {
     // iter->SetListenV4(this->v4_listen_);
     // iter->SetListenV6(this->v6_listen_);
-    iter->SetListen(this->listen_);
+    // iter->SetListen(this->listen_);
+    iter->SetListenV4(this->listen_v4_);
+    iter->SetListenV6(this->listen_v6_);
     iter->SetIndex(this->index_);
     iter->SetErrorPage(this->error_page_);
     iter->SetAutoIndex(this->autoindex_);

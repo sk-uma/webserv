@@ -23,6 +23,7 @@ class Socket
 	private:
 		int								listenfd;
 		std::string				StrPort;
+		int 							port;
 		std::string       address;
 		struct addrinfo		hints;
 		struct addrinfo		*ai;
@@ -48,10 +49,11 @@ class Socket
  * Getter
  */
 
-		int		get_listenfd() const;
-		const std::string &get_port() const;
+		int								get_listenfd() const;
+		const std::string &get_StrPort() const;
+		int 							get_port() const;
 		const std::string &get_address() const;
-		const struct addrinfo *get_ai() const;
+		// const struct addrinfo *get_ai() const;
 
 		void add_server(const webservconfig::Server &s);
 };

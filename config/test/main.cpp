@@ -29,9 +29,14 @@ int main(int argc, char *argv[])
     webservconfig::ServerCollection config(filename);
     // std::cout << "in main: " << config.GetServer().begin()->GetListenV4().begin()->first << std::endl;
     std::cout << config;
-    err = getaddrinfo(hostname, service, &hints, &res);
-    std::cout << "err: " << gai_strerror(err) << std::endl;
+    // err = getaddrinfo(hostname, service, &hints, &res);
+    // std::cout << "err: " << gai_strerror(err) << std::endl;
   } catch (const std::exception &e) {
     std::cerr << "exception: " << e.what() << std::endl;
   }
+  (void)hostname;
+  (void)service;
+  (void)hints;
+  (void)res;
+  (void)err;
 }

@@ -40,6 +40,7 @@ Socket &Socket::operator=(Socket const &obj)
 	{
 		listenfd = obj.listenfd;
 		StrPort = obj.StrPort;
+		port = obj.port;
 		hints = obj.hints;
 		ai = obj.ai;
 		this->address = obj.address;
@@ -122,7 +123,8 @@ int		Socket::set_socket()
 		return (-1);
 	}
 	//ソケットアドレスのリストを解放する必要がある
-	// freeaddrinfo(ai);
+	this->port = webservconfig::get_in_port(ai->ai_addr);
+	freeaddrinfo(ai);
 	return (0);
 }
 
@@ -136,6 +138,7 @@ void Socket::add_server(const webservconfig::Server &s)
 	this->server.push_back(s);
 }
 
-const std::string &Socket::get_port() const { return (this->StrPort); }
+const std::string &Socket::get_StrPort() const { return (this->StrPort); }
+int Socket::get_port() const { return (this->port); }
 const std::string &Socket::get_address() const { return (this->address); }
-const struct addrinfo *Socket::get_ai() const { return (this->ai); }
+// const struct addrinfo *Socket::get_ai() const { return (this->ai); }
