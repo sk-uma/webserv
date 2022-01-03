@@ -27,7 +27,8 @@ class Socket
 		std::string       address;
 		struct addrinfo		hints;
 		struct addrinfo		*ai;
-		std::vector<webservconfig::Server>  server;
+		// std::vector<webservconfig::Server>  server;
+		webservconfig::Server server;
 
 	public:
 		Socket(void);
@@ -55,7 +56,7 @@ class Socket
 		const std::string &get_address() const;
 		// const struct addrinfo *get_ai() const;
 
-		void add_server(const webservconfig::Server &s);
+		void set_server(const webservconfig::Server &s);
 };
 
 #endif

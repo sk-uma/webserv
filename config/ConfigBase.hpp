@@ -34,7 +34,8 @@ namespace webservconfig
       typedef std::vector<std::string>                          server_name_list_type;
 
     protected:
-      listen_string_type        listen_string_;
+      listen_string_type        listen_v4_string_;
+      listen_string_type        listen_v6_string_;
       listen_v4_type            listen_v4_;
       listen_v6_type            listen_v6_;
       index_type                index_;
@@ -114,6 +115,8 @@ namespace webservconfig
       // const listen_type           &GetListen() const;
       const listen_v4_type        &GetListenV4() const;
       const listen_v6_type        &GetListenV6() const;
+      const listen_string_type    &GetListenStringV4() const;
+      const listen_string_type    &GetListenStringV6() const;
       const index_type            &GetIndex() const;
       const listen_string_type    &GetListenString() const;
       const error_page_type       &GetErrorPage() const;

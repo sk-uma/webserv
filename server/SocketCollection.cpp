@@ -32,9 +32,9 @@ const std::vector<Socket> &SocketCollection::GetSocket() const { return (this->s
 
 void SocketCollection::AddServer(const webservconfig::Server &server)
 {
-  webservconfig::ConfigBase::listen_string_type::const_iterator iter_s = server.GetListenString().begin();
+  webservconfig::ConfigBase::listen_string_type::const_iterator iter_s = server.GetListenStringV4().begin();
   for (webservconfig::ConfigBase::listen_v4_type::const_iterator iter = server.GetListenV4().begin();
-       iter != server.GetListenV4().end() && iter_s != server.GetListenString().end(); iter++) {
+       iter != server.GetListenV4().end() && iter_s != server.GetListenStringV4().end(); iter++) {
     bool find_flag = false;
     if (this->socket_vector_.size() != 0) {
       for (std::vector<Socket>::iterator it = this->socket_vector_.begin();
@@ -46,14 +46,15 @@ void SocketCollection::AddServer(const webservconfig::Server &server)
     }
     if (!find_flag) {
       this->socket_vector_.push_back(Socket(iter_s->first, iter_s->second));
-      (this->socket_vector_.end() - 1)->add_server(server);
+      (this->socket_vector_.end() - 1)->set_server(server);
       (this->socket_vector_.end() - 1)->set_socket();
       fcntl((this->socket_vector_.end() - 1)->get_listenfd(), F_SETFL, O_NONBLOCK);
     }
     iter_s++;
   }
+  iter_s = server.GetListenStringV6().begin();
   for (webservconfig::ConfigBase::listen_v6_type::const_iterator iter = server.GetListenV6().begin();
-       iter != server.GetListenV6().end(); iter++) {
+       iter != server.GetListenV6().end() && iter_s != server.GetListenStringV6().end(); iter++) {
     bool find_flag = false;
     if (this->socket_vector_.size() != 0) {
       for (std::vector<Socket>::iterator it = this->socket_vector_.begin();
@@ -65,10 +66,11 @@ void SocketCollection::AddServer(const webservconfig::Server &server)
     }
     if (!find_flag) {
       this->socket_vector_.push_back(Socket(iter_s->first, iter_s->second));
-      (this->socket_vector_.end() - 1)->add_server(server);
+      (this->socket_vector_.end() - 1)->set_server(server);
       (this->socket_vector_.end() - 1)->set_socket();
       fcntl((this->socket_vector_.end() - 1)->get_listenfd(), F_SETFL, O_NONBLOCK);
     }
+    iter_s++;
   }
   (void)server;
 }

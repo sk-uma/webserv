@@ -133,10 +133,7 @@ int		Socket::get_listenfd() const
 	return (listenfd);
 }
 
-void Socket::add_server(const webservconfig::Server &s)
-{
-	this->server.push_back(s);
-}
+void Socket::set_server(const webservconfig::Server &s) { this->server = s; }
 
 const std::string &Socket::get_StrPort() const { return (this->StrPort); }
 int Socket::get_port() const { return (this->port); }
