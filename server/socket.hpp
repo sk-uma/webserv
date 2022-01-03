@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   socket.hpp                                         :+:      :+:    :+:   */
+/*   Socket.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/06 21:31:14 by rtomishi          #+#    #+#             */
-/*   Updated: 2021/12/27 23:34:02 by rtomishi         ###   ########.fr       */
+/*   Updated: 2021/12/31 11:16:04 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,11 +21,11 @@
 class Socket
 {
 	private:
-		int								listenfd;
-		std::string				StrPort;
-		std::string       address;
-		struct addrinfo		hints;
-		struct addrinfo		*ai;
+		int									listenfd;
+		std::string							StrPort;
+		std::string       					address;
+		struct addrinfo						hints;
+		struct addrinfo						*ai;
 		std::vector<webservconfig::Server>  server;
 
 	public:
