@@ -45,11 +45,21 @@ namespace webservconfig
 
       const std::vector<Location> &GetLocation() const;
 
+      const index_type            &GetIndex(const std::string &path) const;
+      const error_page_type       &GetErrorPage(const std::string &path) const;
+      bool                        GetAutoIndex(const std::string &path) const;
+      body_size_type              GetClientMaxBodySize(const std::string &path) const;
+      const limit_except_type     &GetLimitExceptByDenyAll(const std::string &path) const;
+      const return_type           &GetReturn(const std::string &path) const;
+      const std::string           &GetUploadPath(const std::string &path) const;
+      const std::string           &GetRoot(const std::string &path) const;
+      const extension_list_type   &GetCgiExtension(const std::string &path) const;
+
 /**
  * Utility Getter
  */
 
-      std::pair<int, const webservconfig::Location &> GetLocation(const std::string &path) const;
+      std::pair<int, webservconfig::Location> GetLocation(const std::string &path) const;
   };
 };
 

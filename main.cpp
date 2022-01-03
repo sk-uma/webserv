@@ -129,6 +129,12 @@ int	main(int argc, char **argv)
 						break;
 					}
 				}
+				std::pair<int, webservconfig::Location> res;
+				res = it->get_server().GetLocation("/content/");
+				std::cout << "Accept: " << it->get_address() << ":" << it->get_StrPort() << std::endl;
+				if (res.first != -1) {
+					res.second.PutLocation(std::cout, "", "");
+				}
 				if (limit_over)
 				{
 					close(connfd);
