@@ -54,6 +54,7 @@ class Socket
 		const std::string &get_StrPort() const;
 		int 							get_port() const;
 		const std::string &get_address() const;
+		const webservconfig::Server &get_server() const;
 		// const struct addrinfo *get_ai() const;
 
 		void set_server(const webservconfig::Server &s);

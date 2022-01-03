@@ -43,7 +43,8 @@ Socket &Socket::operator=(Socket const &obj)
 		port = obj.port;
 		hints = obj.hints;
 		ai = obj.ai;
-		this->address = obj.address;
+		address = obj.address;
+		server = obj.server;
 	}
 	return (*this);
 }
@@ -138,4 +139,5 @@ void Socket::set_server(const webservconfig::Server &s) { this->server = s; }
 const std::string &Socket::get_StrPort() const { return (this->StrPort); }
 int Socket::get_port() const { return (this->port); }
 const std::string &Socket::get_address() const { return (this->address); }
+const webservconfig::Server &Socket::get_server() const { return (this->server); }
 // const struct addrinfo *Socket::get_ai() const { return (this->ai); }

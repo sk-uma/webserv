@@ -111,6 +111,105 @@ void webservconfig::Server::InitLocation(std::vector<std::string> line, std::ist
  * Getter
  */
 
+const webservconfig::Server::index_type &webservconfig::Server::GetIndex(const std::string &path) const
+{
+  std::pair<int, webservconfig::Location> res;
+
+  res = this->GetLocation(path);
+  if (res.first != -1) {
+    return (res.second.GetIndex());
+  }
+  return (ConfigBase::GetIndex());
+}
+
+const webservconfig::Server::error_page_type &webservconfig::Server::GetErrorPage(const std::string &path) const
+{
+  std::pair<int, webservconfig::Location> res;
+
+  res = this->GetLocation(path);
+  if (res.first != -1) {
+    return (res.second.GetErrorPage());
+  }
+  return (ConfigBase::GetErrorPage());
+}
+
+bool webservconfig::Server::GetAutoIndex(const std::string &path) const
+{
+  std::pair<int, webservconfig::Location> res;
+
+  res = this->GetLocation(path);
+  if (res.first != -1) {
+    return (res.second.GetAutoIndex());
+  }
+  return (ConfigBase::GetAutoIndex());
+}
+
+webservconfig::Server::body_size_type webservconfig::Server::GetClientMaxBodySize(const std::string &path) const
+{
+  std::pair<int, webservconfig::Location> res;
+
+  res = this->GetLocation(path);
+  if (res.first != -1) {
+    return (res.second.GetClientMaxBodySize());
+  }
+  return (ConfigBase::GetClientMaxBodySize());
+}
+
+const webservconfig::Server::limit_except_type &webservconfig::Server::GetLimitExceptByDenyAll(const std::string &path) const
+{
+  std::pair<int, webservconfig::Location> res;
+
+  res = this->GetLocation(path);
+  if (res.first != -1) {
+    return (res.second.GetLimitExceptByDenyAll());
+  }
+  return (ConfigBase::GetLimitExceptByDenyAll());
+}
+
+const webservconfig::Server::return_type &webservconfig::Server::GetReturn(const std::string &path) const
+{
+  std::pair<int, webservconfig::Location> res;
+
+  res = this->GetLocation(path);
+  if (res.first != -1) {
+    return (res.second.GetReturn());
+  }
+  return (ConfigBase::GetReturn());
+}
+
+const std::string &webservconfig::Server::GetUploadPath(const std::string &path) const
+{
+  std::pair<int, webservconfig::Location> res;
+
+  res = this->GetLocation(path);
+  if (res.first != -1) {
+    return (res.second.GetUploadPath());
+  }
+  return (ConfigBase::GetUploadPath());
+}
+
+const std::string &webservconfig::Server::GetRoot(const std::string &path) const
+{
+  std::pair<int, webservconfig::Location> res;
+
+  res = this->GetLocation(path);
+  if (res.first != -1) {
+    return (res.second.GetRoot());
+  }
+  return (ConfigBase::GetRoot());
+}
+
+const webservconfig::Server::extension_list_type &webservconfig::Server::GetCgiExtension(const std::string &path) const
+{
+  std::pair<int, webservconfig::Location> res;
+
+  res = this->GetLocation(path);
+  if (res.first != -1) {
+    return (res.second.GetCgiExtension());
+  }
+  return (ConfigBase::GetCgiExtension());
+}
+
 const std::vector<webservconfig::Location> &webservconfig::Server::GetLocation() const
 {
   return (this->location_);
@@ -120,14 +219,15 @@ const std::vector<webservconfig::Location> &webservconfig::Server::GetLocation()
  * Utility Getter
  */
 
-std::pair<int, const webservconfig::Location &> webservconfig::Server::GetLocation(const std::string &path) const
+std::pair<int, webservconfig::Location> webservconfig::Server::GetLocation(const std::string &path) const
 {
   int compare_len = -1;
   webservconfig::Location compare_location;
 
   for (std::vector<Location>::const_iterator iter = this->location_.begin();
        iter != this->location_.end(); iter++) {
-    if (iter->GetLocationPath().compare(0, iter->GetLocationPath().size(), path)) {
+    if (!iter->GetLocationPath().compare(0, iter->GetLocationPath().size(), path)) {
+      // std::cout << "Location: " << iter->GetLocationPath() << std::endl;
       if (compare_len < (int)iter->GetLocationPath().size()) {
         compare_len = iter->GetLocationPath().size();
         compare_location = *iter;
