@@ -24,6 +24,7 @@ namespace webservconfig
     protected:
       std::string block_;
       std::vector<Location> location_;
+      Location default_location_;
 
     protected:
       void  InitLocation(std::vector<std::string> line, std::istringstream &input);
@@ -59,7 +60,7 @@ namespace webservconfig
  * Utility Getter
  */
 
-      std::pair<int, webservconfig::Location> GetLocation(const std::string &path) const;
+      const webservconfig::Location &GetLocation(const std::string &path) const;
   };
 };
 
