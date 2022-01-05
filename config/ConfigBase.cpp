@@ -18,13 +18,20 @@ webservconfig::ConfigBase::ConfigBase():
   upload_path_(),
   root_("/var/www/html"),
   cgi_extension_(),
+  listen_flag_(false),
   index_flag_(false),
   cgi_extension_flag_(false)
 {
+  struct in_addr ia;
+
   this->limit_except_["HEAD"] = true;
   this->limit_except_["GET"] = true;
   this->limit_except_["POST"] = true;
   this->limit_except_["DELETE"] = true;
+  this->index_.push_back("index.html");
+  inet_pton(AF_INET, "0.0.0.0", &ia);
+  this->listen_v4_.push_back(std::make_pair(ia, 80));
+  this->listen_v4_string_.push_back(std::make_pair("0.0.0.0", "80"));
 }
 
 webservconfig::ConfigBase::ConfigBase(const ConfigBase &other)
@@ -56,6 +63,7 @@ const webservconfig::ConfigBase &webservconfig::ConfigBase::operator=(const Conf
     this->root_ = rhs.root_;
     this->cgi_extension_ = rhs.cgi_extension_;
 
+    this->listen_flag_ = rhs.listen_flag_;
     this->index_flag_ = rhs.index_flag_;
     this->cgi_extension_flag_ = rhs.cgi_extension_flag_;
   }
@@ -87,6 +95,11 @@ void webservconfig::ConfigBase::InitListen(std::vector<std::string> line)
     throw std::runtime_error("invalud port");
   }
   // struct addrinfo *ai;
+  if (!this->listen_flag_) {
+    this->listen_v4_.clear();
+    this->listen_v4_string_.clear();
+    this->listen_flag_ = true;
+  }
   int res;
   if (address.size() >= 2 && address[0] == '[' && *(address.end() - 1) == ']') {
     address = address.substr(1, address.size() - 2);
