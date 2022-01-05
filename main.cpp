@@ -20,6 +20,7 @@
 //廃棄予定 config確認用
 void	PutConf(webservconfig::Server	&serv, RequestParser &request)
 {
+	std::cout << "================ " << request.get_uri() << " ====================" << std::endl;
 	webservconfig::ConfigBase::index_type	id = serv.GetIndex(request.get_uri());
 	std::cout << "index:";
 	for (size_t	i = 0; i < id.size(); i++)
@@ -250,6 +251,16 @@ int	main(int argc, char **argv)
 				Response		response(request);
 
 				PutConf(serv_map[accfd[i]], request);
+				// webservconfig::ConfigBase::index_type id = serv_map[accfd[i]].GetIndex(request.get_uri());
+				// std::cout << id.size() << std::endl;
+				// if (id.size() >= 1) {
+				// 	std::cout << id[0] << std::endl;
+				// }
+				// std::cout << "root:" << serv_map[accfd[i]].GetRoot(request.get_uri()) << std::endl;
+				// std::cout << "size:" << serv_map[accfd[i]].GetClientMaxBodySize(request.get_uri()) << std::endl;
+				// serv_map[accfd[i]].PutServer(std::cout, "", "");
+				// std::cout << "URI      : " << request.get_uri() << std::endl;
+				// std::cout << "autoindex: " << serv_map[accfd[i]].GetAutoIndex(request.get_uri()) << std::endl;
 
 				std::string		response_str;
 				ssize_t			write_size = 0;

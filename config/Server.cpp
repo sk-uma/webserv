@@ -1,11 +1,13 @@
 #include "Server.hpp"
 
 webservconfig::Server::Server():
-  ConfigBase()
+  ConfigBase(),
+  default_location_()
 { }
 
 webservconfig::Server::Server(std::string block):
-  ConfigBase()
+  ConfigBase(),
+  default_location_()
 {
   this->block_ = block;
 }
@@ -24,6 +26,7 @@ const webservconfig::Server &webservconfig::Server::operator=(const Server &rhs)
     ConfigBase::operator=(rhs);
     this->block_ = rhs.block_;
     this->location_ = rhs.location_;
+    this->default_location_ = rhs.default_location_;
   }
   return (*this);
 }
@@ -70,6 +73,7 @@ void webservconfig::Server::ParseServerBlock()
       throw std::runtime_error(std::string("not allowed directive \"") + rtv[0] + std::string("\""));
     }
   }
+  this->location_.push_back(this->default_location_);
   for (std::vector<Location>::iterator iter = this->location_.begin(); iter != this->location_.end(); iter++) {
     // iter->SetListenV4(this->v4_listen_);
     // iter->SetListenV6(this->v6_listen_);
@@ -88,6 +92,8 @@ void webservconfig::Server::ParseServerBlock()
     iter->SetCgiExtension(this->cgi_extension_);
     iter->ParseLocationBlock();
   }
+  this->default_location_ = this->location_.back();
+  this->location_.pop_back();
   (void)i;
 }
 
@@ -111,104 +117,111 @@ void webservconfig::Server::InitLocation(std::vector<std::string> line, std::ist
  * Getter
  */
 
-const webservconfig::Server::index_type &webservconfig::Server::GetIndex(const std::string &path) const
-{
-  std::pair<int, webservconfig::Location> res;
+// const webservconfig::Server::index_type &webservconfig::Server::GetIndex(const std::string &path) const
+// {
+//   std::pair<int, const webservconfig::Location &> res(this->GetLocation(path));
 
-  res = this->GetLocation(path);
-  if (res.first != -1) {
-    return (res.second.GetIndex());
-  }
-  return (ConfigBase::GetIndex());
-}
+//   if (res.first != -1) {
+//     webservconfig::ConfigBase::index_type id = res.second.GetIndex();
+//     std::cout << id.size() << std::endl;
+// 		if (id.size() >= 1) {
+// 		  std::cout << id[0] << std::endl;
+// 		}
+//     return (res.second.GetIndex());
+//   }
+//   return (ConfigBase::GetIndex());
+// }
 
-const webservconfig::Server::error_page_type &webservconfig::Server::GetErrorPage(const std::string &path) const
-{
-  std::pair<int, webservconfig::Location> res;
+// const webservconfig::Server::error_page_type &webservconfig::Server::GetErrorPage(const std::string &path) const
+// {
+//   std::pair<int, const webservconfig::Location &> res(this->GetLocation(path));
 
-  res = this->GetLocation(path);
-  if (res.first != -1) {
-    return (res.second.GetErrorPage());
-  }
-  return (ConfigBase::GetErrorPage());
-}
+//   if (res.first != -1) {
+//     return (res.second.GetErrorPage());
+//   }
+//   return (ConfigBase::GetErrorPage());
+// }
 
-bool webservconfig::Server::GetAutoIndex(const std::string &path) const
-{
-  std::pair<int, webservconfig::Location> res;
+// bool webservconfig::Server::GetAutoIndex(const std::string &path) const
+// {
+//   std::pair<int, const webservconfig::Location &> res(this->GetLocation(path));
 
-  res = this->GetLocation(path);
-  if (res.first != -1) {
-    return (res.second.GetAutoIndex());
-  }
-  return (ConfigBase::GetAutoIndex());
-}
+//   if (res.first != -1) {
+//     return (res.second.GetAutoIndex());
+//   }
+//   return (ConfigBase::GetAutoIndex());
+// }
 
-webservconfig::Server::body_size_type webservconfig::Server::GetClientMaxBodySize(const std::string &path) const
-{
-  std::pair<int, webservconfig::Location> res;
+// webservconfig::Server::body_size_type webservconfig::Server::GetClientMaxBodySize(const std::string &path) const
+// {
+//   std::pair<int, const webservconfig::Location &> res(this->GetLocation(path));
 
-  res = this->GetLocation(path);
-  if (res.first != -1) {
-    return (res.second.GetClientMaxBodySize());
-  }
-  return (ConfigBase::GetClientMaxBodySize());
-}
+//   if (res.first != -1) {
+//     return (res.second.GetClientMaxBodySize());
+//   }
+//   return (ConfigBase::GetClientMaxBodySize());
+// }
 
-const webservconfig::Server::limit_except_type &webservconfig::Server::GetLimitExceptByDenyAll(const std::string &path) const
-{
-  std::pair<int, webservconfig::Location> res;
+// const webservconfig::Server::limit_except_type &webservconfig::Server::GetLimitExceptByDenyAll(const std::string &path) const
+// {
+//   std::pair<int, const webservconfig::Location &> res(this->GetLocation(path));
 
-  res = this->GetLocation(path);
-  if (res.first != -1) {
-    return (res.second.GetLimitExceptByDenyAll());
-  }
-  return (ConfigBase::GetLimitExceptByDenyAll());
-}
+//   if (res.first != -1) {
+//     return (res.second.GetLimitExceptByDenyAll());
+//   }
+//   return (ConfigBase::GetLimitExceptByDenyAll());
+// }
 
-const webservconfig::Server::return_type &webservconfig::Server::GetReturn(const std::string &path) const
-{
-  std::pair<int, webservconfig::Location> res;
+// const webservconfig::Server::return_type &webservconfig::Server::GetReturn(const std::string &path) const
+// {
+//   std::pair<int, const webservconfig::Location &> res(this->GetLocation(path));
 
-  res = this->GetLocation(path);
-  if (res.first != -1) {
-    return (res.second.GetReturn());
-  }
-  return (ConfigBase::GetReturn());
-}
+//   if (res.first != -1) {
+//     return (res.second.GetReturn());
+//   }
+//   return (ConfigBase::GetReturn());
+// }
 
-const std::string &webservconfig::Server::GetUploadPath(const std::string &path) const
-{
-  std::pair<int, webservconfig::Location> res;
+// const std::string &webservconfig::Server::GetUploadPath(const std::string &path) const
+// {
+//   std::pair<int, const webservconfig::Location &> res(this->GetLocation(path));
 
-  res = this->GetLocation(path);
-  if (res.first != -1) {
-    return (res.second.GetUploadPath());
-  }
-  return (ConfigBase::GetUploadPath());
-}
+//   if (res.first != -1) {
+//     return (res.second.GetUploadPath());
+//   }
+//   return (ConfigBase::GetUploadPath());
+// }
 
-const std::string &webservconfig::Server::GetRoot(const std::string &path) const
-{
-  std::pair<int, webservconfig::Location> res;
+// const std::string &webservconfig::Server::GetRoot(const std::string &path) const
+// {
+//   std::pair<int, const webservconfig::Location &> res(this->GetLocation(path));
 
-  res = this->GetLocation(path);
-  if (res.first != -1) {
-    return (res.second.GetRoot());
-  }
-  return (ConfigBase::GetRoot());
-}
+//   if (res.first != -1) {
+//     // std::cout << "[in getRoot: " << res.second.GetRoot() << "]" << std::endl;
+//     return (res.second.GetRoot());
+//   }
+//   return (ConfigBase::GetRoot());
+// }
 
-const webservconfig::Server::extension_list_type &webservconfig::Server::GetCgiExtension(const std::string &path) const
-{
-  std::pair<int, webservconfig::Location> res;
+// const webservconfig::Server::extension_list_type &webservconfig::Server::GetCgiExtension(const std::string &path) const
+// {
+//   std::pair<int, const webservconfig::Location &> res(this->GetLocation(path));
 
-  res = this->GetLocation(path);
-  if (res.first != -1) {
-    return (res.second.GetCgiExtension());
-  }
-  return (ConfigBase::GetCgiExtension());
-}
+//   if (res.first != -1) {
+//     return (res.second.GetCgiExtension());
+//   }
+//   return (ConfigBase::GetCgiExtension());
+// }
+
+const webservconfig::Server::index_type &webservconfig::Server::GetIndex(const std::string &path) const { return (this->GetLocation(path).GetIndex()); }
+const webservconfig::Server::error_page_type &webservconfig::Server::GetErrorPage(const std::string &path) const { return (this->GetLocation(path).GetErrorPage()); }
+bool webservconfig::Server::GetAutoIndex(const std::string &path) const { return (this->GetLocation(path).GetAutoIndex()); }
+webservconfig::Server::body_size_type webservconfig::Server::GetClientMaxBodySize(const std::string &path) const { return (this->GetLocation(path).GetClientMaxBodySize()); }
+const webservconfig::Server::limit_except_type &webservconfig::Server::GetLimitExceptByDenyAll(const std::string &path) const { return (this->GetLocation(path).GetLimitExceptByDenyAll()); }
+const webservconfig::Server::return_type &webservconfig::Server::GetReturn(const std::string &path) const { return (this->GetLocation(path).GetReturn()); }
+const std::string &webservconfig::Server::GetUploadPath(const std::string &path) const { return (this->GetLocation(path).GetUploadPath()); }
+const std::string &webservconfig::Server::GetRoot(const std::string &path) const { return (this->GetLocation(path).GetRoot()); }
+const webservconfig::Server::extension_list_type &webservconfig::Server::GetCgiExtension(const std::string &path) const { return (this->GetLocation(path).GetCgiExtension()); }
 
 const std::vector<webservconfig::Location> &webservconfig::Server::GetLocation() const
 {
@@ -219,22 +232,41 @@ const std::vector<webservconfig::Location> &webservconfig::Server::GetLocation()
  * Utility Getter
  */
 
-std::pair<int, webservconfig::Location> webservconfig::Server::GetLocation(const std::string &path) const
+const webservconfig::Location &webservconfig::Server::GetLocation(const std::string &path) const
 {
   int compare_len = -1;
-  webservconfig::Location compare_location;
+  // webservconfig::Location &compare_location = this->default_location_;
+  int idx = -1, i = 0;
 
   for (std::vector<Location>::const_iterator iter = this->location_.begin();
        iter != this->location_.end(); iter++) {
-    if (!iter->GetLocationPath().compare(0, iter->GetLocationPath().size(), path)) {
-      // std::cout << "Location: " << iter->GetLocationPath() << std::endl;
+    // std::cout << "size: " << iter->GetLocationPath().size() << std::endl;
+    // std::cout << "size: " << std::string("/").compare(0, 1, "/con") << std::endl;
+    // std::cout << iter->GetLocationPath() << ", " << path << ":" << iter->GetLocationPath().compare(0, iter->GetLocationPath().size(), path) << std::endl;
+    // std::cout << (iter->GetLocationPath() == path.substr(0, std::min(path.size(), iter->GetLocationPath().size()))) << std::endl;
+    if ((iter->GetLocationPath() == path.substr(0, std::min(path.size(), iter->GetLocationPath().size())))) {
+      // std::cout << "[Location: " << iter->GetLocationPath() << "]" << std::endl;
       if (compare_len < (int)iter->GetLocationPath().size()) {
         compare_len = iter->GetLocationPath().size();
-        compare_location = *iter;
+        // compare_location = *iter;
+        idx = i;
       }
     }
+    i++;
+    // std::equal();
+    // if (!iter->GetLocationPath().compare(0, iter->GetLocationPath().size(), path)) {
+    //   std::cout << "[Location: " << iter->GetLocationPath() << "]" << std::endl;
+    //   if (compare_len < (int)iter->GetLocationPath().size()) {
+    //     compare_len = iter->GetLocationPath().size();
+    //     compare_location = *iter;
+    //   }
+    // }
   }
-  return std::make_pair(compare_len, compare_location);
+  // std::cout << compare_len << ", " << compare_location.GetLocationPath() << ":" << compare_location.GetRoot() << std::endl;
+  if (compare_len != -1) {
+    return (this->location_[idx]);
+  }
+  return (this->default_location_);
 }
 
 std::ostream& webservconfig::Server::PutServer(std::ostream& os, std::string first_indent, std::string indent) const
