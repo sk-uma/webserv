@@ -48,7 +48,11 @@ void webservconfig::Location::ParseLocationBlock()
     int len = rtv.size();
     if (len == 0) {
       continue;
-    } else if (rtv[0] == "index") {
+    }
+    if (webservconfig::CountFrontSpace(line) != 4) {
+      throw std::runtime_error("invalud indent");
+    }
+    if (rtv[0] == "index") {
       InitIndex(rtv);
     } else if (rtv[0] == "error_page") {
       InitErrorPage(rtv);

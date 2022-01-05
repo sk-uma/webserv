@@ -22,39 +22,39 @@ bool operator==(struct in6_addr left, struct in6_addr right) {
 }
 
 class ConfigTest : public ::testing::Test {
-protected:
-  virtual void SetUp() {
-    default_listen_v4.push_back(GetAddrV4("0.0.0.0", 80));
-    default_index.push_back("index.html");
-    default_autoindex = false;
-    default_error_page.clear();
-    default_size = 1048576;
-    default_except["HEAD"] = true;
-    default_except["POST"] = true;
-    default_except["GET"] = true;
-    default_except["DELETE"] = true;
-    default_name.clear();
-    default_return = std::make_pair(-1, "");
-    default_upload_path.clear();
-    default_root = "/var/www/html";
-    default_cgi.clear();
-  }
+  protected:
+    virtual void SetUp() {
+      default_listen_v4.push_back(GetAddrV4("0.0.0.0", 80));
+      default_index.push_back("index.html");
+      default_autoindex = false;
+      default_error_page.clear();
+      default_size = 1048576;
+      default_except["HEAD"] = true;
+      default_except["POST"] = true;
+      default_except["GET"] = true;
+      default_except["DELETE"] = true;
+      default_name.clear();
+      default_return = std::make_pair(-1, "");
+      default_upload_path.clear();
+      default_root = "/var/www/html";
+      default_cgi.clear();
+    }
 
-  virtual void TearDown() {
-  }
+    virtual void TearDown() {
+    }
 
-  webservconfig::ConfigBase::listen_v4_type default_listen_v4;
-  webservconfig::ConfigBase::listen_v6_type default_listen_v6;
-  webservconfig::ConfigBase::index_type default_index;
-  webservconfig::ConfigBase::error_page_type default_error_page;
-  bool default_autoindex;
-  webservconfig::ConfigBase::body_size_type default_size;
-  webservconfig::ConfigBase::limit_except_type default_except;
-  webservconfig::ConfigBase::server_name_list_type default_name;
-  webservconfig::ConfigBase::return_type default_return;
-  std::string default_upload_path;
-  std::string default_root;
-  webservconfig::ConfigBase::extension_list_type default_cgi;
+    webservconfig::ConfigBase::listen_v4_type default_listen_v4;
+    webservconfig::ConfigBase::listen_v6_type default_listen_v6;
+    webservconfig::ConfigBase::index_type default_index;
+    webservconfig::ConfigBase::error_page_type default_error_page;
+    bool default_autoindex;
+    webservconfig::ConfigBase::body_size_type default_size;
+    webservconfig::ConfigBase::limit_except_type default_except;
+    webservconfig::ConfigBase::server_name_list_type default_name;
+    webservconfig::ConfigBase::return_type default_return;
+    std::string default_upload_path;
+    std::string default_root;
+    webservconfig::ConfigBase::extension_list_type default_cgi;
 };
 
 TEST_F(ConfigTest, ConfigDefaultConstructor) {
@@ -614,6 +614,45 @@ TEST_F(ConfigTest, Max008) {
   ASSERT_EQ(default_cgi, location[0].webservconfig::ConfigBase::GetCgiExtension());
 }
 
-TEST(ConfigException, d100) {
-  EXPECT_ANY_THROW(webservconfig::ServerCollection("gtest/example_config/008.conf"));
+static void CheckExceptionConfigFile(int from, int until, bool log) {
+  for (int i = from; i <= until; i++) {
+    std::stringstream ss;
+    ss << "gtest/example_config/" << std::setfill('0') << std::right << std::setw(3) << i << ".conf";
+    if (log) {
+      std::cout << ss.str() << std::endl;
+    }
+    EXPECT_ANY_THROW(webservconfig::ServerCollection(ss.str()));
+  }
+}
+
+TEST(ConfigException, UnknownDirective100) {
+  CheckExceptionConfigFile(100, 102, false);
+}
+
+TEST(ConfigException, NumberOfInvalidArguments103) {
+  CheckExceptionConfigFile(103, 122, false);
+}
+
+TEST(ConfigException, InvalidValue123) {
+  CheckExceptionConfigFile(123, 140, false);
+}
+
+TEST(ConfigException, InvalidIndent141) {
+  CheckExceptionConfigFile(141, 148, false);
+}
+
+class ConfigGetterTest : public ::testing::Test {
+  protected:
+    virtual void SetUp() {
+      sc = webservconfig::ServerCollection("gtest/example_config/008.conf");
+    }
+
+    virtual void TearDown() {
+    }
+
+    webservconfig::ServerCollection sc;
+};
+
+TEST_F(ConfigGetterTest, GetterTest) {
+  ;
 }

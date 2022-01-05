@@ -85,10 +85,11 @@ void webservconfig::ConfigBase::InitListen(std::vector<std::string> line)
   CheckNumberOfArgument(line, 2, 2);
   const char *listen = line[1].c_str();
 
-  const char *port = std::strrchr(listen, ':') + 1;
+  const char *port = std::strrchr(listen, ':');
   if (port == NULL) {
     throw std::runtime_error("Port and address are not explicitly stated");
   }
+  port = port + 1;
   std::string address = line[1].substr(0, port - listen - 1);
   int port_number = strtoll(std::string(port));
   if (port_number == -1) {
@@ -202,7 +203,7 @@ void webservconfig::ConfigBase::InitListen(std::vector<std::string> line)
 
 void webservconfig::ConfigBase::InitIndex(std::vector<std::string> line)
 {
-  CheckNumberOfArgument(line, 1, -1);
+  CheckNumberOfArgument(line, 2, -1);
   if (!this->index_flag_) {
     this->index_.clear();
     this->index_flag_ = true;
@@ -254,7 +255,7 @@ void webservconfig::ConfigBase::InitClientMaxBodySize(std::vector<std::string> l
 
 void webservconfig::ConfigBase::InitLimitExceptByDenyAll(std::vector<std::string> line)
 {
-  CheckNumberOfArgument(line, 1, -1);
+  CheckNumberOfArgument(line, 2, -1);
 
   // if (!this->limit_except_flag_) {
   //   this->limit_except_.clear();
@@ -271,7 +272,7 @@ void webservconfig::ConfigBase::InitLimitExceptByDenyAll(std::vector<std::string
   this->limit_except_["DELETE"] = false;
   for (std::vector<std::string>::iterator iter = line.begin() + 1; iter != line.end(); iter++) {
     if (this->limit_except_.count(*iter) == 0) {
-      std::cout << *iter << std::endl;
+      // std::cout << *iter << std::endl;
       throw std::runtime_error("unknown method");
     } else {
       this->limit_except_[*iter] = true;
@@ -300,7 +301,7 @@ void webservconfig::ConfigBase::InitReturn(std::vector<std::string> line)
   CheckNumberOfArgument(line, 3, 3);
 
   int code = strtoll(line[1]);
-  if (code < 0) {
+  if (code < 0 || 999 < code) {
     throw std::runtime_error("Invalid code");
   }
   this->return_ = return_type(code, line[2]);
@@ -321,7 +322,7 @@ void webservconfig::ConfigBase::InitRoot(std::vector<std::string> line)
 
 void webservconfig::ConfigBase::InitCgiExtension(std::vector<std::string> line)
 {
-  CheckNumberOfArgument(line, 1, -1);
+  CheckNumberOfArgument(line, 2, -1);
 
   if (!this->cgi_extension_flag_) {
     this->cgi_extension_.clear();
@@ -373,7 +374,7 @@ void webservconfig::ConfigBase::CheckNumberOfArgument(std::vector<std::string> l
 {
   int size = line.size();
 
-  if ((min_size >= 0 && min_size > size) && (max_size >= 0 && max_size < size)) {
+  if ((min_size >= 0 && min_size > size) || (max_size >= 0 && max_size < size)) {
     throw std::runtime_error(std::string("invalid number of arguments in \"")
                               + line[0] + std::string("\" directive"));
   }
