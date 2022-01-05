@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/11/26 22:20:24 by rtomishi          #+#    #+#             */
-/*   Updated: 2021/12/24 23:41:09 by rtomishi         ###   ########.fr       */
+/*   Updated: 2022/01/05 10:39:15 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,3 +37,4 @@ std::vector<std::string> PortVec(webservconfig::ServerCollection &config)
 	}
 	return (ret_vec);
 }
+

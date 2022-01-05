@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/06 21:40:53 by rtomishi          #+#    #+#             */
-/*   Updated: 2021/12/27 23:31:59 by rtomishi         ###   ########.fr       */
+/*   Updated: 2022/01/05 11:56:16 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,51 @@
 #include "Response.hpp"
 #include "ServerCollection.hpp"
 #include "SocketCollection.hpp"
+
+//廃棄予定 config確認用
+void	PutConf(webservconfig::Server	&serv, RequestParser &request)
+{
+	std::cout << "================ " << request.get_uri() << " ====================" << std::endl;
+	webservconfig::ConfigBase::index_type	id = serv.GetIndex(request.get_uri());
+	std::cout << "index:";
+	for (size_t	i = 0; i < id.size(); i++)
+		std::cout << id[i] << " ";
+	std::cout << std::endl;
+
+	webservconfig::ConfigBase::error_page_type	err = serv.GetErrorPage(request.get_uri());
+	std::cout << "error_page:";
+	for (webservconfig::ConfigBase::error_page_type::iterator	it = err.begin(); it != err.end(); it++)
+		std::cout << (*it).first << "_" << (*it).second << " ";
+	std::cout << std::endl;
+
+	std::cout << "autoindex:" << serv.GetAutoIndex(request.get_uri()) << std::endl;
+
+	std::cout << "body_size:" << serv.GetClientMaxBodySize(request.get_uri()) << std::endl;
+	webservconfig::ConfigBase::limit_except_type	lim = serv.GetLimitExceptByDenyAll(request.get_uri());
+	std::cout << "limit_except:";
+	for (webservconfig::ConfigBase::limit_except_type::iterator	it = lim.begin(); it != lim.end(); it++)
+		std::cout << (*it).first << "_" << (*it).second << " ";
+	std::cout << std::endl;
+
+	webservconfig::ConfigBase::return_type	ret = serv.GetReturn(request.get_uri());
+	std::cout << "return:" << ret.first << "_" << ret.second << std::endl;
+
+	std::cout << "UploadPath:" << serv.GetUploadPath(request.get_uri()) << std::endl;
+
+	std::cout << "root:" << serv.GetRoot(request.get_uri()) << std::endl;
+
+	webservconfig::ConfigBase::index_type	ex = serv.GetCgiExtension(request.get_uri());
+	std::cout << "extension_list_type:";
+	for (size_t	i = 0; i < ex.size(); i++)
+		std::cout << ex[i] << " ";
+	std::cout << std::endl;
+
+	webservconfig::ConfigBase::server_name_list_type	na = serv.GetServerName();
+	std::cout << "server_name:";
+	for (size_t	i = 0; i < na.size(); i++)
+		std::cout << na[i] << " ";
+	std::cout << std::endl;
+}
 
 int		g_SIGPIPE_FLAG = 0;
 
@@ -49,25 +94,6 @@ int	main(int argc, char **argv)
 	//環境変数EXE_DIRに実行ファイルのディレクトリを格納する
 	setenv_exedir(argv);
 
-	// std::cout << "in main" << std::endl;
-
-	//複数のポートを使用できるようにvector<Socket> sockを作成する
-	//現状、お試しでvector<string> ports を作成してから、
-	//for ループで各ポートのSocketのインスタンスをvectorでつくる
-	// std::vector<std::string>	ports;
-	// std::vector<Socket>			sock;
-	// ports.push_back("5050");
-	// ports.push_back("6060");
-	// ports.push_back("7070");
-	// for (std::vector<std::string>::iterator	it = ports.begin(); it != ports.end(); it++)
-	// 	sock.push_back(Socket(*it));
-	//各ポートのソケットのセットアップをする
-	//生成されたソケットのファイルディスクリプタをfcntlでノンブロッキングに設定する
-	// for (std::vector<Socket>::iterator it = sock.begin(); it != sock.end(); it++)
-	// {
-	// 	(*it).set_socket();
-	// 	fcntl((*it).get_listenfd(), F_SETFL, O_NONBLOCK);
-	// }
 	std::vector<Socket> sock = socket_c.GetSocket();
 	// std::cout << "fin sock set: " << sock.size() << std::endl;
 	for (std::vector<Socket>::const_iterator it = sock.begin(); it != sock.end(); it++) {
@@ -80,13 +106,13 @@ int	main(int argc, char **argv)
 	int					accfd[MAX_SESSION];
 	fd_set				rfd;
 	fd_set				wfd;
+	std::map<int, webservconfig::Server>	serv_map;
 
 	for (int i = 0; i < MAX_SESSION; i++)
 		accfd[i] = -1;
 	//FD_SETで監視対象のディスクリプタをセットする
 	while (1)
 	{
-
 		int		nfd = (*(sock.end() - 1)).get_listenfd() + 1;
 
 		FD_ZERO(&rfd);
@@ -125,15 +151,11 @@ int	main(int argc, char **argv)
 					if (accfd[i] == -1)
 					{
 						accfd[i] = connfd;
+						serv_map.insert(std::make_pair(connfd, it->get_server()));
+						std::cout << "Accept: " << it->get_address() << ":" << it->get_StrPort() << std::endl;
 						limit_over = false;
 						break;
 					}
-				}
-				std::pair<int, webservconfig::Location> res;
-				res = it->get_server().GetLocation("/content/");
-				std::cout << "Accept: " << it->get_address() << ":" << it->get_StrPort() << std::endl;
-				if (res.first != -1) {
-					res.second.PutLocation(std::cout, "", "");
 				}
 				if (limit_over)
 				{
@@ -175,6 +197,7 @@ int	main(int argc, char **argv)
 					{
 //						std::cout << "situation:read_size = 0" << std::endl;
 						std::cerr << "read_size 0" << std::endl;
+						serv_map.erase(accfd[i]);
 						close(accfd[i]);
 						accfd[i] = -1;
 						break ;
@@ -227,6 +250,18 @@ int	main(int argc, char **argv)
 				RequestParser 	request(recv_str);
 				Response		response(request);
 
+				PutConf(serv_map[accfd[i]], request);
+				// webservconfig::ConfigBase::index_type id = serv_map[accfd[i]].GetIndex(request.get_uri());
+				// std::cout << id.size() << std::endl;
+				// if (id.size() >= 1) {
+				// 	std::cout << id[0] << std::endl;
+				// }
+				// std::cout << "root:" << serv_map[accfd[i]].GetRoot(request.get_uri()) << std::endl;
+				// std::cout << "size:" << serv_map[accfd[i]].GetClientMaxBodySize(request.get_uri()) << std::endl;
+				// serv_map[accfd[i]].PutServer(std::cout, "", "");
+				// std::cout << "URI      : " << request.get_uri() << std::endl;
+				// std::cout << "autoindex: " << serv_map[accfd[i]].GetAutoIndex(request.get_uri()) << std::endl;
+
 				std::string		response_str;
 				ssize_t			write_size = 0;
 				ssize_t			ret_size;
@@ -253,6 +288,7 @@ int	main(int argc, char **argv)
 					if (write_size == (long)response_str.size())
 						break ;
 				}
+				serv_map.erase(accfd[i]);
 				close(accfd[i]);
 				accfd[i] = -1;
 			}
