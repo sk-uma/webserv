@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Socket.hpp                                         :+:      :+:    :+:   */
+/*   socket.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/06 21:31:14 by rtomishi          #+#    #+#             */
-/*   Updated: 2021/12/31 11:16:04 by rtomishi         ###   ########.fr       */
+/*   Updated: 2022/01/03 23:24:21 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,12 +21,14 @@
 class Socket
 {
 	private:
-		int									listenfd;
-		std::string							StrPort;
-		std::string       					address;
-		struct addrinfo						hints;
-		struct addrinfo						*ai;
-		std::vector<webservconfig::Server>  server;
+		int								listenfd;
+		std::string				StrPort;
+		int 							port;
+		std::string       address;
+		struct addrinfo		hints;
+		struct addrinfo		*ai;
+		// std::vector<webservconfig::Server>  server;
+		webservconfig::Server server;
 
 	public:
 		Socket(void);
@@ -48,12 +50,14 @@ class Socket
  * Getter
  */
 
-		int		get_listenfd() const;
-		const std::string &get_port() const;
+		int								get_listenfd() const;
+		const std::string &get_StrPort() const;
+		int 							get_port() const;
 		const std::string &get_address() const;
-		const struct addrinfo *get_ai() const;
+		const webservconfig::Server &get_server() const;
+		// const struct addrinfo *get_ai() const;
 
-		void add_server(const webservconfig::Server &s);
+		void set_server(const webservconfig::Server &s);
 };
 
 #endif
