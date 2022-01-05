@@ -2,12 +2,12 @@
 
 webservconfig::Server::Server():
   ConfigBase(),
-  default_location_()
+  default_location_("", "/")
 { }
 
 webservconfig::Server::Server(std::string block):
   ConfigBase(),
-  default_location_()
+  default_location_("", "/")
 {
   this->block_ = block;
 }
