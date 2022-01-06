@@ -641,18 +641,34 @@ TEST(ConfigException, InvalidIndent141) {
   CheckExceptionConfigFile(141, 148, false);
 }
 
-class ConfigGetterTest : public ::testing::Test {
-  protected:
-    virtual void SetUp() {
-      sc = webservconfig::ServerCollection("gtest/example_config/008.conf");
-    }
+TEST(ConfigGetterTest, WithoutDefaultRoot009) {
+  webservconfig::ServerCollection sc = webservconfig::ServerCollection("gtest/example_config/009.conf");
+  webservconfig::Server server = sc.GetServer()[0];
+  EXPECT_EQ("/var/www/html", server.GetRoot("/"));
+  EXPECT_EQ("/var/www/contents", server.GetRoot("/contents/var"));
+  EXPECT_EQ("/etc/text", server.GetRoot("/contents/text/index.html"));
+  EXPECT_EQ("/var/www/var", server.GetRoot("/var"));
+  EXPECT_EQ("/var/www/html", server.GetRoot("/log"));
+  EXPECT_EQ("/etc/log", server.GetRoot("/log/"));
+  EXPECT_EQ("/var/www/html", server.GetRoot(""));
+}
 
-    virtual void TearDown() {
-    }
+TEST(ConfigGetterTest, WithDefaultRoot010) {
+  webservconfig::ServerCollection sc = webservconfig::ServerCollection("gtest/example_config/010.conf");
+  webservconfig::Server server = sc.GetServer()[0];
+  EXPECT_EQ("/var/www", server.GetRoot("/"));
+  EXPECT_EQ("/var/www/contents", server.GetRoot("/contents/var"));
+  EXPECT_EQ("/etc/text", server.GetRoot("/contents/text/index.html"));
+  EXPECT_EQ("/var/www/var", server.GetRoot("/var"));
+  EXPECT_EQ("/var/www", server.GetRoot("/log"));
+  EXPECT_EQ("/etc/log", server.GetRoot("/log/"));
+  EXPECT_EQ("/var/www/html", server.GetRoot(""));
+}
 
-    webservconfig::ServerCollection sc;
-};
-
-TEST_F(ConfigGetterTest, GetterTest) {
-  ;
+TEST(ConfigGetterTest, WithoutLocation011) {
+  webservconfig::ServerCollection sc = webservconfig::ServerCollection("gtest/example_config/011.conf");
+  webservconfig::Server server = sc.GetServer()[0];
+  EXPECT_EQ("/var/www/html", server.GetRoot("/"));
+  EXPECT_EQ("/var/www/html", server.GetRoot("/contents/var"));
+  EXPECT_EQ("/var/www/html", server.GetRoot(""));
 }
