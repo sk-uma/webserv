@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/06 21:40:53 by rtomishi          #+#    #+#             */
-/*   Updated: 2022/01/05 11:56:16 by rtomishi         ###   ########.fr       */
+/*   Updated: 2022/01/06 21:28:26 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -247,8 +247,8 @@ int	main(int argc, char **argv)
 //				std::cout << "[recv_str]\n" << recv_str.c_str() << std::endl;
 //				std::cout << "recv_length:" << recv_str.length() << std::endl;
 //				std::cout << "recv_size:" << recv_str.size()*sizeof(std::string::value_type) << std::endl;
-				RequestParser 	request(recv_str);
-				Response		response(request);
+				RequestParser 	request(recv_str, serv_map[accfd[i]]);
+				Response		response(request, serv_map[accfd[i]]);
 
 				PutConf(serv_map[accfd[i]], request);
 				// webservconfig::ConfigBase::index_type id = serv_map[accfd[i]].GetIndex(request.get_uri());
