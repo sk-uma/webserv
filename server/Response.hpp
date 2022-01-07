@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/13 22:19:12 by rtomishi          #+#    #+#             */
-/*   Updated: 2022/01/06 23:06:22 by rtomishi         ###   ########.fr       */
+/*   Updated: 2022/01/07 21:49:03 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,8 +47,8 @@ class Response
 		int			delete_file(const char *path);
 
 		void		check_redirect(RequestParser &request);
-		void		error_body_set(std::string root_path, webservconfig::ConfigBase::error_page_type &err_map);
-		void		header_set(std::ostringstream &oss);
+		void		error_body_set(std::string root_path, webservconfig::ConfigBase::error_page_type &err_map, webservconfig::ConfigBase::return_type ret_pair);
+		void		header_set(std::ostringstream &oss, webservconfig::ConfigBase::return_type ret_pair);
 		void		header_ok(std::ostringstream &oss);
 		void		header_not_found(std::ostringstream &oss);
 		void		content_type_set(std::string file_path);

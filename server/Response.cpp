@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/14 21:09:14 by rtomishi          #+#    #+#             */
-/*   Updated: 2022/01/06 23:18:38 by rtomishi         ###   ########.fr       */
+/*   Updated: 2022/01/07 23:06:11 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,9 +30,10 @@ Response::Response(RequestParser &request, webservconfig::Server &serv)
 	const std::string	UPLOAD_PATH = serv.GetUploadPath(path);
 	const bool			AUTOINDEX = serv.GetAutoIndex(path);
 	webservconfig::ConfigBase::error_page_type	err_map = serv.GetErrorPage(path);
+	webservconfig::ConfigBase::return_type	ret_pair = serv.GetReturn(path);
 
 	//リダイレクトのチェック。必要があればuriを書き換える。
-	check_redirect(request);
+//	check_redirect(request);
 
 	//何も指定がない(="/"以外の文字が来ない)場合はHTML_PATH + /index.htmlが開く
 	if (request.get_uri().find_first_not_of("/") != std::string::npos)
@@ -49,7 +50,16 @@ Response::Response(RequestParser &request, webservconfig::Server &serv)
 	stat(cgi_file.c_str(), &eval_cgi);
 
 	//ここのif文でbodyを作成
-	if (!method_limited(serv, request))
+	if (ret_pair.first > 0)
+	{
+		status = ret_pair.first;
+		if (ret_pair.first < 300)
+		{
+			body.append(ret_pair.second + "\r\n");
+			content_type = "application/octet-stream";
+		}
+	}
+	else if (!method_limited(serv, request))
 		status = STATUS_NOT_IMPLEMENTED;
 	else if (!method_allowed(serv, request))
 		status = STATUS_METHOD_NOT_ALLOWED;
@@ -72,15 +82,15 @@ Response::Response(RequestParser &request, webservconfig::Server &serv)
 		status = open_html(html_file);
 	
 	//以下のswitch文でヘッダーを作成する
-	if (status >= 400)
-		error_body_set(EXE_DIR + "/www/", err_map);
+	if (status >= 300)
+		error_body_set(EXE_DIR + "/www/", err_map, ret_pair);
 		
     std::ostringstream oss;
 
 	oss << "Content-Length: " << body.length() << "\r\n";
 //	oss << "Content-Type: " << content_type << "; charset=UTF-8\r\n";
 	oss << "Content-Type: " << content_type << "\r\n";
-	header_set(oss);
+	header_set(oss, ret_pair);
 }
 
 Response::~Response(void) {}
@@ -420,12 +430,17 @@ void	Response::check_redirect(RequestParser &request)
 
 //エラー用のボディ設定をする
 //error_path:エラーファイルが存在するディレクトリ
-void	Response::error_body_set(std::string error_path, webservconfig::ConfigBase::error_page_type &err_map)
+void	Response::error_body_set(std::string error_path, webservconfig::ConfigBase::error_page_type &err_map, webservconfig::ConfigBase::return_type ret_pair)
 {
 	const std::string	EXE_DIR(getenv("EXE_DIR"));
 	std::string	path;
 	//デフォルト設定エラーファイル。Configから書き換え
 	std::map<int, std::string>	ERROR_FILE;
+	ERROR_FILE.insert(std::make_pair(STATUS_MOVED_PERMANENTLY, error_path + "/301.html"));
+	ERROR_FILE.insert(std::make_pair(STATUS_FOUND, error_path + "/302.html"));
+	ERROR_FILE.insert(std::make_pair(STATUS_SEE_OTHER, error_path + "/303.html"));
+	ERROR_FILE.insert(std::make_pair(STATUS_TEMPORARY_REDIRECT, error_path + "/307.html"));
+	ERROR_FILE.insert(std::make_pair(STATUS_PERMANENT_REDIRECT, error_path + "/308.html"));
 	ERROR_FILE.insert(std::make_pair(STATUS_BAD_REQUEST, error_path + "/400.html"));
 	ERROR_FILE.insert(std::make_pair(STATUS_FORBIDDEN, error_path + "/403.html"));
 	ERROR_FILE.insert(std::make_pair(STATUS_NOT_FOUND, error_path + "/404.html"));
@@ -436,8 +451,14 @@ void	Response::error_body_set(std::string error_path, webservconfig::ConfigBase:
 
 	for (webservconfig::ConfigBase::error_page_type::iterator	it = err_map.begin(); it != err_map.end(); it++)
 		ERROR_FILE[(*it).first] = EXE_DIR + (*it).second;
-	path = ERROR_FILE.at(status);
-
+	if (ERROR_FILE.count(status))
+		path = ERROR_FILE.at(status);
+	else
+	{
+		body.append(ret_pair.second + "\r\n");
+		content_type = "application/octet-stream";
+		return ;
+	}
 	std::ifstream 	output_file(path.c_str());
 	std::string		temp_str;
 	int				file_exist = 0;
@@ -454,7 +475,7 @@ void	Response::error_body_set(std::string error_path, webservconfig::ConfigBase:
 		body.append(temp_str + "\r\n");
 }
 
-void	Response::header_set(std::ostringstream &oss)
+void	Response::header_set(std::ostringstream &oss, webservconfig::ConfigBase::return_type ret_pair)
 {
 	switch (status)
 	{
@@ -463,7 +484,23 @@ void	Response::header_set(std::ostringstream &oss)
 			break;
 		case STATUS_MOVED_PERMANENTLY:
     		header.append("HTTP/1.1 301 Moved Permanently\r\n");
-    		header.append("Location: https://youtube.com\r\n");
+    		header.append("Location: " + ret_pair.second + "\r\n");
+			break;
+		case STATUS_FOUND:
+    		header.append("HTTP/1.1 302 Found\r\n");
+    		header.append("Location: " + ret_pair.second + "\r\n");
+			break;
+		case STATUS_SEE_OTHER:
+    		header.append("HTTP/1.1 303 See Other\r\n");
+    		header.append("Location: " + ret_pair.second + "\r\n");
+			break;
+		case STATUS_TEMPORARY_REDIRECT:
+    		header.append("HTTP/1.1 307 Temporary Redirect\r\n");
+    		header.append("Location: " + ret_pair.second + "\r\n");
+			break;
+		case STATUS_PERMANENT_REDIRECT:
+    		header.append("HTTP/1.1 308 Permanent Redirect\r\n");
+    		header.append("Location: " + ret_pair.second + "\r\n");
 			break;
 		case STATUS_BAD_REQUEST:
     		header.append("HTTP/1.1 400 Bad Request\r\n");
@@ -485,6 +522,11 @@ void	Response::header_set(std::ostringstream &oss)
 			break;
 		case STATUS_NOT_IMPLEMENTED:
     		header.append("HTTP/1.1 501 Not Implemented\r\n");
+			break;
+		default:
+			std::stringstream ss;
+			ss << "HTTP/1.1 " << status << "\r\n";
+    		header.append(ss.str());
 			break;
 	}
     header.append(oss.str());

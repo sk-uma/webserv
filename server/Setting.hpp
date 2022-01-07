@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/06 21:26:18 by rtomishi          #+#    #+#             */
-/*   Updated: 2022/01/06 14:25:38 by rtomishi         ###   ########.fr       */
+/*   Updated: 2022/01/07 17:22:22 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,6 +56,10 @@ extern char			**environ;
 //レスポンスステータス
 const int	STATUS_OK = 200;
 const int	STATUS_MOVED_PERMANENTLY = 301;
+const int	STATUS_FOUND = 302;
+const int	STATUS_SEE_OTHER = 303;
+const int	STATUS_TEMPORARY_REDIRECT = 307;
+const int	STATUS_PERMANENT_REDIRECT = 308;
 const int	STATUS_BAD_REQUEST = 400;
 const int	STATUS_FORBIDDEN = 403;
 const int	STATUS_NOT_FOUND = 404;
