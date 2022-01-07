@@ -172,14 +172,19 @@ void		RequestParser::set_cgi_env(void)
 		i++;
 	if (i != 0)
 		i--;
+	std::cout << "uri 1: " << uri << std::endl;
 	uri = uri.substr(i);
+	std::cout << "uri 2: " << uri << std::endl;
 
 	if ((query_start = uri.find("?")) != std::string::npos)
 		query_string = uri.substr(query_start + 1);
 	uri = uri.substr(0, query_start);
+	std::cout << "uri 3: " << uri << ", " << CGI_PATH << std::endl;
+	std::cout << uri.find(CGI_PATH) << std::endl;
 	if (uri.find(CGI_PATH) == 0 &&
 			(script_start = uri.substr(CGI_PATH.length()).find_first_not_of("/")) != std::string::npos)
 	{
+		std::cout << "info_start: " << uri.substr(CGI_PATH.length() + script_start) << std::endl;
 		if ((info_start = uri.substr(CGI_PATH.length() + script_start).find("/")) != std::string::npos)
 		{
 			i = CGI_PATH.length() + script_start + info_start;
@@ -187,6 +192,7 @@ void		RequestParser::set_cgi_env(void)
 				i++;
 			if (i != CGI_PATH.length() + script_start + info_start)
 				i--;
+			std::cout << "i: " << i << std::endl;
 			path_info = uri.substr(i);
 		}
 		script_name = (path_info == "" ? uri : uri.substr(0, CGI_PATH.length() + script_start + info_start));
