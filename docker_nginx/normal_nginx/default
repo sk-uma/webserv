@@ -33,6 +33,7 @@ server {
 
     location / {
         try_files $uri $uri/ =404;
+		return 301 http://localhost:8080;
     }
 
     location ~ \.py$ {

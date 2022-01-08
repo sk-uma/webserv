@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/12 22:00:34 by rtomishi          #+#    #+#             */
-/*   Updated: 2021/12/15 21:06:30 by rtomishi         ###   ########.fr       */
+/*   Updated: 2022/01/07 22:33:10 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,11 +16,10 @@
 RequestParser::RequestParser(void) {}
 
 //コンストラクタ
-RequestParser::RequestParser(std::string request_):request(request_),
-								header(""), body(""), method(""), uri(""),
-								path_translated(""), query_string(""),
-								path_info(""), script_name(""), content_length(""),
-								content_type(""), transfer_encoding("")
+RequestParser::RequestParser(std::string request_, webservconfig::Server &serv)
+	:request(request_),	header(""), body(""), method(""), uri(""),
+	path_translated(""), query_string(""), path_info(""), script_name(""),
+	content_length(""),	content_type(""), transfer_encoding("")
 {
 	//ヘッダーとボディを分けてメンバ変数に格納する
 	header_split();
@@ -33,7 +32,7 @@ RequestParser::RequestParser(std::string request_):request(request_),
 	set_method_and_uri();
 
 	//CGI用の環境変数PATH_TRANSLATED, PATH_INFO...などを設定する
-	set_cgi_env();
+	set_cgi_env(serv);
 
 	//ボディがある場合、Content-Type, Content-Lengthを設定
 	content_length = get_field("Content-Length");
@@ -153,9 +152,9 @@ void		RequestParser::set_method_and_uri(void)
 }
 
 //CGI用の環境変数を設定する
-void		RequestParser::set_cgi_env(void)
+void		RequestParser::set_cgi_env(webservconfig::Server &serv)
 {
-	std::size_t script_start;
+//	std::size_t script_start;
 	std::size_t info_start;
 	std::size_t query_start;
 //	std::string cgi_dir(CGI_PATH);
@@ -172,31 +171,51 @@ void		RequestParser::set_cgi_env(void)
 		i++;
 	if (i != 0)
 		i--;
-	std::cout << "uri 1: " << uri << std::endl;
 	uri = uri.substr(i);
-	std::cout << "uri 2: " << uri << std::endl;
+
 
 	if ((query_start = uri.find("?")) != std::string::npos)
 		query_string = uri.substr(query_start + 1);
 	uri = uri.substr(0, query_start);
-	std::cout << "uri 3: " << uri << ", " << CGI_PATH << std::endl;
-	std::cout << uri.find(CGI_PATH) << std::endl;
-	if (uri.find(CGI_PATH) == 0 &&
-			(script_start = uri.substr(CGI_PATH.length()).find_first_not_of("/")) != std::string::npos)
+	webservconfig::ConfigBase::extension_list_type ex= serv.GetCgiExtension(uri);
+
+	for (size_t	c = 0; c < ex.size(); c++)
 	{
-		std::cout << "info_start: " << uri.substr(CGI_PATH.length() + script_start) << std::endl;
-		if ((info_start = uri.substr(CGI_PATH.length() + script_start).find("/")) != std::string::npos)
+		if (uri.rfind(ex[c]) == (uri.length() - ex[c].length()))
 		{
-			i = CGI_PATH.length() + script_start + info_start;
+			script_name = uri;
+			break ;
+		}
+		else if (uri.rfind(ex[c] + "/") != std::string::npos)
+		{
+			info_start = uri.rfind(ex[c] + "/") + ex[c].length();
+			i = info_start;
 			while (uri[i] == '/')
 				i++;
-			if (i != CGI_PATH.length() + script_start + info_start)
+			if (i != info_start)
 				i--;
 			std::cout << "i: " << i << std::endl;
 			path_info = uri.substr(i);
+			script_name = uri.substr(0, info_start);
+			break ;
 		}
-		script_name = (path_info == "" ? uri : uri.substr(0, CGI_PATH.length() + script_start + info_start));
 	}
+
+//	if (uri.find(CGI_PATH) == 0 &&
+//			(script_start = uri.substr(CGI_PATH.length()).find_first_not_of("/")) != std::string::npos)
+//	{
+//		if ((info_start = uri.substr(CGI_PATH.length() + script_start).find("/")) != std::string::npos)
+//		{
+//			i = CGI_PATH.length() + script_start + info_start;
+//			while (uri[i] == '/')
+//				i++;
+//			if (i != CGI_PATH.length() + script_start + info_start)
+//				i--;
+//			path_info = uri.substr(i);
+//		}
+//		script_name = (path_info == "" ? uri : uri.substr(0, CGI_PATH.length() + script_start + info_start));
+//	}
+
 	//PATH_TRANSLATEDの指定。環境変数EXE_DIRが相対パス/絶対パスの場合で指定方法を分ける
 	if (std::string(getenv("EXE_DIR")).find("/") == 0)
 		path_translated = std::string(getenv("EXE_DIR")) + path_info;
