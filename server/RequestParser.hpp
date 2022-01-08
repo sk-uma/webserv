@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/12 21:50:09 by rtomishi          #+#    #+#             */
-/*   Updated: 2021/12/23 17:41:42 by rtomishi         ###   ########.fr       */
+/*   Updated: 2022/01/06 21:29:23 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,7 +33,7 @@ class RequestParser
 
 	public:
 		RequestParser(void);
-		explicit RequestParser(std::string request_);
+		explicit RequestParser(std::string request_, webservconfig::Server &serv);
 		~RequestParser(void);
 		RequestParser(RequestParser const &copy);
 		RequestParser &operator=(RequestParser const &obj);
@@ -56,7 +56,7 @@ class RequestParser
 		void		header_split(void);
 		void		chunked_split(void);
 		void		set_method_and_uri(void);
-		void		set_cgi_env(void);
+		void		set_cgi_env(webservconfig::Server &serv);
 };
 
 #endif
