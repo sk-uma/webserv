@@ -87,9 +87,15 @@ int	main(int argc, char **argv)
 		std::cerr << "usage: webserv [config file path]" << std::endl;
 		return (-1);
 	}
-	webservconfig::ServerCollection config(argv[1]);
-	SocketCollection socket_c(config);
-
+	webservconfig::ServerCollection config;
+	SocketCollection socket_c;
+	try {
+		config = webservconfig::ServerCollection(argv[1]);
+		socket_c = SocketCollection(config);
+	} catch (const std::exception& e) {
+		std::cerr << e.what() << std::endl;
+		return (1);
+	}
 	sigpipe_wait();
 	//環境変数EXE_DIRに実行ファイルのディレクトリを格納する
 	setenv_exedir(argv);
