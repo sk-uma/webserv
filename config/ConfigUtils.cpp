@@ -67,6 +67,10 @@ std::vector<std::string> webservconfig::SplitLine(std::string line)
   if (line != "")
     rtv.push_back(item);
 
+  if (quote_flag) {
+    throw std::runtime_error("quotations are not closed.");
+  }
+
   // std::cout << "end split: " << item << std::endl;
 
   // for (int i = 0; i < (int)rtv.size(); i++) {

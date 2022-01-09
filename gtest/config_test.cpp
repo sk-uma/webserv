@@ -705,5 +705,5 @@ TEST(ConfigQuoteTest, EscapeQuote) {
 }
 
 TEST(ConfigQuoteTest, ExceptQuote) {
-  ;
+  CheckExceptionConfigFile(149, 151, false);
 }
