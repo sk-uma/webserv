@@ -39,7 +39,11 @@ webservconfig::ServerCollection::ServerCollection(std::string path):
     int len = rtv.size();
     if (len == 0) {
       continue ;
-    } else if (len >= 2 && rtv[0] == "server" && len == 2 && rtv[1] == "{") {
+    }
+    if (webservconfig::CountFrontSpace(line) != 0) {
+      throw std::runtime_error("invalud indent");
+    }
+    if (len >= 2 && rtv[0] == "server" && len == 2 && rtv[1] == "{") {
       InitServer(rtv, input_file);
     } else if (rtv[0] == "index") {
       InitIndex(rtv);
