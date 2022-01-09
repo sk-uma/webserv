@@ -177,7 +177,6 @@ void		RequestParser::set_cgi_env(webservconfig::Server &serv)
 	if ((query_start = uri.find("?")) != std::string::npos)
 		query_string = uri.substr(query_start + 1);
 	uri = uri.substr(0, query_start);
-
 	webservconfig::ConfigBase::extension_list_type ex= serv.GetCgiExtension(uri);
 
 	for (size_t	c = 0; c < ex.size(); c++)
@@ -195,6 +194,7 @@ void		RequestParser::set_cgi_env(webservconfig::Server &serv)
 				i++;
 			if (i != info_start)
 				i--;
+			std::cout << "i: " << i << std::endl;
 			path_info = uri.substr(i);
 			script_name = uri.substr(0, info_start);
 			break ;

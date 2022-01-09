@@ -49,6 +49,7 @@ namespace webservconfig
       std::string               root_;
       extension_list_type       cgi_extension_;
 
+      bool                      listen_flag_;
       bool                      index_flag_;
       bool                      cgi_extension_flag_;
       bool                      server_name_flag_;
