@@ -1,23 +1,78 @@
 #include "ConfigUtils.hpp"
+#include <iostream>
+
+// std::vector<std::string> webservconfig::SplitLine(std::string line)
+// {
+//   std::vector<std::string> rtv;
+
+//   std::string item;
+//   for (int i = 0; i < (int)line.length(); i++) {
+//     char ch = line[i];
+//     if (ch == ' ') {
+//       if (!item.empty())
+//         rtv.push_back(item);
+//       item.clear();
+//     } else {
+//       item += ch;
+//     }
+//   }
+//   if (!item.empty())
+//     rtv.push_back(item);
+  
+//   return (rtv);
+// }
+
+static std::string trim(const std::string& string, const char* trimCharacterList = " ")
+{
+  std::string result;
+  std::string::size_type left = string.find_first_not_of(trimCharacterList);
+  if (left != std::string::npos) {
+    std::string::size_type right = string.find_last_not_of(trimCharacterList);
+    result = string.substr(left, right - left + 1);
+  }
+  return result;
+}
 
 std::vector<std::string> webservconfig::SplitLine(std::string line)
 {
   std::vector<std::string> rtv;
+  bool quote_flag = false;
 
   std::string item;
+  line = trim(line, " ");
   for (int i = 0; i < (int)line.length(); i++) {
-    char ch = line[i];
-    if (ch == ' ') {
-      if (!item.empty())
-        rtv.push_back(item);
+    if (line[i] == '"') {
+      if (i == 0 || line[i - 1] != '\\') {
+        quote_flag = !quote_flag;
+        continue ;
+      } else if (i != 0 && line[i - 1] == '\\') {
+        if (item.size() != 0)
+          item = item.substr(0, item.size() - 1);
+      }
+    }
+    if (line[i] == ' ' && !quote_flag) {
+      // std::cout << item << std::endl;
+      rtv.push_back(item);
       item.clear();
+      while (line[i + 1] == ' ') {
+        i++;
+      }
     } else {
-      item += ch;
+      // std::cout << item << std::endl;
+      item += line[i];
     }
   }
-  if (!item.empty())
+  // if (!item.empty())
+  //   rtv.push_back(item);
+  if (line != "")
     rtv.push_back(item);
-  
+
+  // std::cout << "end split: " << item << std::endl;
+
+  // for (int i = 0; i < (int)rtv.size(); i++) {
+  //   std::cout << i << ": " << rtv[i] << std::endl;
+  // }
+
   return (rtv);
 }
 

@@ -672,3 +672,38 @@ TEST(ConfigGetterTest, WithoutLocation011) {
   EXPECT_EQ("/var/www/html", server.GetRoot("/contents/var"));
   EXPECT_EQ("/var/www/html", server.GetRoot(""));
 }
+
+TEST(ConfigQuoteTest, DefaultQuote) {
+  webservconfig::ServerCollection sc = webservconfig::ServerCollection("gtest/example_config/013.conf");
+  webservconfig::Server server = sc.GetServer()[0];
+  EXPECT_EQ("/var/www/html", sc.GetRoot());
+  std::vector<std::string> index;
+  index.push_back("index.html");
+  index.push_back("index.py");
+  index.push_back("hello    world");
+  index.push_back("hello     world");
+  EXPECT_EQ(index, sc.GetIndex());
+  EXPECT_EQ(server.webservconfig::ConfigBase::GetReturn(), std::make_pair(300, std::string("")));
+  std::vector<std::string> server_name;
+  server_name.push_back("example.co.jp");
+  server_name.push_back("example.com");
+  server_name.push_back("example.net");
+  EXPECT_EQ(server_name, server.webservconfig::ConfigBase::GetServerName());
+}
+
+TEST(ConfigQuoteTest, EscapeQuote) {
+  webservconfig::ServerCollection sc = webservconfig::ServerCollection("gtest/example_config/014.conf");
+
+  EXPECT_EQ("\"", sc.GetRoot());
+  std::vector<std::string> index;
+  index.push_back("\\\\\\\\");
+  index.push_back("\\\"");
+  index.push_back("hello");
+  index.push_back("hello\"");
+  index.push_back("\"world");
+  EXPECT_EQ(index, sc.GetIndex());
+}
+
+TEST(ConfigQuoteTest, ExceptQuote) {
+  ;
+}

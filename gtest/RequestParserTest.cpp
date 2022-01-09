@@ -26,8 +26,8 @@ class RequestParserCgiEnvTest : public ::testing::Test {
 TEST_F(RequestParserCgiEnvTest, ParseEnv) {
   RequestParser rp(request_uri_front + std::string("/upload/test.py/echo") + request_uri_back, serv);
 
-  std::cout << "SCRIPT_NAME    : " << rp.get_script_name() << std::endl;
-  std::cout << "PATH_INFO      : " << rp.get_path_info() << std::endl;
-  std::cout << "PATH_TRANSLATED: " << rp.get_path_translated() << std::endl;
-  std::cout << "QUERY_STRING   : " << rp.get_query_string() << std::endl;
+  // std::cout << "SCRIPT_NAME    : " << rp.get_script_name() << std::endl;
+  // std::cout << "PATH_INFO      : " << rp.get_path_info() << std::endl;
+  // std::cout << "PATH_TRANSLATED: " << rp.get_path_translated() << std::endl;
+  // std::cout << "QUERY_STRING   : " << rp.get_query_string() << std::endl;
 }

@@ -194,7 +194,7 @@ void		RequestParser::set_cgi_env(webservconfig::Server &serv)
 				i++;
 			if (i != info_start)
 				i--;
-			std::cout << "i: " << i << std::endl;
+			// std::cout << "i: " << i << std::endl;
 			path_info = uri.substr(i);
 			script_name = uri.substr(0, info_start);
 			break ;
