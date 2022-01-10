@@ -38,18 +38,18 @@ class RequestParser
 		RequestParser(RequestParser const &copy);
 		RequestParser &operator=(RequestParser const &obj);
 
-		std::string	get_method(void);
-		std::string	get_header(void);
-		std::string	get_body(void);
-		std::string	get_uri(void);
-		std::string	get_path_translated(void);
-		std::string	get_query_string(void);
-		std::string	get_path_info(void);
-		std::string	get_script_name(void);
-		std::string	get_content_length(void);
-		std::string	get_content_type(void);
-		std::string	get_transfer_encoding(void);
-		std::string	get_field(std::string key);
+		std::string	get_method(void) const;
+		std::string	get_header(void) const;
+		std::string	get_body(void) const;
+		std::string	get_uri(void) const;
+		std::string	get_path_translated(void) const;
+		std::string	get_query_string(void) const;
+		std::string	get_path_info(void) const;
+		std::string	get_script_name(void) const;
+		std::string	get_content_length(void) const;
+		std::string	get_content_type(void) const;
+		std::string	get_transfer_encoding(void) const;
+		std::string	get_field(std::string key) const;
 
 		void		set_uri(std::string uri_);
 
