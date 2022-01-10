@@ -55,26 +55,36 @@ RequestParser &RequestParser::operator=(RequestParser const &obj)
 		request = obj.request;
 		method = obj.method;
 		uri = obj.uri;
+
+		header = obj.header;
+		body = obj.body;
+		path_translated = obj.path_translated;
+		query_string = obj.query_string;
+		path_info = obj.path_info;
+		script_name = obj.script_name;
+		content_length = obj.content_length;
+		content_type = obj.content_type;
+		transfer_encoding = obj.transfer_encoding;
 	}
 	return (*this);
 }
 
-std::string	RequestParser::get_method(void) {return (this->method);}
-std::string	RequestParser::get_header(void) {return (this->header);}
-std::string	RequestParser::get_body(void) {return (this->body);}
-std::string	RequestParser::get_uri(void) {return (this->uri);}
-std::string	RequestParser::get_query_string(void) {return (this->query_string);}
-std::string	RequestParser::get_path_translated(void) {return (this->path_translated);}
-std::string	RequestParser::get_path_info(void) {return (this->path_info);}
-std::string	RequestParser::get_script_name(void) {return (this->script_name);}
-std::string	RequestParser::get_content_length(void) {return (this->content_length);}
-std::string	RequestParser::get_content_type(void) {return (this->content_type);}
-std::string	RequestParser::get_transfer_encoding(void) {return (this->transfer_encoding);}
+std::string	RequestParser::get_method(void) const {return (this->method);}
+std::string	RequestParser::get_header(void) const {return (this->header);}
+std::string	RequestParser::get_body(void) const {return (this->body);}
+std::string	RequestParser::get_uri(void) const {return (this->uri);}
+std::string	RequestParser::get_query_string(void) const {return (this->query_string);}
+std::string	RequestParser::get_path_translated(void) const {return (this->path_translated);}
+std::string	RequestParser::get_path_info(void) const {return (this->path_info);}
+std::string	RequestParser::get_script_name(void) const {return (this->script_name);}
+std::string	RequestParser::get_content_length(void) const {return (this->content_length);}
+std::string	RequestParser::get_content_type(void) const {return (this->content_type);}
+std::string	RequestParser::get_transfer_encoding(void) const {return (this->transfer_encoding);}
 
 //ヘッダー情報から値を取り出すためのメンバ関数
 //返り値:ヘッダー項目の値。該当する項目がない場合は空文字列で返す
 //key:ヘッダー項目
-std::string	RequestParser::get_field(std::string key)
+std::string	RequestParser::get_field(std::string key) const
 {
 	std::size_t			pos;
 	std::istringstream	iss(this->header);
