@@ -44,7 +44,7 @@ void webservconfig::Location::ParseLocationBlock()
     if (line.size() != 0 && *(line.end() - 1) == ';') {
       line = std::string(line.begin(), line.end() - 1);
     }
-    std::vector<std::string> rtv = this->SplitLine(line);
+    std::vector<std::string> rtv = webservconfig::SplitLine(line);
     int len = rtv.size();
     if (len == 0) {
       continue;

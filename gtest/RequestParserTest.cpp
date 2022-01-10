@@ -23,11 +23,33 @@ class RequestParserCgiEnvTest : public ::testing::Test {
     webservconfig::Server serv;
 };
 
-TEST_F(RequestParserCgiEnvTest, ParseEnv) {
-  RequestParser rp(request_uri_front + std::string("/upload/test.py/echo") + request_uri_back, serv);
+void CompareVar(RequestParser rp,
+                const std::string &script_name,
+                const std::string &path_info,
+                const std::string &path_translated,
+                const std::string &query_string) {
+  EXPECT_EQ(script_name, rp.get_script_name());
+  EXPECT_EQ(path_info, rp.get_path_info());
+  // EXPECT_EQ(path_translated, rp.get_path_translated());
+  EXPECT_EQ(query_string, rp.get_query_string());
+  (void)path_translated;
+}
 
-  std::cout << "SCRIPT_NAME    : " << rp.get_script_name() << std::endl;
-  std::cout << "PATH_INFO      : " << rp.get_path_info() << std::endl;
-  std::cout << "PATH_TRANSLATED: " << rp.get_path_translated() << std::endl;
-  std::cout << "QUERY_STRING   : " << rp.get_query_string() << std::endl;
+TEST_F(RequestParserCgiEnvTest, DefaultParseEnv) {
+  RequestParser rp;
+
+  rp = RequestParser(request_uri_front + std::string("/upload/test.py/echo") + request_uri_back, serv);
+  CompareVar(rp, "/upload/test.py", "/echo", "/usr/lib/cgi-bin/echo", "");
+  rp = RequestParser(request_uri_front + std::string("/upload/test.py/echo?a=4&b=2") + request_uri_back, serv);
+  CompareVar(rp, "/upload/test.py", "/echo", "/usr/lib/cgi-bin/echo", "a=4&b=2");
+
+  // std::cout << rp.get_script_name() << std::endl;
+  // std::cout << rp.get_path_info() << std::endl;
+  // std::cout << rp.get_path_translated() << std::endl;
+  // std::cout << rp.get_query_string() << std::endl;
+
+  rp = RequestParser(request_uri_front + std::string("/upload/test.py") + request_uri_back, serv);
+  CompareVar(rp, "/upload/test.py", "", "/usr/lib/cgi-bin", "");
+  rp = RequestParser(request_uri_front + std::string("/upload/test.py?a=4&b=2") + request_uri_back, serv);
+  CompareVar(rp, "/upload/test.py", "", "/usr/lib/cgi-bin", "a=4&b=2");
 }
