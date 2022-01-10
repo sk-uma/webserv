@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/14 21:09:14 by rtomishi          #+#    #+#             */
-/*   Updated: 2022/01/08 22:29:41 by rtomishi         ###   ########.fr       */
+/*   Updated: 2022/01/10 16:13:28 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,7 +17,7 @@ Response::Response(void) {}
 
 //コンストラクタ
 Response::Response(RequestParser &request, webservconfig::Server &serv)
-	:content_type("text/html; charset=UTF-8")
+	:content_type("text/html; charset=UTF-8"), status(0)
 {
 	std::string 		html_file;
 	struct stat			eval_directory;
@@ -255,8 +255,6 @@ int		Response::open_html(std::string html_file)
 	while (fread(&buf, sizeof(buf), 1, file) > 0)
 		body += buf;
 	body += "\r\n";
-	if (status == STATUS_MOVED_PERMANENTLY)
-		return (STATUS_MOVED_PERMANENTLY);
 	fclose(file);
 	return (ret);
 }
