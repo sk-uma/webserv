@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/12 22:00:34 by rtomishi          #+#    #+#             */
-/*   Updated: 2022/01/07 22:33:10 by rtomishi         ###   ########.fr       */
+/*   Updated: 2022/01/10 22:21:16 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -164,18 +164,14 @@ void		RequestParser::set_method_and_uri(void)
 //CGI用の環境変数を設定する
 void		RequestParser::set_cgi_env(webservconfig::Server &serv)
 {
-//	std::size_t script_start;
-	std::size_t info_start;
-	std::size_t query_start;
-//	std::string cgi_dir(CGI_PATH);
-//	std::string	cgi_para;
-
+	std::size_t 		info_start;
+	std::size_t 		query_start;
+	std::size_t			i = 0;
+	const std::string	root = serv.GetRoot(uri);
+	
 	query_string = "";
 	path_info = "";
 	script_name = "";
-
-	std::size_t	i = 0;
-	
 	//先頭に複数/があった場合は除去する
 	while (uri[i] == '/')
 		i++;
@@ -187,7 +183,7 @@ void		RequestParser::set_cgi_env(webservconfig::Server &serv)
 	if ((query_start = uri.find("?")) != std::string::npos)
 		query_string = uri.substr(query_start + 1);
 	uri = uri.substr(0, query_start);
-	webservconfig::ConfigBase::extension_list_type ex= serv.GetCgiExtension(uri);
+	webservconfig::ConfigBase::extension_list_type ex = serv.GetCgiExtension(uri);
 
 	for (size_t	c = 0; c < ex.size(); c++)
 	{
@@ -225,12 +221,7 @@ void		RequestParser::set_cgi_env(webservconfig::Server &serv)
 //		}
 //		script_name = (path_info == "" ? uri : uri.substr(0, CGI_PATH.length() + script_start + info_start));
 //	}
-
-	//PATH_TRANSLATEDの指定。環境変数EXE_DIRが相対パス/絶対パスの場合で指定方法を分ける
-	if (std::string(getenv("EXE_DIR")).find("/") == 0)
-		path_translated = std::string(getenv("EXE_DIR")) + path_info;
-	else
-		path_translated = std::string(getenv("PWD")) + "/" + std::string(getenv("EXE_DIR")) + path_info;
+	path_translated = root + (root[root.length() - 1] != '/' ? "": "/") + path_info;
 	setenv("PATH_TRANSLATED", path_translated.c_str(), 1);
 	setenv("PATH_INFO", path_info.c_str(), 1);
 	setenv("SCRIPT_NAME", script_name.c_str(), 1);

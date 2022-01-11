@@ -304,7 +304,6 @@ void webservconfig::ConfigBase::InitReturn(std::vector<std::string> line)
   if (code < 0 || 999 < code) {
     throw std::runtime_error("Invalid code");
   }
-  std::cout << "return_string:" << line[2] << std::endl;
   this->return_ = return_type(code, line[2]);
 }
 

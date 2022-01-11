@@ -33,15 +33,29 @@ server {
 
     location / {
         try_files $uri $uri/ =404;
-		return 301 http://localhost:8080;
+		return 404;
     }
 
-    location ~ \.py$ {
+#    location ~ \.py$ {
+#        gzip    off;
+#        root	/usr/lib/cgi-bin;
+#        fastcgi_pass  unix:/var/run/fcgiwrap.socket;
+#        include /etc/nginx/fastcgi_params;
+#        fastcgi_param SCRIPT_FILENAME  /usr/lib/cgi-bin$fastcgi_script_name;
+#   }
+    location ~ [^/]\.py(/|$) {
         gzip    off;
         root	/usr/lib/cgi-bin;
+        fastcgi_split_path_info ^(.+?\.py)(/.+)$;
         fastcgi_pass  unix:/var/run/fcgiwrap.socket;
-        include /etc/nginx/fastcgi_params;
-        fastcgi_param SCRIPT_FILENAME  /usr/lib/cgi-bin$fastcgi_script_name;
+        fastcgi_param SCRIPT_FILENAME  $document_root$fastcgi_script_name;
+
+        # webserv env var
+
+        fastcgi_param PATH_INFO        $fastcgi_path_info;
+        fastcgi_param PATH_TRANSLATED  $document_root$fastcgi_path_info;
+        fastcgi_param QUERY_STRING     $query_string;
+        fastcgi_param SCRIPT_NAME      $fastcgi_script_name;
     }
 }
 

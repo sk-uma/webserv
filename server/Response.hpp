@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/13 22:19:12 by rtomishi          #+#    #+#             */
-/*   Updated: 2022/01/07 21:49:03 by rtomishi         ###   ########.fr       */
+/*   Updated: 2022/01/11 22:39:20 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,10 +20,12 @@
 class Response
 {
 	private:
-		std::string	header;
-		std::string body;
-		std::string	content_type;
-		int			status;
+		std::string					header;
+		std::string 				body;
+		std::string					content_type;
+		std::map<int, std::string>	error_map;
+		std::map<int, std::string>	code_map;
+		int							status;
 
 	public:
 		Response(void);
@@ -35,8 +37,11 @@ class Response
 		std::string	get_header(void);
 		std::string get_body(void);
 		std::string get_content_type(void);
+		std::map<int, std::string> get_error_map(void);
+		std::map<int, std::string> get_code_map(void);
 		int			get_status(void);
 
+		void		set_error_map(webservconfig::ConfigBase::error_page_type &err_map);
 		std::string	index_search(std::string root, std::vector<std::string> index);
 		bool		method_limited(webservconfig::Server &serv, RequestParser &request);
 		bool		method_allowed(webservconfig::Server &serv, RequestParser &request);
@@ -46,11 +51,8 @@ class Response
 		int			upload_file(const char *path, RequestParser &request);
 		int			delete_file(const char *path);
 
-		void		check_redirect(RequestParser &request);
-		void		error_body_set(std::string root_path, webservconfig::ConfigBase::error_page_type &err_map, webservconfig::ConfigBase::return_type ret_pair);
+		void		error_body_set(webservconfig::ConfigBase::return_type ret_pair);
 		void		header_set(std::ostringstream &oss, webservconfig::ConfigBase::return_type ret_pair);
-		void		header_ok(std::ostringstream &oss);
-		void		header_not_found(std::ostringstream &oss);
 		void		content_type_set(std::string file_path);
 };
 

@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/14 21:09:14 by rtomishi          #+#    #+#             */
-/*   Updated: 2022/01/10 16:13:28 by rtomishi         ###   ########.fr       */
+/*   Updated: 2022/01/11 23:10:05 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,11 +29,12 @@ Response::Response(RequestParser &request, webservconfig::Server &serv)
 	const unsigned long	CLIENT_MAX_BODY = serv.GetClientMaxBodySize(path);
 	const std::string	UPLOAD_PATH = serv.GetUploadPath(path);
 	const bool			AUTOINDEX = serv.GetAutoIndex(path);
-	webservconfig::ConfigBase::error_page_type	err_map = serv.GetErrorPage(path);
+	webservconfig::ConfigBase::error_page_type	err_map_new = serv.GetErrorPage(path);
 	webservconfig::ConfigBase::return_type	ret_pair = serv.GetReturn(path);
+	webservconfig::ConfigBase::server_name_list_type	name = serv.GetServerName();
 
-	//リダイレクトのチェック。必要があればuriを書き換える。
-//	check_redirect(request);
+	//エラーページを設定
+	set_error_map(err_map_new);
 
 	//何も指定がない(="/"以外の文字が来ない)場合はHTML_PATH + /index.htmlが開く
 	if (request.get_uri().find_first_not_of("/") != std::string::npos)
@@ -55,8 +56,11 @@ Response::Response(RequestParser &request, webservconfig::Server &serv)
 		status = ret_pair.first;
 		if (ret_pair.first < 300)
 		{
-			body.append(ret_pair.second + "\r\n");
-			content_type = "application/octet-stream";
+			if (ret_pair.second != "")
+			{
+				body = ret_pair.second + "\r\n";
+				content_type = "application/octet-stream";
+			}
 		}
 	}
 	else if (!method_limited(serv, request))
@@ -83,12 +87,15 @@ Response::Response(RequestParser &request, webservconfig::Server &serv)
 	
 	//以下のswitch文でヘッダーを作成する
 	if (status >= 300)
-		error_body_set(EXE_DIR + "/www/", err_map, ret_pair);
+		error_body_set(ret_pair);
 		
     std::ostringstream oss;
 
+	oss << "Server:";
+	for (size_t	i = 0; i < name.size(); i++)
+		oss << " " + name[i];
+	oss << "\r\n";
 	oss << "Content-Length: " << body.length() << "\r\n";
-//	oss << "Content-Type: " << content_type << "; charset=UTF-8\r\n";
 	oss << "Content-Type: " << content_type << "\r\n";
 	header_set(oss, ret_pair);
 }
@@ -106,6 +113,8 @@ Response &Response::operator=(Response const &obj)
 	{
 		header = obj.header;
 		body = obj.body;
+		content_type = obj.content_type;
+		error_map = obj.error_map;
 		status = obj.status;
 	}
 	return (*this);
@@ -115,7 +124,29 @@ Response &Response::operator=(Response const &obj)
 std::string Response::get_header(void) {return (header);}
 std::string Response::get_body(void) {return (body);}
 std::string Response::get_content_type(void) {return (content_type);}
+std::map<int, std::string> Response::get_error_map(void) {return (error_map);}
+std::map<int, std::string> Response::get_code_map(void) {return (code_map);}
 int			Response::get_status(void) {return (status);}
+
+void	Response::set_error_map(webservconfig::ConfigBase::error_page_type &err_map_new)
+{
+	const std::string	EXE_DIR(getenv("EXE_DIR"));
+	std::ifstream		code(EXE_DIR + CODE_FILE.c_str());
+	std::string			line;
+
+	while (getline(code, line))
+	{
+		std::stringstream	ss(line);
+		std::string			c, s;
+
+		getline(ss, c, ':');
+		error_map.insert(std::make_pair(atoi(c.c_str()), EXE_DIR + ERROR_PAGE_DIRECTORY + c + ".html"));
+		getline(ss, s, ':');
+		code_map.insert(std::make_pair(atoi(c.c_str()), s));
+	}
+	for (webservconfig::ConfigBase::error_page_type::iterator	it = err_map_new.begin(); it != err_map_new.end(); it++)
+		error_map[(*it).first] = EXE_DIR + (*it).second;
+}
 
 //indexファイルのvectorからファイル検索をして、ファイルが存在するもののパスを与える
 //返り値:見つかったindex_file。見つからなかった場合、空文字
@@ -412,51 +443,28 @@ int		Response::delete_file(const char *path)
 	return (STATUS_OK);
 }
 
-
-void	Response::check_redirect(RequestParser &request)
-{
-	//（修正予定）後でエラーファイルを選択できるようにする
-	std::map<std::string, std::string>	redirect_map;
-	redirect_map.insert(std::make_pair("/42webserv", "/301.html"));
-
-	if (redirect_map.count(request.get_uri()))
-	{
-		request.set_uri(redirect_map[request.get_uri()]);
-		status = STATUS_MOVED_PERMANENTLY;
-	}
-}
-
 //エラー用のボディ設定をする
 //error_path:エラーファイルが存在するディレクトリ
-void	Response::error_body_set(std::string error_path, webservconfig::ConfigBase::error_page_type &err_map, webservconfig::ConfigBase::return_type ret_pair)
+void	Response::error_body_set(webservconfig::ConfigBase::return_type ret_pair)
 {
-	const std::string	EXE_DIR(getenv("EXE_DIR"));
 	std::string	path;
-	//デフォルト設定エラーファイル。Configから書き換え
-	std::map<int, std::string>	ERROR_FILE;
-	ERROR_FILE.insert(std::make_pair(STATUS_MOVED_PERMANENTLY, error_path + "/301.html"));
-	ERROR_FILE.insert(std::make_pair(STATUS_FOUND, error_path + "/302.html"));
-	ERROR_FILE.insert(std::make_pair(STATUS_SEE_OTHER, error_path + "/303.html"));
-	ERROR_FILE.insert(std::make_pair(STATUS_TEMPORARY_REDIRECT, error_path + "/307.html"));
-	ERROR_FILE.insert(std::make_pair(STATUS_PERMANENT_REDIRECT, error_path + "/308.html"));
-	ERROR_FILE.insert(std::make_pair(STATUS_BAD_REQUEST, error_path + "/400.html"));
-	ERROR_FILE.insert(std::make_pair(STATUS_FORBIDDEN, error_path + "/403.html"));
-	ERROR_FILE.insert(std::make_pair(STATUS_NOT_FOUND, error_path + "/404.html"));
-	ERROR_FILE.insert(std::make_pair(STATUS_METHOD_NOT_ALLOWED, error_path + "/405.html"));
-	ERROR_FILE.insert(std::make_pair(STATUS_PAYLOAD_TOO_LARGE, error_path + "/413.html"));
-	ERROR_FILE.insert(std::make_pair(STATUS_INTERNAL_SERVER_ERROR, error_path + "/500.html"));
-	ERROR_FILE.insert(std::make_pair(STATUS_NOT_IMPLEMENTED, error_path + "/501.html"));
 
-	for (webservconfig::ConfigBase::error_page_type::iterator	it = err_map.begin(); it != err_map.end(); it++)
-		ERROR_FILE[(*it).first] = EXE_DIR + (*it).second;
-	if (ERROR_FILE.count(status))
-		path = ERROR_FILE.at(status);
-	else
+	if (!(status == 301 || status == 302 || status == 303
+				|| status == 307 || status == 308) && ret_pair.second != "")
 	{
-		body.append(ret_pair.second + "\r\n");
+		body = ret_pair.second + "\r\n";
 		content_type = "application/octet-stream";
 		return ;
 	}
+	if (error_map.count(status))
+		path = error_map.at(status);
+//	else
+//	{
+//		if (ret_pair.second != "")
+//			body = ret_pair.second + "\r\n";
+//		content_type = "application/octet-stream";
+//		return ;
+//	}
 	std::ifstream 	output_file(path.c_str());
 	std::string		temp_str;
 	int				file_exist = 0;
@@ -464,7 +472,7 @@ void	Response::error_body_set(std::string error_path, webservconfig::ConfigBase:
 	if ((file_exist = output_file.fail()))
 	{
 		status = STATUS_INTERNAL_SERVER_ERROR;
-		path = ERROR_FILE.at(status);
+		path = error_map.at(status);
 		output_file.close();
 		output_file.clear();
 		output_file.open(path.c_str());
@@ -475,92 +483,31 @@ void	Response::error_body_set(std::string error_path, webservconfig::ConfigBase:
 
 void	Response::header_set(std::ostringstream &oss, webservconfig::ConfigBase::return_type ret_pair)
 {
-	switch (status)
+	std::stringstream ss;
+
+	if (error_map.count(status))
 	{
-		case STATUS_OK:
-    		header.append("HTTP/1.1 200 OK\r\n");
-			break;
-		case STATUS_MOVED_PERMANENTLY:
-    		header.append("HTTP/1.1 301 Moved Permanently\r\n");
-    		header.append("Location: " + ret_pair.second + "\r\n");
-			break;
-		case STATUS_FOUND:
-    		header.append("HTTP/1.1 302 Found\r\n");
-    		header.append("Location: " + ret_pair.second + "\r\n");
-			break;
-		case STATUS_SEE_OTHER:
-    		header.append("HTTP/1.1 303 See Other\r\n");
-    		header.append("Location: " + ret_pair.second + "\r\n");
-			break;
-		case STATUS_TEMPORARY_REDIRECT:
-    		header.append("HTTP/1.1 307 Temporary Redirect\r\n");
-    		header.append("Location: " + ret_pair.second + "\r\n");
-			break;
-		case STATUS_PERMANENT_REDIRECT:
-    		header.append("HTTP/1.1 308 Permanent Redirect\r\n");
-    		header.append("Location: " + ret_pair.second + "\r\n");
-			break;
-		case STATUS_BAD_REQUEST:
-    		header.append("HTTP/1.1 400 Bad Request\r\n");
-			break;
-		case STATUS_FORBIDDEN:
-    		header.append("HTTP/1.1 403 Forbidden\r\n");
-			break;
-		case STATUS_NOT_FOUND:
-    		header.append("HTTP/1.1 404 Not Found\r\n");
-			break;
-		case STATUS_METHOD_NOT_ALLOWED:
-    		header.append("HTTP/1.1 405 Method Not Allowed\r\n");
-			break;
-		case STATUS_PAYLOAD_TOO_LARGE:
-    		header.append("HTTP/1.1 413 Payload Too Large\r\n");
-			break;
-		case STATUS_INTERNAL_SERVER_ERROR:
-    		header.append("HTTP/1.1 500 Internal Server Error\r\n");
-			break;
-		case STATUS_NOT_IMPLEMENTED:
-    		header.append("HTTP/1.1 501 Not Implemented\r\n");
-			break;
-		default:
-			std::stringstream ss;
-			ss << "HTTP/1.1 " << status << "\r\n";
-    		header.append(ss.str());
-			break;
+		ss << "HTTP/1.1 " << status << " " + code_map[status] << "\r\n";
+		if (status == 301 || status == 302 || status == 303
+				|| status == 307 || status == 308)
+			ss << "Location: " + ret_pair.second + "\r\n";
 	}
+	else
+		ss << "HTTP/1.1 " << status << "\r\n";
+	header.append(ss.str());
     header.append(oss.str());
     header.append("Connection: Keep-alive\r\n");
     header.append("\r\n");
-}
-
-//ステータスコード200の場合のヘッダー作成
-//oss:開く対象のファイルの出力ストリーム
-void	Response::header_ok(std::ostringstream &oss)
-{
-    header.append("HTTP/1.1 200 OK\r\n");
-    header.append("Content-Type: text/html; charset=UTF-8\r\n");
-    header.append(oss.str());
-    header.append("Connection: Keep-alive\r\n");
-    header.append("\r\n");
-}
-
-//ステータスコード404の場合のヘッダー作成
-//oss:開く対象のファイルの出力ストリーム
-void	Response::header_not_found(std::ostringstream &oss)
-{
-	header.append("HTTP/1.1 404 Not Found\r\n");
-	header.append("Content-Type: text/html; charset=UTF-8\r\n");
-	header.append(oss.str());
-	header.append("Connection: Keep-alive\r\n");
-	header.append("\r\n");
 }
 
 void	Response::content_type_set(std::string file_path)
 {
-	std::ifstream	mime(MIME_FILE.c_str());
-	std::string		line;
-	std::size_t		pos;
-	std::string		extension = file_path.substr(file_path.rfind("/") + 1);
-	std::string		type;
+	const std::string	EXE_DIR(getenv("EXE_DIR"));
+	std::ifstream		mime(EXE_DIR + MIME_FILE.c_str());
+	std::string			line;
+	std::size_t			pos;
+	std::string			extension = file_path.substr(file_path.rfind("/") + 1);
+	std::string			type;
 
 	if (mime.fail())
 	{
