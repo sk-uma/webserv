@@ -6,13 +6,14 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/12 21:50:09 by rtomishi          #+#    #+#             */
-/*   Updated: 2022/01/06 21:29:23 by rtomishi         ###   ########.fr       */
+/*   Updated: 2022/01/12 22:25:55 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef REQUESTPARSER_HPP
 # define REQUESTPARSER_HPP
 
+# include "ServerCollection.hpp"
 # include "Setting.hpp"
 
 class RequestParser

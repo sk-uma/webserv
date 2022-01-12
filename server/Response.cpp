@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/14 21:09:14 by rtomishi          #+#    #+#             */
-/*   Updated: 2022/01/12 17:58:09 by rtomishi         ###   ########.fr       */
+/*   Updated: 2022/01/12 23:27:46 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,6 +85,9 @@ Response::Response(RequestParser &request, webservconfig::Server &serv)
 	else
 		status = open_html(html_file);
 	
+	//実装していないコードは403 Forbiddenで処理する
+	status_check();
+
 	//以下のswitch文でヘッダーを作成する
 	if (status >= 300)
 		error_body_set(ret_pair);
@@ -537,4 +540,22 @@ void	Response::content_type_set(std::string file_path)
 		extension = "";
 		content_type = "application/octet-stream";
 	}
+}
+
+void	Response::status_check(void)
+{
+	if (!(status == STATUS_OK ||
+			status == STATUS_MOVED_PERMANENTLY ||
+			status == STATUS_FOUND ||
+			status == STATUS_SEE_OTHER ||
+			status == STATUS_TEMPORARY_REDIRECT ||
+			status == STATUS_PERMANENT_REDIRECT ||
+			status == STATUS_BAD_REQUEST ||
+			status == STATUS_FORBIDDEN ||
+			status == STATUS_NOT_FOUND ||
+			status == STATUS_METHOD_NOT_ALLOWED ||
+			status == STATUS_PAYLOAD_TOO_LARGE ||
+			status == STATUS_INTERNAL_SERVER_ERROR ||
+			status == STATUS_NOT_IMPLEMENTED))
+		status = STATUS_FORBIDDEN;
 }

@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/06 21:40:53 by rtomishi          #+#    #+#             */
-/*   Updated: 2022/01/10 16:01:14 by rtomishi         ###   ########.fr       */
+/*   Updated: 2022/01/12 23:08:27 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,52 +16,9 @@
 #include "Response.hpp"
 #include "ServerCollection.hpp"
 #include "SocketCollection.hpp"
+#include "Prototype.hpp"
 
-//廃棄予定 config確認用
-void	PutConf(webservconfig::Server	&serv, RequestParser &request)
-{
-	std::cout << "================ " << request.get_uri() << " ====================" << std::endl;
-	webservconfig::ConfigBase::index_type	id = serv.GetIndex(request.get_uri());
-	std::cout << "index:";
-	for (size_t	i = 0; i < id.size(); i++)
-		std::cout << id[i] << " ";
-	std::cout << std::endl;
-
-	webservconfig::ConfigBase::error_page_type	err = serv.GetErrorPage(request.get_uri());
-	std::cout << "error_page:";
-	for (webservconfig::ConfigBase::error_page_type::iterator	it = err.begin(); it != err.end(); it++)
-		std::cout << (*it).first << "_" << (*it).second << " ";
-	std::cout << std::endl;
-
-	std::cout << "autoindex:" << serv.GetAutoIndex(request.get_uri()) << std::endl;
-
-	std::cout << "body_size:" << serv.GetClientMaxBodySize(request.get_uri()) << std::endl;
-	webservconfig::ConfigBase::limit_except_type	lim = serv.GetLimitExceptByDenyAll(request.get_uri());
-	std::cout << "limit_except:";
-	for (webservconfig::ConfigBase::limit_except_type::iterator	it = lim.begin(); it != lim.end(); it++)
-		std::cout << (*it).first << "_" << (*it).second << " ";
-	std::cout << std::endl;
-
-	webservconfig::ConfigBase::return_type	ret = serv.GetReturn(request.get_uri());
-	std::cout << "return:" << ret.first << "_" << ret.second << std::endl;
-
-	std::cout << "UploadPath:" << serv.GetUploadPath(request.get_uri()) << std::endl;
-
-	std::cout << "root:" << serv.GetRoot(request.get_uri()) << std::endl;
-
-	webservconfig::ConfigBase::index_type	ex = serv.GetCgiExtension(request.get_uri());
-	std::cout << "extension_list_type:";
-	for (size_t	i = 0; i < ex.size(); i++)
-		std::cout << ex[i] << " ";
-	std::cout << std::endl;
-
-	webservconfig::ConfigBase::server_name_list_type	na = serv.GetServerName();
-	std::cout << "server_name:";
-	for (size_t	i = 0; i < na.size(); i++)
-		std::cout << na[i] << " ";
-	std::cout << std::endl;
-}
-
+//SIGPIPE対応用フラグ
 int		g_SIGPIPE_FLAG = 0;
 
 //SIGPIPE対応の関数。フラグを上げる。
@@ -96,6 +53,7 @@ int	main(int argc, char **argv)
 		std::cerr << e.what() << std::endl;
 		return (1);
 	}
+	//SIGPIPEスルー対応
 	sigpipe_wait();
 	//環境変数EXE_DIRに実行ファイルのディレクトリを格納する
 	setenv_exedir(argv);
@@ -105,6 +63,7 @@ int	main(int argc, char **argv)
 	for (std::vector<Socket>::const_iterator it = sock.begin(); it != sock.end(); it++) {
 		std::cout << it->get_address() << ":" << it->get_port() << std::endl;
 	}
+	std::cout << std::endl;
 
 	//accfdは使用するファイルディスクリプタチェック
 	//rfdは読み取り可能ファイルディスクリプタ登録用
@@ -141,7 +100,7 @@ int	main(int argc, char **argv)
 		//rfd, wfdに登録されているファイルディスクリプタにアクションがくるまで待機する
 		if (select(nfd, &rfd, &wfd, NULL, NULL) == -1)
 		{
-			std::cout << "select() failed." << std::endl;
+			std::cerr << "select() failed." << std::endl;
 			break;
 		}
 		//listenfdから接続要求を取り出して参照する新しいファイルディスクリプターを設定する
@@ -186,44 +145,37 @@ int	main(int argc, char **argv)
 				while (read_size >= 0)
 				{
 					read_size = read(accfd[i], buf, sizeof(buf));
-//					std::cout << "read_size:" << read_size << std::endl;
-//					if (read_size < 0)
-//						std::cout << "error:" << errono << ":" << strerror(errno) << std::endl;
 					if (read_size > 0)
 					{
-//						std::cout << "situation:read_size > 0" << std::endl;
 						buf[read_size] = '\0';
-						//バイナリで処理したいため一文字ずつとする。対応しないと画像などのバイナリファイル対応できない。
+						//画像などバイナリで処理対応。一文字ずつ取得。
 						for (int i = 0; i < read_size; ++i)
         					recv_str += buf[i];
-					//	std::cout << "read_size:" << read_size << std::endl;
-					//	std::cout << "[buf]\n" << buf << std::endl;
 					}
+					//読み込みが空の場合はスルーする
 					else if (read_size == 0)
 					{
-//						std::cout << "situation:read_size = 0" << std::endl;
-						std::cerr << "read_size 0" << std::endl;
+						//std::cerr << "read_size 0" << std::endl;
 						serv_map.erase(accfd[i]);
 						close(accfd[i]);
 						accfd[i] = -1;
 						break ;
-					}			
+					}
+					//ヘッダー情報がまだ読み込めていない場合、ループ継続。
 					if (read_size == -1 && recv_str.find("\r\n\r\n") == std::string::npos)
 					{
-//						std::cout << "situation:read_size = -1 and CRLF not found" << std::endl;
 						read_size = 0;
 						continue ;
 					}
+					//Content-Typeがあるにもかかわらず、ヘッダーの終わり状態の場合、ループ継続。
 					else if (read_size == -1 && recv_str.find("Content-Type") != std::string::npos && recv_str.find("\r\n\r\n") == recv_str.length() - 4)
 					{
-//						std::cout << "situation:read_size = -1 and Content-Type + tail is CRLF" << std::endl;
 						read_size = 0;
 						continue ;						
 					}
 					//ファイルアップロードでFオプションの対応
 					else if (read_size == -1 && recv_str.find("Content-Type: multipart/form-data;") != std::string::npos)
 					{
-//						std::cout << "situation:read_size = -1 and multipart/form-data" << std::endl;
 						std::istringstream	iss(recv_str);
 						std::string			line;
 						std::string			str;
@@ -246,38 +198,22 @@ int	main(int argc, char **argv)
 				}
 				if (read_size == 0)
 					break ;
-				//Response
 
-//				for (unsigned long i = 0; i < recv_str.size(); ++i)
-//        			std::cout << recv_str[i];
-//				std::cout << "[recv_str]\n" << recv_str.c_str() << std::endl;
-//				std::cout << "recv_length:" << recv_str.length() << std::endl;
-//				std::cout << "recv_size:" << recv_str.size()*sizeof(std::string::value_type) << std::endl;
 				RequestParser 	request(recv_str, serv_map[accfd[i]]);
 				Response		response(request, serv_map[accfd[i]]);
-
-				PutConf(serv_map[accfd[i]], request);
-				// webservconfig::ConfigBase::index_type id = serv_map[accfd[i]].GetIndex(request.get_uri());
-				// std::cout << id.size() << std::endl;
-				// if (id.size() >= 1) {
-				// 	std::cout << id[0] << std::endl;
-				// }
-				// std::cout << "root:" << serv_map[accfd[i]].GetRoot(request.get_uri()) << std::endl;
-				// std::cout << "size:" << serv_map[accfd[i]].GetClientMaxBodySize(request.get_uri()) << std::endl;
-				// serv_map[accfd[i]].PutServer(std::cout, "", "");
-				// std::cout << "URI      : " << request.get_uri() << std::endl;
-				// std::cout << "autoindex: " << serv_map[accfd[i]].GetAutoIndex(request.get_uri()) << std::endl;
-
 				std::string		response_str;
 				ssize_t			write_size = 0;
 				ssize_t			ret_size;
 				std::size_t		chunk_size = RESPONSE_BUFFER_SIZE;
 
+				//デバッグ用。Config出力
+				PutConf(serv_map[accfd[i]], request);
+
+				//method HEADの場合はヘッダーだけ出力
 				if (request.get_method() == "HEAD")
 					response_str = response.get_header();
 				else
 					response_str = response.get_header() + response.get_body();
-//				std::cout << "[response_header]\n" << response.get_header() << std::endl;
 				while (write_size >= 0)
 				{
 					if (response_str.size() - write_size < chunk_size)
@@ -300,6 +236,7 @@ int	main(int argc, char **argv)
 			}
 		}
 	}
+	//基本的にここには到達しない。
 	for (std::vector<Socket>::iterator it = sock.begin(); it != sock.end(); it++)
 		close((*it).get_listenfd());
 	return (0);

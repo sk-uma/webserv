@@ -6,16 +6,16 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/13 22:19:12 by rtomishi          #+#    #+#             */
-/*   Updated: 2022/01/11 22:39:20 by rtomishi         ###   ########.fr       */
+/*   Updated: 2022/01/12 23:22:45 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef RESPONSE_HPP
 # define RESPONSE_HPP
 
-# include "Setting.hpp"
+# include "ServerCollection.hpp"
 # include "RequestParser.hpp"
-# include "Server.hpp"
+# include "Setting.hpp"
 
 class Response
 {
@@ -54,6 +54,7 @@ class Response
 		void		error_body_set(webservconfig::ConfigBase::return_type ret_pair);
 		void		header_set(std::ostringstream &oss, webservconfig::ConfigBase::return_type ret_pair);
 		void		content_type_set(std::string file_path);
+		void		status_check(void);
 };
 
 #endif
