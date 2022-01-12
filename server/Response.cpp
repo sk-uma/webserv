@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/14 21:09:14 by rtomishi          #+#    #+#             */
-/*   Updated: 2022/01/11 23:10:05 by rtomishi         ###   ########.fr       */
+/*   Updated: 2022/01/12 17:58:09 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -131,7 +131,7 @@ int			Response::get_status(void) {return (status);}
 void	Response::set_error_map(webservconfig::ConfigBase::error_page_type &err_map_new)
 {
 	const std::string	EXE_DIR(getenv("EXE_DIR"));
-	std::ifstream		code((EXE_DIR + CODE_FILE.c_str()).c_str());
+	std::ifstream		code((EXE_DIR + CODE_FILE).c_str());
 	std::string			line;
 
 	while (getline(code, line))
@@ -503,7 +503,7 @@ void	Response::header_set(std::ostringstream &oss, webservconfig::ConfigBase::re
 void	Response::content_type_set(std::string file_path)
 {
 	const std::string	EXE_DIR(getenv("EXE_DIR"));
-	std::ifstream		mime((EXE_DIR + MIME_FILE.c_str()).c_str());
+	std::ifstream		mime((EXE_DIR + MIME_FILE).c_str());
 	std::string			line;
 	std::size_t			pos;
 	std::string			extension = file_path.substr(file_path.rfind("/") + 1);
