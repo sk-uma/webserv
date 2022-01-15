@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/06 21:40:53 by rtomishi          #+#    #+#             */
-/*   Updated: 2022/01/12 23:08:27 by rtomishi         ###   ########.fr       */
+/*   Updated: 2022/01/15 23:55:48 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,9 +72,12 @@ int	main(int argc, char **argv)
 	fd_set				rfd;
 	fd_set				wfd;
 	std::map<int, webservconfig::Server>	serv_map;
+	std::map<int, std::string>				req_map;
+	std::map<int, unsigned long>			res_size_map;
 
 	for (int i = 0; i < MAX_SESSION; i++)
 		accfd[i] = -1;
+
 	//FD_SETで監視対象のディスクリプタをセットする
 	while (1)
 	{
@@ -99,10 +102,15 @@ int	main(int argc, char **argv)
 		}
 		//rfd, wfdに登録されているファイルディスクリプタにアクションがくるまで待機する
 		if (select(nfd, &rfd, &wfd, NULL, NULL) == -1)
-		{
 			std::cerr << "select() failed." << std::endl;
-			break;
-		}
+
+//		std::cout << "+++++++++++++++++++++++++\n";
+//		for (std::vector<Socket>::iterator it = sock.begin(); it != sock.end(); it++)
+//			std::cout << "fd:" << (*it).get_listenfd() << " rfd:" << FD_ISSET((*it).get_listenfd(), &rfd) << " wfd:" << FD_ISSET((*it).get_listenfd(), &wfd) << std::endl;
+//	
+//		for (int i = 0; i < MAX_SESSION; i++)
+//			std::cout << "accfd:" << accfd[i] << " rfd:" << FD_ISSET(accfd[i], &rfd) << " wfd:" << FD_ISSET(accfd[i], &wfd) << std::endl;;
+//
 		//listenfdから接続要求を取り出して参照する新しいファイルディスクリプターを設定する
 		for (std::vector<Socket>::iterator it = sock.begin(); it != sock.end(); it++)
 		{
@@ -117,6 +125,8 @@ int	main(int argc, char **argv)
 					{
 						accfd[i] = connfd;
 						serv_map.insert(std::make_pair(connfd, it->get_server()));
+						req_map.insert(std::make_pair(connfd, ""));
+						res_size_map.insert(std::make_pair(connfd, 0));
 						std::cout << "Accept: " << it->get_address() << ":" << it->get_StrPort() << std::endl;
 						limit_over = false;
 						break;
@@ -134,103 +144,67 @@ int	main(int argc, char **argv)
 		{
 			if (accfd[i] == -1)
 				continue ;
-			char buf[BUF_SIZE + 1];
-			memset(buf, 0, sizeof(buf));
-			if (FD_ISSET(accfd[i], &rfd) && FD_ISSET(accfd[i], &wfd))
-			{
-				std::string	recv_str = "";
-				ssize_t		read_size = 0;
-				
-				//Request
-				while (read_size >= 0)
-				{
-					read_size = read(accfd[i], buf, sizeof(buf));
-					if (read_size > 0)
-					{
-						buf[read_size] = '\0';
-						//画像などバイナリで処理対応。一文字ずつ取得。
-						for (int i = 0; i < read_size; ++i)
-        					recv_str += buf[i];
-					}
-					//読み込みが空の場合はスルーする
-					else if (read_size == 0)
-					{
-						//std::cerr << "read_size 0" << std::endl;
-						serv_map.erase(accfd[i]);
-						close(accfd[i]);
-						accfd[i] = -1;
-						break ;
-					}
-					//ヘッダー情報がまだ読み込めていない場合、ループ継続。
-					if (read_size == -1 && recv_str.find("\r\n\r\n") == std::string::npos)
-					{
-						read_size = 0;
-						continue ;
-					}
-					//Content-Typeがあるにもかかわらず、ヘッダーの終わり状態の場合、ループ継続。
-					else if (read_size == -1 && recv_str.find("Content-Type") != std::string::npos && recv_str.find("\r\n\r\n") == recv_str.length() - 4)
-					{
-						read_size = 0;
-						continue ;						
-					}
-					//ファイルアップロードでFオプションの対応
-					else if (read_size == -1 && recv_str.find("Content-Type: multipart/form-data;") != std::string::npos)
-					{
-						std::istringstream	iss(recv_str);
-						std::string			line;
-						std::string			str;
-						std::size_t			epos;
-						
-						while (getline(iss, line))
-						{
-							if (line.find("Content-Type: multipart/form-data;") != std::string::npos)
-							{
-								epos = line.find("=");
-								str = line.substr(epos + 1, line.length() - (epos + 1 + 1));
-							}
-						}
-						if (recv_str.rfind(str + "--\r\n") == std::string::npos)
-						{
-							read_size = 0;
-							continue ;
-						}
-					}
-				}
-				if (read_size == 0)
-					break ;
 
-				RequestParser 	request(recv_str, serv_map[accfd[i]]);
+			std::string	req_str = "";
+			//if (FD_ISSET(accfd[i], &rfd) && FD_ISSET(accfd[i], &wfd))
+			if (FD_ISSET(accfd[i], &rfd))
+			{
+				char *req_buf;
+				req_buf = new char[REQUEST_SIZE]; //ヒープの方が大きなサイズで設定可能
+				ssize_t		read_size = read(accfd[i], req_buf, sizeof(char[REQUEST_SIZE]));
+				if (read_size <= 0)
+				{
+					std::cout << "read():error" << std::endl;
+					serv_map.erase(accfd[i]);
+					req_map.erase(accfd[i]);
+					res_size_map.erase(accfd[i]);
+					close(accfd[i]);
+					accfd[i] = -1;
+					delete[] req_buf;
+					continue ;
+				}
+				req_buf[read_size] = '\0';
+				//画像などバイナリで処理対応。一文字ずつ取得。
+				for (int i = 0; i < read_size; ++i)
+        			req_str += req_buf[i];
+				req_map[accfd[i]] += req_str;
+				delete[] req_buf;
+			}
+			else if (FD_ISSET(accfd[i], &wfd))
+			{
+				RequestParser 	request(req_map[accfd[i]], serv_map[accfd[i]]);
 				Response		response(request, serv_map[accfd[i]]);
 				std::string		response_str;
-				ssize_t			write_size = 0;
-				ssize_t			ret_size;
-				std::size_t		chunk_size = RESPONSE_BUFFER_SIZE;
-
-				//デバッグ用。Config出力
-				PutConf(serv_map[accfd[i]], request);
 
 				//method HEADの場合はヘッダーだけ出力
 				if (request.get_method() == "HEAD")
 					response_str = response.get_header();
 				else
 					response_str = response.get_header() + response.get_body();
-				while (write_size >= 0)
+
+				unsigned long	chunk_size = RESPONSE_BUFFER_SIZE;
+				if (response_str.size() - res_size_map[accfd[i]] < chunk_size)
+					chunk_size = response_str.size() - res_size_map[accfd[i]];
+
+				//write一回だけのケース
+				ssize_t			write_size = write(accfd[i], response_str.c_str() + res_size_map[accfd[i]], chunk_size);
+				if (g_SIGPIPE_FLAG == 1)
 				{
-					if (response_str.size() - write_size < chunk_size)
-						chunk_size = response_str.size() - write_size;
-					ret_size = write(accfd[i], response_str.c_str() + write_size, chunk_size);
-					//ソケットが壊れたときにSIGPIPEが送られる。プロセスを終了させないために対応
-					if (g_SIGPIPE_FLAG == 1)
-					{
-						g_SIGPIPE_FLAG = 0;
-						break ;
-					}
-					if (ret_size > 0)
-						write_size += ret_size;
-					if (write_size == (long)response_str.size())
-						break ;
+					std::cout << "SIGPIPE" << std::endl;
+					g_SIGPIPE_FLAG = 0;
 				}
+				else if (write_size <= 0)
+					std::cout << "write():error" << std::endl;
+				res_size_map[accfd[i]] += write_size;
+				if (res_size_map[accfd[i]] != response_str.size())
+					continue ;
+
+				//デバッグ用。Config出力
+				PutConf(serv_map[accfd[i]], request);
+
 				serv_map.erase(accfd[i]);
+				req_map.erase(accfd[i]);
+				res_size_map.erase(accfd[i]);
 				close(accfd[i]);
 				accfd[i] = -1;
 			}

@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/06 21:26:18 by rtomishi          #+#    #+#             */
-/*   Updated: 2022/01/12 22:38:55 by rtomishi         ###   ########.fr       */
+/*   Updated: 2022/01/15 23:19:17 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,10 +35,11 @@
 # include <map>
 # include <signal.h>
 # include <cerrno>
+# include <limits.h>
 
-const int			BUF_SIZE = 1024;
+const unsigned long	REQUEST_SIZE = 10000;
 const int			CGI_BUF = 100;
-const unsigned long	RESPONSE_BUFFER_SIZE = 1000;
+const unsigned long	RESPONSE_BUFFER_SIZE = 1000000;
 const std::string	MIME_FILE = "/server/mime";
 const std::string	CODE_FILE = "/server/status_code";
 const std::string	ERROR_PAGE_DIRECTORY = "/server/error_file/";

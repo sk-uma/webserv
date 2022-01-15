@@ -6,7 +6,7 @@
 #    By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/09/03 22:58:14 by rtomishi          #+#    #+#              #
-#    Updated: 2021/12/20 16:55:34 by rtomishi         ###   ########.fr        #
+#    Updated: 2022/01/13 22:27:25 by rtomishi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -26,7 +26,7 @@ CXXFLAGS = -Wall -Werror -Wextra -I ./temp_config -I ./server
 
 STDLIB = -std=c++98
 
-CXX = clang++ $(STDLIB)
+#CXX = clang++ $(STDLIB)
 #CXX = clang++ $(STDLIB) -g -fsanitize=leak
 
 RM = rm -f
