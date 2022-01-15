@@ -62,28 +62,34 @@ Response::Response(RequestParser &request, webservconfig::Server &serv)
 				content_type = "application/octet-stream";
 			}
 		}
+		std::cerr << "[*] " << "cleate body" << std::endl;
 	}
-	else if (!method_limited(serv, request))
+	else if (!method_limited(serv, request)) {
 		status = STATUS_NOT_IMPLEMENTED;
-	else if (!method_allowed(serv, request))
+	} else if (!method_allowed(serv, request)) {
 		status = STATUS_METHOD_NOT_ALLOWED;
-	else if (request.get_body().length() > CLIENT_MAX_BODY)
+	} else if (request.get_body().length() > CLIENT_MAX_BODY) {
 		status = STATUS_PAYLOAD_TOO_LARGE;
-	else if (request.get_method() == "POST" && request.get_uri() == "/Upload")
+	} else if (request.get_method() == "POST" && request.get_uri() == "/Upload") {
 		status = upload_file((EXE_DIR + UPLOAD_PATH + "/").c_str(), request);
+		std::cerr << "[*] " << "requests POST method" << std::endl;
 	//methodがDELETEの場合にのみファイルを削除する動作をする
-	else if (request.get_method() == "DELETE")
+	} else if (request.get_method() == "DELETE") {
 		status = delete_file((EXE_DIR + HTML_PATH + request.get_uri()).c_str());
+		std::cerr << "[*] " << "requests DELETE method" << std::endl;
 	//cgiを利用して、autoindex機能を実行。サブプロセスで実行する。
-	else if (S_ISDIR(eval_directory.st_mode))
+	} else if (S_ISDIR(eval_directory.st_mode)) {
 		status = autoindex_c(html_file.c_str(), request, AUTOINDEX);
+		std::cerr << "[*] " << "requests autoindex" << std::endl;
 	//request.get_script_name()がファイルである場合、つまりリクエストされているURIが
 	//CGI直下のディレクトリのファイルである場合、CGIを実行する。
-	else if (S_ISREG(eval_cgi.st_mode))
+	} else if (S_ISREG(eval_cgi.st_mode)) {
 		status = cgi_exe(cgi_file, request, eval_cgi);
+		std::cerr << "[*] " << "requests CGI" << std::endl;
 	//ファイルが見つかればそれを開く。見つからなければ404 Not Found用のファイルを開く
-	else
+	} else {
 		status = open_html(html_file);
+	}
 	
 	//以下のswitch文でヘッダーを作成する
 	if (status >= 300)

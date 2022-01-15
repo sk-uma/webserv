@@ -102,6 +102,7 @@ int	main(int argc, char **argv)
 
 	std::vector<Socket> sock = socket_c.GetSocket();
 	// std::cout << "fin sock set: " << sock.size() << std::endl;
+	std::cout << "listen:" << std::endl;
 	for (std::vector<Socket>::const_iterator it = sock.begin(); it != sock.end(); it++) {
 		std::cout << it->get_address() << ":" << it->get_port() << std::endl;
 	}
