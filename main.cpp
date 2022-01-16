@@ -91,6 +91,9 @@ int	main(int argc, char **argv)
 	SocketCollection socket_c;
 	try {
 		config = webservconfig::ServerCollection(argv[1]);
+		if (config.GetServer().size() == 0) {
+			throw std::runtime_error("Cannot find the server directive");
+		}
 		socket_c = SocketCollection(config);
 	} catch (const std::exception& e) {
 		std::cerr << e.what() << std::endl;
