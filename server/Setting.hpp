@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/06 21:26:18 by rtomishi          #+#    #+#             */
-/*   Updated: 2022/01/15 23:19:17 by rtomishi         ###   ########.fr       */
+/*   Updated: 2022/01/16 22:34:07 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,7 @@
 # include <cerrno>
 # include <limits.h>
 
-const unsigned long	REQUEST_SIZE = 10000;
+const unsigned long	REQUEST_SIZE = 10000000;
 const int			CGI_BUF = 100;
 const unsigned long	RESPONSE_BUFFER_SIZE = 1000000;
 const std::string	MIME_FILE = "/server/mime";

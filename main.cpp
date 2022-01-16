@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/06 21:40:53 by rtomishi          #+#    #+#             */
-/*   Updated: 2022/01/15 23:55:48 by rtomishi         ###   ########.fr       */
+/*   Updated: 2022/01/16 22:37:11 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 #include "Response.hpp"
 #include "ServerCollection.hpp"
 #include "SocketCollection.hpp"
+#include "ClientManage.hpp"
 #include "Prototype.hpp"
 
 //SIGPIPE対応用フラグ
@@ -71,9 +72,7 @@ int	main(int argc, char **argv)
 	int					accfd[MAX_SESSION];
 	fd_set				rfd;
 	fd_set				wfd;
-	std::map<int, webservconfig::Server>	serv_map;
-	std::map<int, std::string>				req_map;
-	std::map<int, unsigned long>			res_size_map;
+	ClientManage		manage;
 
 	for (int i = 0; i < MAX_SESSION; i++)
 		accfd[i] = -1;
@@ -110,12 +109,13 @@ int	main(int argc, char **argv)
 //	
 //		for (int i = 0; i < MAX_SESSION; i++)
 //			std::cout << "accfd:" << accfd[i] << " rfd:" << FD_ISSET(accfd[i], &rfd) << " wfd:" << FD_ISSET(accfd[i], &wfd) << std::endl;;
-//
+
 		//listenfdから接続要求を取り出して参照する新しいファイルディスクリプターを設定する
 		for (std::vector<Socket>::iterator it = sock.begin(); it != sock.end(); it++)
 		{
 			if (FD_ISSET((*it).get_listenfd(), &rfd))
 			{
+//				std::cout << "fd:" << (*it).get_listenfd() << " rfd:" << FD_ISSET((*it).get_listenfd(), &rfd) << " wfd:" << FD_ISSET((*it).get_listenfd(), &wfd) << std::endl;
 				int connfd = accept((*it).get_listenfd(), (struct sockaddr*)NULL, NULL);
 				fcntl(connfd, F_SETFL, O_NONBLOCK);
 				bool limit_over = true;
@@ -124,9 +124,7 @@ int	main(int argc, char **argv)
 					if (accfd[i] == -1)
 					{
 						accfd[i] = connfd;
-						serv_map.insert(std::make_pair(connfd, it->get_server()));
-						req_map.insert(std::make_pair(connfd, ""));
-						res_size_map.insert(std::make_pair(connfd, 0));
+						manage.Init(accfd[i], it->get_server());
 						std::cout << "Accept: " << it->get_address() << ":" << it->get_StrPort() << std::endl;
 						limit_over = false;
 						break;
@@ -145,19 +143,17 @@ int	main(int argc, char **argv)
 			if (accfd[i] == -1)
 				continue ;
 
-			std::string	req_str = "";
-			//if (FD_ISSET(accfd[i], &rfd) && FD_ISSET(accfd[i], &wfd))
+//			std::cout << "accfd:" << accfd[i] << " rfd:" << FD_ISSET(accfd[i], &rfd) << " wfd:" << FD_ISSET(accfd[i], &wfd) << std::endl;;
 			if (FD_ISSET(accfd[i], &rfd))
 			{
+				std::string	req_str = "";
 				char *req_buf;
 				req_buf = new char[REQUEST_SIZE]; //ヒープの方が大きなサイズで設定可能
 				ssize_t		read_size = read(accfd[i], req_buf, sizeof(char[REQUEST_SIZE]));
 				if (read_size <= 0)
 				{
 					std::cout << "read():error" << std::endl;
-					serv_map.erase(accfd[i]);
-					req_map.erase(accfd[i]);
-					res_size_map.erase(accfd[i]);
+					manage.Erase(accfd[i]);
 					close(accfd[i]);
 					accfd[i] = -1;
 					delete[] req_buf;
@@ -167,13 +163,21 @@ int	main(int argc, char **argv)
 				//画像などバイナリで処理対応。一文字ずつ取得。
 				for (int i = 0; i < read_size; ++i)
         			req_str += req_buf[i];
-				req_map[accfd[i]] += req_str;
+				manage.AppendReq(accfd[i], req_str);
 				delete[] req_buf;
 			}
 			else if (FD_ISSET(accfd[i], &wfd))
 			{
-				RequestParser 	request(req_map[accfd[i]], serv_map[accfd[i]]);
-				Response		response(request, serv_map[accfd[i]]);
+//				std::cout << "************\n" << manage.GetReq(accfd[i]) << std::endl;
+				if (manage.GetReq(accfd[i]) == "")
+				{
+					manage.Erase(accfd[i]);
+					close(accfd[i]);
+					accfd[i] = -1;
+					continue ;
+				}
+				RequestParser 	request(manage.GetReq(accfd[i]), manage.GetConf(accfd[i]));
+				Response		response(request, manage.GetConf(accfd[i]));
 				std::string		response_str;
 
 				//method HEADの場合はヘッダーだけ出力
@@ -183,11 +187,10 @@ int	main(int argc, char **argv)
 					response_str = response.get_header() + response.get_body();
 
 				unsigned long	chunk_size = RESPONSE_BUFFER_SIZE;
-				if (response_str.size() - res_size_map[accfd[i]] < chunk_size)
-					chunk_size = response_str.size() - res_size_map[accfd[i]];
+				if (response_str.size() - manage.GetResSize(accfd[i]) < chunk_size)
+					chunk_size = response_str.size() - manage.GetResSize(accfd[i]);
 
-				//write一回だけのケース
-				ssize_t			write_size = write(accfd[i], response_str.c_str() + res_size_map[accfd[i]], chunk_size);
+				ssize_t			write_size = write(accfd[i], response_str.c_str() + manage.GetResSize(accfd[i]), chunk_size);
 				if (g_SIGPIPE_FLAG == 1)
 				{
 					std::cout << "SIGPIPE" << std::endl;
@@ -195,16 +198,17 @@ int	main(int argc, char **argv)
 				}
 				else if (write_size <= 0)
 					std::cout << "write():error" << std::endl;
-				res_size_map[accfd[i]] += write_size;
-				if (res_size_map[accfd[i]] != response_str.size())
-					continue ;
+				else if (write_size > 0)
+				{
+					manage.AppendResSize(accfd[i], write_size);
+					if (manage.GetResSize(accfd[i]) != response_str.size())
+						continue ;
+				}
 
 				//デバッグ用。Config出力
-				PutConf(serv_map[accfd[i]], request);
-
-				serv_map.erase(accfd[i]);
-				req_map.erase(accfd[i]);
-				res_size_map.erase(accfd[i]);
+				PutConf(manage.GetConf(accfd[i]), request);
+				
+				manage.Erase(accfd[i]);
 				close(accfd[i]);
 				accfd[i] = -1;
 			}
