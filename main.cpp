@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/06 21:40:53 by rtomishi          #+#    #+#             */
-/*   Updated: 2022/01/16 22:37:11 by rtomishi         ###   ########.fr       */
+/*   Updated: 2022/01/17 19:33:34 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,6 +117,7 @@ int	main(int argc, char **argv)
 			{
 //				std::cout << "fd:" << (*it).get_listenfd() << " rfd:" << FD_ISSET((*it).get_listenfd(), &rfd) << " wfd:" << FD_ISSET((*it).get_listenfd(), &wfd) << std::endl;
 				int connfd = accept((*it).get_listenfd(), (struct sockaddr*)NULL, NULL);
+				std::cout << "connfd:" << connfd << std::endl;
 				fcntl(connfd, F_SETFL, O_NONBLOCK);
 				bool limit_over = true;
 				for (int i = 0; i < MAX_SESSION; i++)
@@ -125,7 +126,7 @@ int	main(int argc, char **argv)
 					{
 						accfd[i] = connfd;
 						manage.Init(accfd[i], it->get_server());
-						std::cout << "Accept: " << it->get_address() << ":" << it->get_StrPort() << std::endl;
+//						std::cout << "Accept: " << it->get_address() << ":" << it->get_StrPort() << std::endl;
 						limit_over = false;
 						break;
 					}
@@ -143,7 +144,7 @@ int	main(int argc, char **argv)
 			if (accfd[i] == -1)
 				continue ;
 
-//			std::cout << "accfd:" << accfd[i] << " rfd:" << FD_ISSET(accfd[i], &rfd) << " wfd:" << FD_ISSET(accfd[i], &wfd) << std::endl;;
+			std::cout << "accfd:" << accfd[i] << " rfd:" << FD_ISSET(accfd[i], &rfd) << " wfd:" << FD_ISSET(accfd[i], &wfd) << std::endl;;
 			if (FD_ISSET(accfd[i], &rfd))
 			{
 				std::string	req_str = "";
@@ -206,7 +207,7 @@ int	main(int argc, char **argv)
 				}
 
 				//デバッグ用。Config出力
-				PutConf(manage.GetConf(accfd[i]), request);
+				//PutConf(manage.GetConf(accfd[i]), request);
 				
 				manage.Erase(accfd[i]);
 				close(accfd[i]);
