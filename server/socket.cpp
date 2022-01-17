@@ -89,6 +89,7 @@ int		Socket::set_socket()
 	//ソケット通信方式の設定
 	if ((res = Socket::set_sockaddr_in()) != 0) {
 		std::cerr << res << ":" << gai_strerror(res) << std::endl;
+		freeaddrinfo(ai);
 		return (-1);
 	}
 	//addrinfoからソケットを生成する(待ち受けるファイルディスクリプタをつくる)
@@ -102,6 +103,7 @@ int		Socket::set_socket()
 		std::cerr << std::strerror(errno) << ":";
 		std::cerr << "setsockopt() failed." << std::endl;
 		close(listenfd);
+		freeaddrinfo(ai);
 		return (-1);
 	}
 	//bindでソケットを登録。bindすることでlistenfdにポートが割り当てられる
@@ -111,6 +113,7 @@ int		Socket::set_socket()
 		std::cerr << std::strerror(errno) << ":";
 		std::cerr << "bind() failed." << std::endl;
 		close(listenfd);
+		freeaddrinfo(ai);
 		return (-1);
 	}
 	//listenでソケットを接続待ちにする
@@ -121,6 +124,7 @@ int		Socket::set_socket()
 		std::cerr << std::strerror(errno) << ":";
 		std::cerr << "listen() failed." << std::endl;
 		close(listenfd);
+		freeaddrinfo(ai);
 		return (-1);
 	}
 	//ソケットアドレスのリストを解放する必要がある
