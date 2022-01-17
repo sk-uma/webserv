@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/06 21:40:53 by rtomishi          #+#    #+#             */
-/*   Updated: 2022/01/17 19:33:34 by rtomishi         ###   ########.fr       */
+/*   Updated: 2022/01/17 23:27:11 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,21 +107,14 @@ int	main(int argc, char **argv)
 		if (select(nfd, &rfd, &wfd, NULL, NULL) == -1)
 			std::cerr << "select() failed." << std::endl;
 
-//		std::cout << "+++++++++++++++++++++++++\n";
-//		for (std::vector<Socket>::iterator it = sock.begin(); it != sock.end(); it++)
-//			std::cout << "fd:" << (*it).get_listenfd() << " rfd:" << FD_ISSET((*it).get_listenfd(), &rfd) << " wfd:" << FD_ISSET((*it).get_listenfd(), &wfd) << std::endl;
-//	
-//		for (int i = 0; i < MAX_SESSION; i++)
-//			std::cout << "accfd:" << accfd[i] << " rfd:" << FD_ISSET(accfd[i], &rfd) << " wfd:" << FD_ISSET(accfd[i], &wfd) << std::endl;;
-
 		//listenfdから接続要求を取り出して参照する新しいファイルディスクリプターを設定する
 		for (std::vector<Socket>::iterator it = sock.begin(); it != sock.end(); it++)
 		{
 			if (FD_ISSET((*it).get_listenfd(), &rfd))
 			{
-//				std::cout << "fd:" << (*it).get_listenfd() << " rfd:" << FD_ISSET((*it).get_listenfd(), &rfd) << " wfd:" << FD_ISSET((*it).get_listenfd(), &wfd) << std::endl;
 				int connfd = accept((*it).get_listenfd(), (struct sockaddr*)NULL, NULL);
-				std::cout << "connfd:" << connfd << std::endl;
+				if (connfd == -1)
+					continue ;
 				fcntl(connfd, F_SETFL, O_NONBLOCK);
 				bool limit_over = true;
 				for (int i = 0; i < MAX_SESSION; i++)
@@ -148,7 +141,6 @@ int	main(int argc, char **argv)
 			if (accfd[i] == -1)
 				continue ;
 
-			std::cout << "accfd:" << accfd[i] << " rfd:" << FD_ISSET(accfd[i], &rfd) << " wfd:" << FD_ISSET(accfd[i], &wfd) << std::endl;;
 			if (FD_ISSET(accfd[i], &rfd))
 			{
 				std::string	req_str = "";
@@ -173,14 +165,8 @@ int	main(int argc, char **argv)
 			}
 			else if (FD_ISSET(accfd[i], &wfd))
 			{
-//				std::cout << "************\n" << manage.GetReq(accfd[i]) << std::endl;
 				if (manage.GetReq(accfd[i]) == "")
-				{
-					manage.Erase(accfd[i]);
-					close(accfd[i]);
-					accfd[i] = -1;
 					continue ;
-				}
 				RequestParser 	request(manage.GetReq(accfd[i]), manage.GetConf(accfd[i]));
 				Response		response(request, manage.GetConf(accfd[i]));
 				std::string		response_str;
