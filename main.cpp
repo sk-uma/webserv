@@ -11,7 +11,7 @@
 /* ************************************************************************** */
 
 #include "Setting.hpp"
-#include "Socket.hpp"
+#include "socket.hpp"
 #include "RequestParser.hpp"
 #include "Response.hpp"
 #include "ServerCollection.hpp"
