@@ -47,7 +47,10 @@ void SocketCollection::AddServer(const webservconfig::Server &server)
     if (!find_flag) {
       this->socket_vector_.push_back(Socket(iter_s->first, iter_s->second));
       (this->socket_vector_.end() - 1)->set_server(server);
-      (this->socket_vector_.end() - 1)->set_socket();
+      int res = (this->socket_vector_.end() - 1)->set_socket();
+      if (res) {
+        throw std::runtime_error("socket error");
+      }
       fcntl((this->socket_vector_.end() - 1)->get_listenfd(), F_SETFL, O_NONBLOCK);
     }
     iter_s++;
@@ -67,7 +70,10 @@ void SocketCollection::AddServer(const webservconfig::Server &server)
     if (!find_flag) {
       this->socket_vector_.push_back(Socket(iter_s->first, iter_s->second));
       (this->socket_vector_.end() - 1)->set_server(server);
-      (this->socket_vector_.end() - 1)->set_socket();
+      int res = (this->socket_vector_.end() - 1)->set_socket();
+      if (res) {
+        throw std::runtime_error("socket error");
+      }
       fcntl((this->socket_vector_.end() - 1)->get_listenfd(), F_SETFL, O_NONBLOCK);
     }
     iter_s++;

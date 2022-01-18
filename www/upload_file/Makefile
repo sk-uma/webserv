@@ -6,23 +6,37 @@
 #    By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/09/03 22:58:14 by rtomishi          #+#    #+#              #
-#    Updated: 2021/12/20 16:55:34 by rtomishi         ###   ########.fr        #
+#    Updated: 2022/01/15 23:56:06 by rtomishi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 
 NAME = webserv
 
-SRC =	./main/main.cpp \
-		./server/socket.cpp \
-		./server/RequestParser.cpp \
-		./server/Response.cpp \
-		./server/util_func.cpp
+# SRC =	./main/main.cpp \
+# 		./server/socket.cpp \
+# 		./server/RequestParser.cpp \
+# 		./server/Response.cpp \
+# 		./server/util_func.cpp
+
+MAIN = ./main.cpp
+SRC += $(wildcard config/*.cpp)
+SRC += $(wildcard server/*.cpp)
 
 OBJ = $(SRC:.cpp=.o)
+MAIN_OBJ = $(MAIN:.cpp=.o)
 
-CXXFLAGS = -Wall -Werror -Wextra -I ./temp_config -I ./server
+CONFIGTEST_NAME = webserv_t
+CONFIGTEST_MAIN = ./config/test/main.cpp
+CONFIGTEST_OBJ = $(CONFIGTEST_MAIN:.cpp=.o)
 
+# -std=c++98 sample.cc sample_test.cc -o test -L/usr/local/lib -pthread -lgtest -lgtest_main
+# -std=c++98 -L/usr/local/lib -pthread -lgtest -lgtest_main
+GTEST_NAME = gtest_exe
+GTEST_SRC = $(wildcard gtest/*.cpp)
+GTEST_OBJ = $(GTEST_SRC:.cpp=.o)
+
+CXXFLAGS = -Wall -Werror -Wextra -I ./server -I ./config
 
 STDLIB = -std=c++98
 
@@ -33,15 +47,23 @@ RM = rm -f
 
 all: $(NAME) $(NAME0)
 
-$(NAME): $(OBJ)
-	$(CXX) $(CXXFLAGS) $(OBJ) -o $(NAME)
+$(NAME): $(OBJ) $(MAIN_OBJ)
+	$(CXX) $(CXXFLAGS) $(OBJ) $(MAIN_OBJ) -o $(NAME)
 
 clean:
-	$(RM) $(OBJ)
+	$(RM) $(OBJ) $(MAIN_OBJ)
 
 fclean: clean
-	$(RM) $(NAME)
+	$(RM) $(NAME) $(CONFIGTEST_NAME)
 
 re: fclean all
 
-.PHONY: all clean fclean re
+test: CXXFLAGS += -pthread
+test: fclean $(OBJ) $(CONFIGTEST_OBJ) $(GTEST_OBJ)
+	$(CXX) $(CXXFLAGS) $(OBJ) $(CONFIGTEST_OBJ) -o $(CONFIGTEST_NAME)
+	$(CXX) -I ./gtest $(CXXFLAGS) $(OBJ) $(GTEST_OBJ) -o $(GTEST_NAME) -L/usr/local/lib -lgtest -lgtest_main
+	./$(GTEST_NAME)
+	rm -rf $(GTEST_NAME)
+	$(MAKE) fclean
+
+.PHONY: all clean fclean re config_t

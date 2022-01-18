@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   socket.cpp                                         :+:      :+:    :+:   */
+/*   Socket.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/06 21:30:43 by rtomishi          #+#    #+#             */
-/*   Updated: 2022/01/05 16:36:08 by rtomishi         ###   ########.fr       */
+/*   Updated: 2022/01/14 18:15:08 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,6 +89,7 @@ int		Socket::set_socket()
 	//ソケット通信方式の設定
 	if ((res = Socket::set_sockaddr_in()) != 0) {
 		std::cerr << res << ":" << gai_strerror(res) << std::endl;
+		freeaddrinfo(ai);
 		return (-1);
 	}
 	//addrinfoからソケットを生成する(待ち受けるファイルディスクリプタをつくる)
@@ -102,6 +103,7 @@ int		Socket::set_socket()
 		std::cerr << std::strerror(errno) << ":";
 		std::cerr << "setsockopt() failed." << std::endl;
 		close(listenfd);
+		freeaddrinfo(ai);
 		return (-1);
 	}
 	//bindでソケットを登録。bindすることでlistenfdにポートが割り当てられる
@@ -111,6 +113,7 @@ int		Socket::set_socket()
 		std::cerr << std::strerror(errno) << ":";
 		std::cerr << "bind() failed." << std::endl;
 		close(listenfd);
+		freeaddrinfo(ai);
 		return (-1);
 	}
 	//listenでソケットを接続待ちにする
@@ -121,6 +124,7 @@ int		Socket::set_socket()
 		std::cerr << std::strerror(errno) << ":";
 		std::cerr << "listen() failed." << std::endl;
 		close(listenfd);
+		freeaddrinfo(ai);
 		return (-1);
 	}
 	//ソケットアドレスのリストを解放する必要がある
