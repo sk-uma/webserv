@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/06 21:26:18 by rtomishi          #+#    #+#             */
-/*   Updated: 2022/01/16 22:34:07 by rtomishi         ###   ########.fr       */
+/*   Updated: 2022/01/17 23:28:54 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,11 +39,11 @@
 
 const unsigned long	REQUEST_SIZE = 10000000;
 const int			CGI_BUF = 100;
-const unsigned long	RESPONSE_BUFFER_SIZE = 1000000;
+const unsigned long	RESPONSE_BUFFER_SIZE = 10000000;
 const std::string	MIME_FILE = "/server/mime";
 const std::string	CODE_FILE = "/server/status_code";
 const std::string	ERROR_PAGE_DIRECTORY = "/server/error_file/";
-const int			MAX_SESSION = 10;
+const int			MAX_SESSION = 100;
 extern char			**environ;
 
 //レスポンスステータス
