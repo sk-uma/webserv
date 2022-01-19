@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/06 21:40:53 by rtomishi          #+#    #+#             */
-/*   Updated: 2022/01/19 23:46:42 by rtomishi         ###   ########.fr       */
+/*   Updated: 2022/01/19 22:00:46 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -172,6 +172,7 @@ int	main(int argc, char **argv)
 				//Content-Lengthがあるが、bodyが取得できていない場合、writeしない
 				if ((unsigned long)atoi(request.get_content_length().c_str()) != request.get_body().length())
 					continue ;
+				std::cout << request.get_header() << std::endl;
 				Response		response(request, manage.GetConf(accfd[i]));
 				std::string		response_str;
 				

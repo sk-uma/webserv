@@ -6,18 +6,12 @@
 #    By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2021/09/03 22:58:14 by rtomishi          #+#    #+#              #
-#    Updated: 2022/01/15 23:56:06 by rtomishi         ###   ########.fr        #
+#    Updated: 2022/01/18 21:54:06 by rtomishi         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
 
 NAME = webserv
-
-# SRC =	./main/main.cpp \
-# 		./server/socket.cpp \
-# 		./server/RequestParser.cpp \
-# 		./server/Response.cpp \
-# 		./server/util_func.cpp
 
 MAIN = ./main.cpp
 SRC += $(wildcard config/*.cpp)

@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/14 21:09:14 by rtomishi          #+#    #+#             */
-/*   Updated: 2022/01/12 23:27:46 by rtomishi         ###   ########.fr       */
+/*   Updated: 2022/01/19 22:28:09 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,8 +42,11 @@ Response::Response(RequestParser &request, webservconfig::Server &serv)
 	else
 		html_file = EXE_DIR + HTML_PATH + index_search(EXE_DIR + HTML_PATH, index);
 
+	html_file = urlDecode(html_file);
 	//CGI起動の場合のため、cgi_file変数を定義。CGIを使用しない場合は使わない
 	std::string	cgi_file = EXE_DIR + HTML_PATH + request.get_script_name();
+
+	cgi_file = urlDecode(cgi_file);
 
 	//html_fileがdirectoryだった場合、autoindex機能を使用するため、stat情報を格納
 	stat(html_file.c_str(), &eval_directory);
@@ -343,10 +346,10 @@ int		Response::autoindex_c(const char *path, RequestParser &request, bool autoin
 	body.append("<html>\r\n");
 	body.append("<head>\r\n");
 	body.append("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\r\n");
-	body.append("<title>Directory listing for " + temp_uri + "</title>\r\n");
+	body.append("<title>Directory listing for " + urlDecode(temp_uri) + "</title>\r\n");
 	body.append("</head>\r\n");
 	body.append("<body>\r\n");
-	body.append("<h1>Directory listing for " + temp_uri + "</h1>\r\n");
+	body.append("<h1>Directory listing for " + urlDecode(temp_uri) + "</h1>\r\n");
 	body.append("<hr>\r\n");
 	body.append("<ul>\r\n");
 	body.append(oss.str());
@@ -526,7 +529,7 @@ void	Response::content_type_set(std::string file_path)
 	if ((pos = extension.rfind(".")) != std::string::npos && pos != 0)
 	{
 		extension = extension.substr(pos + 1);
-		content_type = "text/plain";
+		content_type = "text/plain; charset=UTF-8";
 		while (getline(mime, line))
 		{
 			if (line.find(extension + ":") == 0)

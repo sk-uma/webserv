@@ -10,7 +10,7 @@ js:application/javascript
 atom:application/atom+xml
 rss:application/rss+xml
 mml:text/mathml
-txt:text/plain
+txt:text/plain; charset=UTF-8
 jad:text/vnd.sun.j2me.app-descriptor
 wml:text/vnd.wap.wml
 htc:text/x-component

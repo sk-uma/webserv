@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/06 21:26:18 by rtomishi          #+#    #+#             */
-/*   Updated: 2022/01/17 23:28:54 by rtomishi         ###   ########.fr       */
+/*   Updated: 2022/01/19 21:44:59 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@
 # include <signal.h>
 # include <cerrno>
 # include <limits.h>
+# include <ctype.h>
 
 const unsigned long	REQUEST_SIZE = 10000000;
 const int			CGI_BUF = 100;
