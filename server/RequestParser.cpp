@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/12 22:00:34 by rtomishi          #+#    #+#             */
-/*   Updated: 2022/01/10 22:21:16 by rtomishi         ###   ########.fr       */
+/*   Updated: 2022/01/20 13:52:45 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -206,21 +206,6 @@ void		RequestParser::set_cgi_env(webservconfig::Server &serv)
 			break ;
 		}
 	}
-
-//	if (uri.find(CGI_PATH) == 0 &&
-//			(script_start = uri.substr(CGI_PATH.length()).find_first_not_of("/")) != std::string::npos)
-//	{
-//		if ((info_start = uri.substr(CGI_PATH.length() + script_start).find("/")) != std::string::npos)
-//		{
-//			i = CGI_PATH.length() + script_start + info_start;
-//			while (uri[i] == '/')
-//				i++;
-//			if (i != CGI_PATH.length() + script_start + info_start)
-//				i--;
-//			path_info = uri.substr(i);
-//		}
-//		script_name = (path_info == "" ? uri : uri.substr(0, CGI_PATH.length() + script_start + info_start));
-//	}
 	path_translated = root + (root[root.length() - 1] != '/' ? "": "/") + path_info;
 	setenv("PATH_TRANSLATED", path_translated.c_str(), 1);
 	setenv("PATH_INFO", path_info.c_str(), 1);

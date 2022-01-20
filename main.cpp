@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/06 21:40:53 by rtomishi          #+#    #+#             */
-/*   Updated: 2022/01/19 23:46:42 by rtomishi         ###   ########.fr       */
+/*   Updated: 2022/01/20 13:50:40 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,6 +73,7 @@ int	main(int argc, char **argv)
 	//accfdは使用するファイルディスクリプタチェック
 	//rfdは読み取り可能ファイルディスクリプタ登録用
 	//wfdは書き込み可能ファイルディスクリプタ登録用
+	//manageはClient管理用のクラス
 	int					accfd[MAX_SESSION];
 	fd_set				rfd;
 	fd_set				wfd;
