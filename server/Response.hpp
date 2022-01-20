@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/13 22:19:12 by rtomishi          #+#    #+#             */
-/*   Updated: 2022/01/12 23:22:45 by rtomishi         ###   ########.fr       */
+/*   Updated: 2022/01/19 22:03:11 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 # include "ServerCollection.hpp"
 # include "RequestParser.hpp"
 # include "Setting.hpp"
+# include "Prototype.hpp"
 
 class Response
 {

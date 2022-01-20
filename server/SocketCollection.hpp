@@ -2,7 +2,7 @@
 # define SOCKETCOLLECTION_HPP
 
 # include "ServerCollection.hpp"
-# include "socket.hpp"
+# include "Socket.hpp"
 # include "ConfigUtils.hpp"
 
 # include <vector>

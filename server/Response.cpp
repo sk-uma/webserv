@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/14 21:09:14 by rtomishi          #+#    #+#             */
-/*   Updated: 2022/01/12 23:27:46 by rtomishi         ###   ########.fr       */
+/*   Updated: 2022/01/20 13:59:28 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,8 +42,13 @@ Response::Response(RequestParser &request, webservconfig::Server &serv)
 	else
 		html_file = EXE_DIR + HTML_PATH + index_search(EXE_DIR + HTML_PATH, index);
 
+	//urlに日本語がある場合、ブラウザでurlがエンコードされるのででコード
+	html_file = urlDecode(html_file);
 	//CGI起動の場合のため、cgi_file変数を定義。CGIを使用しない場合は使わない
 	std::string	cgi_file = EXE_DIR + HTML_PATH + request.get_script_name();
+
+	//urlに日本語がある場合、ブラウザでurlがエンコードされるのででコード(CGI用)
+	cgi_file = urlDecode(cgi_file);
 
 	//html_fileがdirectoryだった場合、autoindex機能を使用するため、stat情報を格納
 	stat(html_file.c_str(), &eval_directory);
@@ -100,9 +105,10 @@ Response::Response(RequestParser &request, webservconfig::Server &serv)
 		
     std::ostringstream oss;
 
-	oss << "Server:";
-	for (size_t	i = 0; i < name.size(); i++)
-		oss << " " + name[i];
+	oss << "Server:42Tokyo_webserv";
+//	oss << "Server:";
+//	for (size_t	i = 0; i < name.size(); i++)
+//		oss << " " + name[i];
 	oss << "\r\n";
 	oss << "Content-Length: " << body.length() << "\r\n";
 	oss << "Content-Type: " << content_type << "\r\n";
@@ -130,13 +136,14 @@ Response &Response::operator=(Response const &obj)
 }
 
 //ゲッター
-std::string Response::get_header(void) {return (header);}
-std::string Response::get_body(void) {return (body);}
-std::string Response::get_content_type(void) {return (content_type);}
-std::map<int, std::string> Response::get_error_map(void) {return (error_map);}
-std::map<int, std::string> Response::get_code_map(void) {return (code_map);}
-int			Response::get_status(void) {return (status);}
+std::string 				Response::get_header(void) {return (header);}
+std::string 				Response::get_body(void) {return (body);}
+std::string 				Response::get_content_type(void) {return (content_type);}
+std::map<int, std::string> 	Response::get_error_map(void) {return (error_map);}
+std::map<int, std::string> 	Response::get_code_map(void) {return (code_map);}
+int							Response::get_status(void) {return (status);}
 
+//エラーページの書き換えが必要な場合、書き換える
 void	Response::set_error_map(webservconfig::ConfigBase::error_page_type &err_map_new)
 {
 	const std::string	EXE_DIR(getenv("EXE_DIR"));
@@ -343,10 +350,10 @@ int		Response::autoindex_c(const char *path, RequestParser &request, bool autoin
 	body.append("<html>\r\n");
 	body.append("<head>\r\n");
 	body.append("<meta http-equiv=\"Content-Type\" content=\"text/html; charset=utf-8\">\r\n");
-	body.append("<title>Directory listing for " + temp_uri + "</title>\r\n");
+	body.append("<title>Directory listing for " + urlDecode(temp_uri) + "</title>\r\n");
 	body.append("</head>\r\n");
 	body.append("<body>\r\n");
-	body.append("<h1>Directory listing for " + temp_uri + "</h1>\r\n");
+	body.append("<h1>Directory listing for " + urlDecode(temp_uri) + "</h1>\r\n");
 	body.append("<hr>\r\n");
 	body.append("<ul>\r\n");
 	body.append(oss.str());
@@ -526,7 +533,7 @@ void	Response::content_type_set(std::string file_path)
 	if ((pos = extension.rfind(".")) != std::string::npos && pos != 0)
 	{
 		extension = extension.substr(pos + 1);
-		content_type = "text/plain";
+		content_type = "text/plain; charset=UTF-8";
 		while (getline(mime, line))
 		{
 			if (line.find(extension + ":") == 0)

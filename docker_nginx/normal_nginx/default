@@ -17,6 +17,22 @@ server {
     include fcgiwrap.conf;
 }
 
+server {
+    listen 8080;
+    listen [::]:8080;
+
+    root /var/www/html;
+    autoindex on;
+
+    index index_dummy.html index.htm index.nginx-debian.html;
+    server_name _;
+    
+    location / {
+        try_files $uri $uri/ =404;
+    }
+
+    include fcgiwrap.conf;
+}
 
 # extension CGI server
 
