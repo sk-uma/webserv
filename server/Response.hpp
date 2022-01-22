@@ -31,6 +31,7 @@ class Response
 	public:
 		Response(void);
 		explicit Response(RequestParser &request, webservconfig::Server &serv);
+		Response(RequestParser &request, webservconfig::Server &serv, int code);
 		~Response(void);
 		Response(Response const &copy);
 		Response &operator=(Response const &obj);

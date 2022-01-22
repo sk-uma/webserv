@@ -169,13 +169,31 @@ int	main(int argc, char **argv)
 				//Requestになにも取得していない状態の場合、writeしない
 				if (manage.GetReq(accfd[i]) == "")
 					continue ;
-				RequestParser 	request(manage.GetReq(accfd[i]), manage.GetConf(accfd[i]));
+				// bool request_invalid_flag = false;
+				// (void)request_invalid_flag;
+				RequestParser request(manage.GetReq(accfd[i]), manage.GetConf(accfd[i]));
+				// std::cout << "in main" << std::endl;
+				// try {
+				// 	// std::cerr << "before parse..." << std::endl;
+				// 	request = RequestParser(manage.GetReq(accfd[i]), manage.GetConf(accfd[i]));
+				// } catch (std::exception &e) {
+				// 	request_invalid_flag = true;
+				// 	std::cout << e.what() << std::endl;
+				// }
 				//Content-Lengthがあるが、bodyが取得できていない場合、writeしない
 				if ((unsigned long)atoi(request.get_content_length().c_str()) != request.get_body().length())
 					continue ;
-				Response		response(request, manage.GetConf(accfd[i]));
+				// Response		response(request, manage.GetConf(accfd[i]));
+				Response		response;
+				// std::cerr << "before response" << std::endl << std::flush;
+				if (request.get_error_status() != 200) {
+					// std::cout << "status: " << request.get_error_status() << std::endl;
+					response = Response(request, manage.GetConf(accfd[i]), request.get_error_status());
+				} else {
+					response = Response(request, manage.GetConf(accfd[i]));
+				}
 				std::string		response_str;
-				
+
 				//method HEADの場合はヘッダーだけ出力
 				if (request.get_method() == "HEAD")
 					response_str = response.get_header();
