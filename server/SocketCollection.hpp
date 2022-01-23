@@ -32,6 +32,7 @@ class SocketCollection
  */
 
     const std::vector<Socket> &GetSocket() const;
+    const Socket &GetSocket(const std::string &address, int port) const;
 
 };
 

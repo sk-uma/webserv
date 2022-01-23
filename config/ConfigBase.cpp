@@ -5,9 +5,9 @@ webservconfig::ConfigBase::ConfigBase():
   // v6_listen_(),
   // listen_(),
   listen_v4_string_(),
-  listen_v6_string_(),
+  // listen_v6_string_(),
   listen_v4_(),
-  listen_v6_(),
+  // listen_v6_(),
   index_(),
   error_page_(),
   autoindex_(false),
@@ -49,9 +49,9 @@ const webservconfig::ConfigBase &webservconfig::ConfigBase::operator=(const Conf
     // this->v6_listen_ = rhs.v6_listen_;
     // this->listen_ = rhs.listen_;
     this->listen_v4_ = rhs.listen_v4_;
-    this->listen_v6_ = rhs.listen_v6_;
+    // this->listen_v6_ = rhs.listen_v6_;
     this->listen_v4_string_ = rhs.listen_v4_string_;
-    this->listen_v6_string_ = rhs.listen_v6_string_;
+    // this->listen_v6_string_ = rhs.listen_v6_string_;
     this->index_ = rhs.index_;
     this->error_page_ = rhs.error_page_;
     this->autoindex_ = rhs.autoindex_;
@@ -102,28 +102,36 @@ void webservconfig::ConfigBase::InitListen(std::vector<std::string> line)
     this->listen_flag_ = true;
   }
   int res;
-  if (address.size() >= 2 && address[0] == '[' && *(address.end() - 1) == ']') {
-    address = address.substr(1, address.size() - 2);
-    // std::cout << address << ":" << port << std::endl;
-    // if ((res = webservconfig::GetAddressInfo(address, port, &ai))) {
-    //   throw std::runtime_error(gai_strerror(res));
-    // }
-    // if (!IsComposed(address, "1234567890:"))
-    //   throw std::runtime_error("Invalid address");
-    struct in6_addr ia;
-    res = inet_pton(AF_INET6, address.c_str(), &ia);
-    if (!res) {
-      throw std::runtime_error(std::string("invalud Address :") + address);
-    }
-    this->listen_v6_.push_back(std::make_pair(ia, port_number));
-    this->listen_v6_string_.push_back(std::make_pair(address, std::string(port)));
-  } else if (address.size() >= 2 && address[0] != '[' && *(address.end() - 1) != ']') {
-    // std::cout << address << ":" << port << std::endl;
-    // if ((res = webservconfig::GetAddressInfo(address, port, &ai))) {
-    //   throw std::runtime_error(gai_strerror(res));
-    // }
-    // if (!IsComposed(address, "1234567890."))
-    //   throw std::runtime_error("Invalid address");
+  // if (address.size() >= 2 && address[0] == '[' && *(address.end() - 1) == ']') {
+  //   address = address.substr(1, address.size() - 2);
+  //   // std::cout << address << ":" << port << std::endl;
+  //   // if ((res = webservconfig::GetAddressInfo(address, port, &ai))) {
+  //   //   throw std::runtime_error(gai_strerror(res));
+  //   // }
+  //   // if (!IsComposed(address, "1234567890:"))
+  //   //   throw std::runtime_error("Invalid address");
+  //   struct in6_addr ia;
+  //   res = inet_pton(AF_INET6, address.c_str(), &ia);
+  //   if (!res) {
+  //     throw std::runtime_error(std::string("invalud Address :") + address);
+  //   }
+  //   this->listen_v6_.push_back(std::make_pair(ia, port_number));
+  //   this->listen_v6_string_.push_back(std::make_pair(address, std::string(port)));
+  // } else if (address.size() >= 2 && address[0] != '[' && *(address.end() - 1) != ']') {
+  //   // std::cout << address << ":" << port << std::endl;
+  //   // if ((res = webservconfig::GetAddressInfo(address, port, &ai))) {
+  //   //   throw std::runtime_error(gai_strerror(res));
+  //   // }
+  //   // if (!IsComposed(address, "1234567890."))
+  //   //   throw std::runtime_error("Invalid address");
+  //   struct in_addr ia;
+  //   res = inet_pton(AF_INET, address.c_str(), &ia);
+  //   if (!res) {
+  //     throw std::runtime_error(std::string("invalud Address :") + address);
+  //   }
+  //   this->listen_v4_.push_back(std::make_pair(ia, port_number));
+  //   this->listen_v4_string_.push_back(std::make_pair(address, std::string(port)));
+  if (address.size() >= 2) {
     struct in_addr ia;
     res = inet_pton(AF_INET, address.c_str(), &ia);
     if (!res) {
@@ -449,7 +457,7 @@ std::vector<std::string> webservconfig::ConfigBase::SplitLine(std::string line)
 // void webservconfig::ConfigBase::SetListenV6(const webservconfig::ConfigBase::listen_type &listen) { this->v6_listen_ = listen; }
 // void webservconfig::ConfigBase::SetListen(const webservconfig::ConfigBase::listen_type &listen) { this->listen_ = listen; }
 void webservconfig::ConfigBase::SetListenV4(const webservconfig::ConfigBase::listen_v4_type &listen) { this->listen_v4_ = listen; }
-void webservconfig::ConfigBase::SetListenV6(const webservconfig::ConfigBase::listen_v6_type &listen) { this->listen_v6_ = listen; }
+// void webservconfig::ConfigBase::SetListenV6(const webservconfig::ConfigBase::listen_v6_type &listen) { this->listen_v6_ = listen; }
 void webservconfig::ConfigBase::SetIndex(const webservconfig::ConfigBase::index_type &index) { this->index_ = index; }
 void webservconfig::ConfigBase::SetErrorPage(const webservconfig::ConfigBase::error_page_type &error_page) { this->error_page_ = error_page; }
 void webservconfig::ConfigBase::SetAutoIndex(bool autoindex) { this->autoindex_ = autoindex; }
@@ -469,9 +477,9 @@ void webservconfig::ConfigBase::SetCgiExtension(const extension_list_type &exten
 // const webservconfig::ConfigBase::listen_type &webservconfig::ConfigBase::GetListenV6() const { return (this->v6_listen_); }
 // const webservconfig::ConfigBase::listen_type &webservconfig::ConfigBase::GetListen() const { return (this->listen_); }
 const webservconfig::ConfigBase::listen_v4_type &webservconfig::ConfigBase::GetListenV4() const { return (this->listen_v4_); }
-const webservconfig::ConfigBase::listen_v6_type &webservconfig::ConfigBase::GetListenV6() const { return (this->listen_v6_); }
+// const webservconfig::ConfigBase::listen_v6_type &webservconfig::ConfigBase::GetListenV6() const { return (this->listen_v6_); }
 const webservconfig::ConfigBase::listen_string_type &webservconfig::ConfigBase::GetListenStringV4() const { return (this->listen_v4_string_); }
-const webservconfig::ConfigBase::listen_string_type &webservconfig::ConfigBase::GetListenStringV6() const { return (this->listen_v6_string_); }
+// const webservconfig::ConfigBase::listen_string_type &webservconfig::ConfigBase::GetListenStringV6() const { return (this->listen_v6_string_); }
 const webservconfig::ConfigBase::index_type &webservconfig::ConfigBase::GetIndex() const { return (this->index_); }
 const webservconfig::ConfigBase::error_page_type &webservconfig::ConfigBase::GetErrorPage() const { return (this->error_page_); }
 bool webservconfig::ConfigBase::GetAutoIndex() const { return (this->autoindex_); }
@@ -539,14 +547,14 @@ void webservconfig::ConfigBase::PutListen(std::ostream &os, std::string indent) 
     os << (this->listen_v4_string_.end() - 1)->first << ":" << (this->listen_v4_string_.end() - 1)->second;
   }
   os << std::endl;
-  os << indent << "listen v6           : ";
-  if (this->listen_v6_.size() != 0) {
-    for (listen_string_type::const_iterator iter = this->listen_v6_string_.begin(); iter != (this->listen_v6_string_.end() - 1); iter++) {
-      os << iter->first << ":" << iter->second << ", ";
-    }
-    os << (this->listen_v6_string_.end() - 1)->first << ":" << (this->listen_v6_string_.end() - 1)->second;
-  }
-  os << std::endl;
+  // os << indent << "listen v6           : ";
+  // if (this->listen_v6_.size() != 0) {
+  //   for (listen_string_type::const_iterator iter = this->listen_v6_string_.begin(); iter != (this->listen_v6_string_.end() - 1); iter++) {
+  //     os << iter->first << ":" << iter->second << ", ";
+  //   }
+  //   os << (this->listen_v6_string_.end() - 1)->first << ":" << (this->listen_v6_string_.end() - 1)->second;
+  // }
+  // os << std::endl;
 }
 
 void webservconfig::ConfigBase::PutIndex(std::ostream &os, std::string indent) const

@@ -83,7 +83,7 @@ void webservconfig::Server::ParseServerBlock()
     // iter->SetListenV6(this->v6_listen_);
     // iter->SetListen(this->listen_);
     iter->SetListenV4(this->listen_v4_);
-    iter->SetListenV6(this->listen_v6_);
+    // iter->SetListenV6(this->listen_v6_);
     iter->SetIndex(this->index_);
     iter->SetErrorPage(this->error_page_);
     iter->SetAutoIndex(this->autoindex_);

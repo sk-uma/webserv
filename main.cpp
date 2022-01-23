@@ -66,7 +66,7 @@ int	main(int argc, char **argv)
 	// std::cout << "fin sock set: " << sock.size() << std::endl;
 	std::cout << "listen:" << std::endl;
 	for (std::vector<Socket>::const_iterator it = sock.begin(); it != sock.end(); it++) {
-		std::cout << it->get_address() << ":" << it->get_port() << std::endl;
+		std::cout << it->GetStrAddress() << ":" << it->GetPort() << std::endl;
 	}
 	std::cout << std::endl;
 
@@ -85,14 +85,14 @@ int	main(int argc, char **argv)
 	//FD_SETで監視対象のディスクリプタをセットする
 	while (1)
 	{
-		int		nfd = (*(sock.end() - 1)).get_listenfd() + 1;
+		int		nfd = (*(sock.end() - 1)).GetListenfd() + 1;
 
 		FD_ZERO(&rfd);
 		FD_ZERO(&wfd);
 		for (std::vector<Socket>::iterator it = sock.begin(); it != sock.end(); it++)
 		{
-			FD_SET((*it).get_listenfd(), &rfd);
-			FD_SET((*it).get_listenfd(), &wfd);
+			FD_SET((*it).GetListenfd(), &rfd);
+			FD_SET((*it).GetListenfd(), &wfd);
 		}
 		for (int i = 0; i < MAX_SESSION; i++)
 		{
@@ -111,9 +111,11 @@ int	main(int argc, char **argv)
 		//listenfdから接続要求を取り出して参照する新しいファイルディスクリプターを設定する
 		for (std::vector<Socket>::iterator it = sock.begin(); it != sock.end(); it++)
 		{
-			if (FD_ISSET((*it).get_listenfd(), &rfd))
+			// if (FD_ISSET((*it).get_listenfd(), &rfd))
+			if (FD_ISSET((*it).GetListenfd(), &rfd))
 			{
-				int connfd = accept((*it).get_listenfd(), (struct sockaddr*)NULL, NULL);
+				// int connfd = accept((*it).get_listenfd(), (struct sockaddr*)NULL, NULL);
+				int connfd = accept((*it).GetListenfd(), (struct sockaddr*)NULL, NULL);
 				if (connfd == -1)
 					continue ;
 				fcntl(connfd, F_SETFL, O_NONBLOCK);
@@ -123,7 +125,9 @@ int	main(int argc, char **argv)
 					if (accfd[i] == -1)
 					{
 						accfd[i] = connfd;
-						manage.Init(accfd[i], it->get_server());
+						// manage.Init(accfd[i], it->get_server());
+						/**************** warn **************/
+						manage.Init(accfd[i], it->GetServerVector()[0]);
 //						std::cout << "Accept: " << it->get_address() << ":" << it->get_StrPort() << std::endl;
 						limit_over = false;
 						break;
@@ -212,6 +216,6 @@ int	main(int argc, char **argv)
 	}
 	//基本的にここには到達しない。
 	for (std::vector<Socket>::iterator it = sock.begin(); it != sock.end(); it++)
-		close((*it).get_listenfd());
+		close((*it).GetListenfd());
 	return (0);
 }

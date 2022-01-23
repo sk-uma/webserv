@@ -1,147 +1,132 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   socket.cpp                                         :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/09/06 21:30:43 by rtomishi          #+#    #+#             */
-/*   Updated: 2022/01/18 18:48:34 by rtomishi         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "Socket.hpp"
 
-Socket::Socket(void) {}
-
-Socket::Socket(std::string port_):
-	StrPort(port_),
-	address("0.0.0.0"),
-	ai(NULL)
+Socket::Socket(void):
+  listenfd_(-1),
+  str_port_(""),
+  port_(-1),
+  str_address_(""),
+  server_()
 { }
 
 Socket::Socket(const std::string &address, const std::string &port):
-  StrPort(port),
-	address(address),
-	ai(NULL)
+  listenfd_(-1),
+  str_port_(port),
+  port_(-1),
+  str_address_(address),
+  server_()
+{
+  struct addrinfo	*ai;
+
+  if (this->SetSockaddr_(&ai) == -1) {
+    throw std::runtime_error("getaddrinfo() failed.");
+  }
+  if (this->SetAddressAndPort_(ai) == -1) {
+    freeaddrinfo(ai);
+    throw std::runtime_error("inet_ntop() failed.");
+  }
+  freeaddrinfo(ai);
+}
+
+Socket::~Socket()
 { }
 
-Socket::~Socket(void)
-{ }
-
-Socket::Socket (Socket const &copy)
+Socket::Socket(const Socket &other)
 {
-	*this = copy;
+  *this = other;
 }
 
-Socket &Socket::operator=(Socket const &obj)
+const Socket &Socket::operator=(const Socket &rhs)
 {
-	if (this != &obj)
-	{
-		listenfd = obj.listenfd;
-		StrPort = obj.StrPort;
-		port = obj.port;
-		hints = obj.hints;
-		ai = obj.ai;
-		address = obj.address;
-		server = obj.server;
-	}
-	return (*this);
+  if (this != &rhs) {
+    this->listenfd_ = rhs.listenfd_;
+    this->str_port_ = rhs.str_port_;
+    this->port_ = rhs.port_;
+    this->str_address_ = rhs.str_address_;
+    this->server_ = rhs.server_;
+  }
+  return (*this);
 }
 
-/* func socket() initialized socket */
-void	Socket::set_listenfd()
+int Socket::SetSockaddr_(struct addrinfo **ai)
 {
-	/*Socket Generation:AF_INET-IPv6, SOCK_STREAM-TCP, third_arg:protocol*/
-	listenfd = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol);
-	if (listenfd == -1)
-	{
-		std::cerr << std::strerror(errno) << ":";
-		std::cerr << "socket() failed." << std::endl;
-		exit(EXIT_FAILURE);
-	}
+  int res;
+  struct addrinfo		hints;
+
+  memset(&hints, 0, sizeof(hints));
+  hints.ai_family = AF_UNSPEC;
+  hints.ai_socktype = SOCK_STREAM;
+  hints.ai_flags = AI_PASSIVE;
+  res = getaddrinfo(this->str_address_.c_str(), this->str_port_.c_str(), &hints, ai);
+  return (res);
 }
 
-int	Socket::set_sockaddr_in()
+int Socket::SetListenfd_(struct addrinfo *ai)
 {
-	int res;
-
-	memset(&hints, 0, sizeof(hints));
-	// hints.ai_family = AF_INET6; /* with IPv6 rule */
-	hints.ai_family = AF_UNSPEC; /* with IPv4 and IPv6 rule */
-	hints.ai_socktype = SOCK_STREAM; /* TCP socket type */
-	hints.ai_flags = AI_PASSIVE; /* In using bind case, requied*/
-	// getaddrinfo(NULL, StrPort.c_str(), &hints, &ai); //第四引数にaddrinfoの結果が格納される
-	res = getaddrinfo(this->address.c_str(), StrPort.c_str(), &hints, &ai);
-	// std::cout << this->address << ":" << this->StrPort << ", " << res << std::endl;
-	// std::cout << ai->ai_next << std::endl;
-	return (res);
+  this->listenfd_ = socket(ai->ai_family, ai->ai_socktype, ai->ai_protocol);
+  if (this->listenfd_ == -1) {
+    return (-1);
+  }
+  return (0);
 }
 
-int		Socket::set_socket()
+int Socket::SetAddressAndPort_(struct addrinfo *ai)
 {
-	int	optval = 1;
-	int	ret_so;
-	int	ret_bi;
-	int ret_lis;
-	int res;
+  char res[INET6_ADDRSTRLEN];
 
-	//ソケット通信方式の設定
-	if ((res = Socket::set_sockaddr_in()) != 0) {
-		std::cerr << res << ":" << gai_strerror(res) << std::endl;
-		freeaddrinfo(ai);
-		return (-1);
-	}
-	//addrinfoからソケットを生成する(待ち受けるファイルディスクリプタをつくる)
-	Socket::set_listenfd();
-	//ソケット関連のオプション設定
-	/*socket option setting:SOL_SOCKET-operate with API layer（特別でない限り変えない）,
-	 		SO_REUSEADDR-reuse socket address (TIME_WAIT状態のポートでbind可能)*/
-	ret_so = setsockopt(listenfd, SOL_SOCKET, SO_REUSEADDR, (const char*)&optval, sizeof(optval));
-	if (ret_so == -1)
-	{
-		std::cerr << std::strerror(errno) << ":";
-		std::cerr << "setsockopt() failed." << std::endl;
-		close(listenfd);
-		freeaddrinfo(ai);
-		return (-1);
-	}
-	//bindでソケットを登録。bindすることでlistenfdにポートが割り当てられる
-	ret_bi = bind(listenfd,	ai->ai_addr, ai->ai_addrlen);
-	if (ret_bi == -1)
-	{
-		std::cerr << std::strerror(errno) << ":";
-		std::cerr << "bind() failed." << std::endl;
-		close(listenfd);
-		freeaddrinfo(ai);
-		return (-1);
-	}
-	//listenでソケットを接続待ちにする
-	/* SOMAXCONN:optimize max que length */
-	ret_lis = listen(listenfd, SOMAXCONN);
-	if (ret_lis == -1)
-	{
-		std::cerr << std::strerror(errno) << ":";
-		std::cerr << "listen() failed." << std::endl;
-		close(listenfd);
-		freeaddrinfo(ai);
-		return (-1);
-	}
-	//ソケットアドレスのリストを解放する必要がある
-	this->port = webservconfig::get_in_port(ai->ai_addr);
-	freeaddrinfo(ai);
-	return (0);
+  this->port_ = webservconfig::get_in_port(ai->ai_addr);
+  if (!inet_ntop(ai->ai_family, webservconfig::get_in_addr((struct sockaddr *)ai->ai_addr), res, sizeof(res))) {
+    return (-1);
+  }
+  return (0);
 }
 
-int		Socket::get_listenfd() const
+int Socket::SetupSocket()
 {
-	return (listenfd);
+  int optval = 1, res;
+  struct addrinfo *ai;
+
+  if ((res = this->SetSockaddr_(&ai)) == -1) {
+    std::cerr << res << ":" << gai_strerror(res) << std::endl;
+    return (-1);
+  }
+  if (this->SetListenfd_(ai) == -1) {
+    std::cerr << std::strerror(errno) << ": socket() failed." << std::endl;
+    freeaddrinfo(ai);
+    return (-1);
+  }
+  if (setsockopt(this->listenfd_, SOL_SOCKET, SO_REUSEADDR, (const char*)&optval, sizeof(optval)) == -1) {
+    std::cerr << std::strerror(errno) << ": setsockopt() failed." << std::endl;
+    close(this->listenfd_);
+    freeaddrinfo(ai);
+    return (-1);
+  }
+  if (bind(this->listenfd_,	ai->ai_addr, ai->ai_addrlen) == -1) {
+    std::cerr << std::strerror(errno) << ": bind() failed." << std::endl;
+    close(this->listenfd_);
+    freeaddrinfo(ai);
+    return (-1);
+  }
+  if (listen(this->listenfd_, SOMAXCONN) == -1) {
+    std::cerr << std::strerror(errno) << ": listen() failed." << std::endl;
+    close(this->listenfd_);
+    freeaddrinfo(ai);
+    return (-1);
+  }
+  freeaddrinfo(ai);
+  return (0);
 }
 
-void Socket::set_server(const webservconfig::Server &s) { this->server = s; }
+void Socket::AddServer(const webservconfig::Server &s)
+{
+  this->server_.push_back(s);
+}
 
-const std::string &Socket::get_StrPort() const { return (this->StrPort); }
-int Socket::get_port() const { return (this->port); }
-const std::string &Socket::get_address() const { return (this->address); }
-const webservconfig::Server &Socket::get_server() const { return (this->server); }
-// const struct addrinfo *Socket::get_ai() const { return (this->ai); }
+/**
+ * Getter
+ */
+
+int Socket::GetListenfd() const { return (this->listenfd_); }
+const std::string &Socket::GetStrPort() const { return (this->str_port_); }
+int Socket::GetPort() const { return (this->port_); }
+const std::string &Socket::GetStrAddress() const { return (this->str_address_); }
+const Socket::server_list_type &Socket::GetServerVector() const { return (this->server_); }
