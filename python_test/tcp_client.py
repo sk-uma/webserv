@@ -2,12 +2,12 @@ import socket
 import time
 
 target_ip = "127.0.0.1"
-target_port = 80
+target_port = 4242
 buffer_size = 4098
 
 
 requests = '''GET / HTTP/1.1
-Host: localhost
+Host: python
 Transfer-Encoding: chunked
 
 '''
