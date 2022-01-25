@@ -15,6 +15,29 @@
 //デフォルトコンストラクタ
 Response::Response(void) {}
 
+Response::Response(RequestParser &request, webservconfig::Server &serv, int code)
+	:content_type("text/html; charset=UTF-8"), status(code)
+{
+	const std::string	path = request.get_uri();
+	webservconfig::ConfigBase::error_page_type	err_map_new = serv.GetErrorPage(path);
+	webservconfig::ConfigBase::return_type	ret_pair = serv.GetReturn(path);
+
+	set_error_map(err_map_new);
+	// std::cout << "status: " << this->status << std::endl;
+	status_check();
+	// std::cout << "status: " << this->status << std::endl;
+	if (status >= 300)
+		error_body_set(ret_pair);
+
+	std::ostringstream oss;
+
+	oss << "Server:42Tokyo_webserv";
+	oss << "\r\n";
+	oss << "Content-Length: " << body.length() << "\r\n";
+	oss << "Content-Type: " << content_type << "\r\n";
+	header_set(oss, ret_pair);
+}
+
 //コンストラクタ
 Response::Response(RequestParser &request, webservconfig::Server &serv)
 	:content_type("text/html; charset=UTF-8"), status(0)
@@ -67,33 +90,46 @@ Response::Response(RequestParser &request, webservconfig::Server &serv)
 				content_type = "application/octet-stream";
 			}
 		}
-		std::cerr << "[*] " << "cleate body" << std::endl;
+		// std::cerr << "[*] " << "cleate body" << std::endl;
+		write(2, "[*] cleate body\n", 17);
 	}
 	else if (!method_limited(serv, request)) {
 		status = STATUS_NOT_IMPLEMENTED;
+		// std::cerr << "[*] " << "not implemented" << std::endl;
+		write(2, "[*] not implemented\n", 21);
 	} else if (!method_allowed(serv, request)) {
 		status = STATUS_METHOD_NOT_ALLOWED;
+		// std::cerr << "[*] " << "method not allowed" << std::endl;
+		write(2, "[*] method not allowed\n", 24);
 	} else if (request.get_body().length() > CLIENT_MAX_BODY) {
 		status = STATUS_PAYLOAD_TOO_LARGE;
+		// std::cerr << "[*] " << "payload too large" << std::endl;
+		write(2, "[*] payload too large\n", 23);
 	} else if (request.get_method() == "POST" && request.get_uri() == "/Upload") {
 		status = upload_file((EXE_DIR + UPLOAD_PATH + "/").c_str(), request);
-		std::cerr << "[*] " << "requests POST method" << std::endl;
+		// std::cerr << "[*] " << "requests POST method" << std::endl;
+		write(2, "[*] requests POST method\n", 26);
 	//methodがDELETEの場合にのみファイルを削除する動作をする
 	} else if (request.get_method() == "DELETE") {
 		status = delete_file((EXE_DIR + HTML_PATH + request.get_uri()).c_str());
-		std::cerr << "[*] " << "requests DELETE method" << std::endl;
+		// std::cerr << "[*] " << "requests DELETE method" << std::endl;
+		write(2, "[*] requests DELETE method\n", 28);
 	//cgiを利用して、autoindex機能を実行。サブプロセスで実行する。
 	} else if (S_ISDIR(eval_directory.st_mode)) {
 		status = autoindex_c(html_file.c_str(), request, AUTOINDEX);
-		std::cerr << "[*] " << "requests autoindex" << std::endl;
+		// std::cerr << "[*] " << "requests autoindex" << std::endl;
+		write(2, "[*] requests autoindex\n", 24);
 	//request.get_script_name()がファイルである場合、つまりリクエストされているURIが
 	//CGI直下のディレクトリのファイルである場合、CGIを実行する。
 	} else if (S_ISREG(eval_cgi.st_mode)) {
 		status = cgi_exe(cgi_file, request, eval_cgi);
-		std::cerr << "[*] " << "requests CGI" << std::endl;
+		// std::cerr << "[*] " << "requests CGI" << std::endl;
+		write(2, "[*] requests CGI\n", 18);
 	//ファイルが見つかればそれを開く。見つからなければ404 Not Found用のファイルを開く
 	} else {
 		status = open_html(html_file);
+		// std::cerr << "[*] " << "open html" << std::endl;
+		write(2, "[*] open html\n", 15);
 	}
 	
 	//実装していないコードは403 Forbiddenで処理する
