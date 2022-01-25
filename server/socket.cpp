@@ -2,17 +2,33 @@
 
 Socket::Socket(void):
   listenfd_(-1),
-  str_port_(""),
-  port_(-1),
-  str_address_(""),
   server_()
 { }
 
-Socket::Socket(const std::string &address, const std::string &port):
+// Socket::Socket(const std::string &address, const std::string &port):
+//   listenfd_(-1),
+//   str_port_(port),
+//   port_(-1),
+//   str_address_(address),
+//   server_()
+// {
+//   struct addrinfo	*ai;
+
+//   if (this->SetSockaddr_(&ai) == -1) {
+//     throw std::runtime_error("getaddrinfo() failed.");
+//   }
+//   if (this->SetAddressAndPort_(ai) == -1) {
+//     freeaddrinfo(ai);
+//     throw std::runtime_error("inet_ntop() failed.");
+//   }
+//   freeaddrinfo(ai);
+// }
+
+Socket::Socket(const webservconfig::ConfigBase::listen_type &address,
+               const webservconfig::ConfigBase::listen_string_type &str_address):
   listenfd_(-1),
-  str_port_(port),
-  port_(-1),
-  str_address_(address),
+  address_(address),
+  str_address_(str_address),
   server_()
 {
   struct addrinfo	*ai;
@@ -20,7 +36,7 @@ Socket::Socket(const std::string &address, const std::string &port):
   if (this->SetSockaddr_(&ai) == -1) {
     throw std::runtime_error("getaddrinfo() failed.");
   }
-  if (this->SetAddressAndPort_(ai) == -1) {
+  if (this->NormalizationAddress_(ai) == -1) {
     freeaddrinfo(ai);
     throw std::runtime_error("inet_ntop() failed.");
   }
@@ -39,8 +55,9 @@ const Socket &Socket::operator=(const Socket &rhs)
 {
   if (this != &rhs) {
     this->listenfd_ = rhs.listenfd_;
-    this->str_port_ = rhs.str_port_;
-    this->port_ = rhs.port_;
+    // this->str_port_ = rhs.str_port_;
+    // this->port_ = rhs.port_;
+    this->address_ = rhs.address_;
     this->str_address_ = rhs.str_address_;
     this->server_ = rhs.server_;
   }
@@ -56,7 +73,7 @@ int Socket::SetSockaddr_(struct addrinfo **ai)
   hints.ai_family = AF_UNSPEC;
   hints.ai_socktype = SOCK_STREAM;
   hints.ai_flags = AI_PASSIVE;
-  res = getaddrinfo(this->str_address_.c_str(), this->str_port_.c_str(), &hints, ai);
+  res = getaddrinfo(this->str_address_.first.c_str(), this->str_address_.second.c_str(), &hints, ai);
   return (res);
 }
 
@@ -69,14 +86,14 @@ int Socket::SetListenfd_(struct addrinfo *ai)
   return (0);
 }
 
-int Socket::SetAddressAndPort_(struct addrinfo *ai)
+int Socket::NormalizationAddress_(struct addrinfo *ai)
 {
   char res[INET6_ADDRSTRLEN];
 
-  this->port_ = webservconfig::get_in_port(ai->ai_addr);
   if (!inet_ntop(ai->ai_family, webservconfig::get_in_addr((struct sockaddr *)ai->ai_addr), res, sizeof(res))) {
     return (-1);
   }
+  this->str_address_ = std::make_pair(std::string(res), this->str_address_.second);
   return (0);
 }
 
@@ -126,7 +143,7 @@ void Socket::AddServer(const webservconfig::Server &s)
  */
 
 int Socket::GetListenfd() const { return (this->listenfd_); }
-const std::string &Socket::GetStrPort() const { return (this->str_port_); }
-int Socket::GetPort() const { return (this->port_); }
-const std::string &Socket::GetStrAddress() const { return (this->str_address_); }
+const std::string &Socket::GetStrPort() const { return (this->str_address_.second); }
+int Socket::GetPort() const { return (this->address_.second); }
+const std::string &Socket::GetStrAddress() const { return (this->str_address_.first); }
 const Socket::server_list_type &Socket::GetServerVector() const { return (this->server_); }

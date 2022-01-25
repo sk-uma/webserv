@@ -456,7 +456,7 @@ std::vector<std::string> webservconfig::ConfigBase::SplitLine(std::string line)
 // void webservconfig::ConfigBase::SetListenV4(const webservconfig::ConfigBase::listen_type &listen) { this->v4_listen_ = listen; }
 // void webservconfig::ConfigBase::SetListenV6(const webservconfig::ConfigBase::listen_type &listen) { this->v6_listen_ = listen; }
 // void webservconfig::ConfigBase::SetListen(const webservconfig::ConfigBase::listen_type &listen) { this->listen_ = listen; }
-void webservconfig::ConfigBase::SetListenV4(const webservconfig::ConfigBase::listen_v4_type &listen) { this->listen_v4_ = listen; }
+void webservconfig::ConfigBase::SetListenV4(const webservconfig::ConfigBase::listen_list_type &listen) { this->listen_v4_ = listen; }
 // void webservconfig::ConfigBase::SetListenV6(const webservconfig::ConfigBase::listen_v6_type &listen) { this->listen_v6_ = listen; }
 void webservconfig::ConfigBase::SetIndex(const webservconfig::ConfigBase::index_type &index) { this->index_ = index; }
 void webservconfig::ConfigBase::SetErrorPage(const webservconfig::ConfigBase::error_page_type &error_page) { this->error_page_ = error_page; }
@@ -476,9 +476,9 @@ void webservconfig::ConfigBase::SetCgiExtension(const extension_list_type &exten
 // const webservconfig::ConfigBase::listen_type &webservconfig::ConfigBase::GetListenV4() const { return (this->v4_listen_); }
 // const webservconfig::ConfigBase::listen_type &webservconfig::ConfigBase::GetListenV6() const { return (this->v6_listen_); }
 // const webservconfig::ConfigBase::listen_type &webservconfig::ConfigBase::GetListen() const { return (this->listen_); }
-const webservconfig::ConfigBase::listen_v4_type &webservconfig::ConfigBase::GetListenV4() const { return (this->listen_v4_); }
+const webservconfig::ConfigBase::listen_list_type &webservconfig::ConfigBase::GetListenV4() const { return (this->listen_v4_); }
 // const webservconfig::ConfigBase::listen_v6_type &webservconfig::ConfigBase::GetListenV6() const { return (this->listen_v6_); }
-const webservconfig::ConfigBase::listen_string_type &webservconfig::ConfigBase::GetListenStringV4() const { return (this->listen_v4_string_); }
+const webservconfig::ConfigBase::listen_string_list_type &webservconfig::ConfigBase::GetListenStringV4() const { return (this->listen_v4_string_); }
 // const webservconfig::ConfigBase::listen_string_type &webservconfig::ConfigBase::GetListenStringV6() const { return (this->listen_v6_string_); }
 const webservconfig::ConfigBase::index_type &webservconfig::ConfigBase::GetIndex() const { return (this->index_); }
 const webservconfig::ConfigBase::error_page_type &webservconfig::ConfigBase::GetErrorPage() const { return (this->error_page_); }
@@ -541,7 +541,7 @@ void webservconfig::ConfigBase::PutListen(std::ostream &os, std::string indent) 
 {
   os << indent << "listen v4           : ";
   if (this->listen_v4_.size() != 0) {
-    for (listen_string_type::const_iterator iter = this->listen_v4_string_.begin(); iter != (this->listen_v4_string_.end() - 1); iter++) {
+    for (listen_string_list_type::const_iterator iter = this->listen_v4_string_.begin(); iter != (this->listen_v4_string_.end() - 1); iter++) {
       os << iter->first << ":" << iter->second << ", ";
     }
     os << (this->listen_v4_string_.end() - 1)->first << ":" << (this->listen_v4_string_.end() - 1)->second;

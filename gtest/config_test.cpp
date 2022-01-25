@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
 #include "ServerCollection.hpp"
 
-static webservconfig::ConfigBase::listen_v4_type::value_type GetAddrV4(const std::string &address, int port) {
+static webservconfig::ConfigBase::listen_string_list_type::value_type GetAddrV4(const std::string &address, int port) {
   struct in_addr ia;
   inet_pton(AF_INET, address.c_str(), &ia);
   return std::make_pair(ia, port);
@@ -43,7 +43,7 @@ class ConfigTest : public ::testing::Test {
     virtual void TearDown() {
     }
 
-    webservconfig::ConfigBase::listen_v4_type default_listen_v4;
+    webservconfig::ConfigBase::listen_string_list_type default_listen_v4;
     // webservconfig::ConfigBase::listen_v6_type default_listen_v6;
     webservconfig::ConfigBase::index_type default_index;
     webservconfig::ConfigBase::error_page_type default_error_page;

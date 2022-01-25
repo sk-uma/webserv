@@ -69,6 +69,7 @@ int	main(int argc, char **argv)
 		std::cout << it->GetStrAddress() << ":" << it->GetPort() << std::endl;
 	}
 	std::cout << std::endl;
+	exit(0);
 
 	//accfdは使用するファイルディスクリプタチェック
 	//rfdは読み取り可能ファイルディスクリプタ登録用

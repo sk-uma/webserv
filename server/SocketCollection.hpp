@@ -4,19 +4,24 @@
 # include "ServerCollection.hpp"
 # include "Socket.hpp"
 # include "ConfigUtils.hpp"
+# include "PortManager.hpp"
 
 # include <vector>
 
 class SocketCollection
 {
+  public:
+    typedef std::vector<Socket>         socket_list_type;
+    typedef std::map<int, PortManager>  port_manager_list_type;
+
   private:
-    std::vector<Socket> socket_vector_;
+    socket_list_type        socket_vector_;
+    port_manager_list_type  pm_;
 
   private:
     void InitSocket(const std::string &port, const std::string& address, const webservconfig::Server &server);
-
-  protected:
     bool CompareToAddr(const struct addrinfo *first, const struct addrinfo *second);
+    void SetPortManager_(const webservconfig::Server &server);
 
   public:
     SocketCollection();
@@ -25,7 +30,6 @@ class SocketCollection
     SocketCollection(const SocketCollection &other);
     SocketCollection &operator=(const SocketCollection &rhs);
 
-    void AddServer(const webservconfig::Server &server);
 
 /**
  * Getter

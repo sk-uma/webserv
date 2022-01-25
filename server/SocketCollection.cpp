@@ -1,14 +1,22 @@
 # include "SocketCollection.hpp"
 
 SocketCollection::SocketCollection():
-  socket_vector_()
+  socket_vector_(),
+  pm_()
 { }
 
-SocketCollection::SocketCollection(const webservconfig::ServerCollection &config)
+SocketCollection::SocketCollection(const webservconfig::ServerCollection &config):
+  socket_vector_(),
+  pm_()
 {
   for (std::vector<webservconfig::Server>::const_iterator iter = config.GetServer().begin();
        iter != config.GetServer().end(); iter++) {
-    AddServer(*iter);
+    SetPortManager_(*iter);
+  }
+
+  for (port_manager_list_type::const_iterator iter = this->pm_.begin();
+       iter != this->pm_.end(); iter++) {
+    std::cout << iter->second;
   }
 }
 
@@ -30,15 +38,13 @@ SocketCollection &SocketCollection::operator=(const SocketCollection &rhs)
 
 const std::vector<Socket> &SocketCollection::GetSocket() const { return (this->socket_vector_); }
 
-void SocketCollection::AddServer(const webservconfig::Server &server)
+void SocketCollection::SetPortManager_(const webservconfig::Server &server)
 {
-  webservconfig::ConfigBase::listen_string_type::const_iterator iter_s = server.GetListenStringV4().begin();
-  for (webservconfig::ConfigBase::listen_v4_type::const_iterator iter = server.GetListenV4().begin();
-       iter != server.GetListenV4().end() && iter_s != server.GetListenStringV4().end(); iter++) {
-    (void)iter;
+  webservconfig::ConfigBase::listen_string_list_type::const_iterator iter_s = server.GetListenStringV4().begin();
+  webservconfig::ConfigBase::listen_list_type::const_iterator iter = server.GetListenV4().begin();
+  for (; iter != server.GetListenV4().end() && iter_s != server.GetListenStringV4().end(); iter++, iter_s++) {
+    this->pm_[iter->second].AddSocket(*iter, *iter_s, server);
   }
-  (void)iter_s;
-  (void)server;
 }
 
 // const Socket &SocketCollection::GetSocket(const std::string &address, int port) const

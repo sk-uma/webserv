@@ -22,8 +22,10 @@ namespace webservconfig
   class ConfigBase
   {
     public:
-      typedef std::vector<std::pair<std::string, std::string> > listen_string_type;
-      typedef std::vector<std::pair<struct in_addr, int> >      listen_v4_type;
+      typedef std::pair<std::string, std::string>               listen_string_type;
+      typedef std::vector<std::pair<std::string, std::string> > listen_string_list_type;
+      typedef std::pair<struct in_addr, int>                    listen_type;
+      typedef std::vector<std::pair<struct in_addr, int> >      listen_list_type;
       // typedef std::vector<std::pair<struct in6_addr, int> >     listen_v6_type;
       typedef std::vector<std::string>                          index_type;
       typedef std::map<int, std::string>                        error_page_type;
@@ -34,9 +36,9 @@ namespace webservconfig
       typedef std::vector<std::string>                          server_name_list_type;
 
     protected:
-      listen_string_type        listen_v4_string_;
+      listen_string_list_type   listen_v4_string_;
       // listen_string_type        listen_v6_string_;
-      listen_v4_type            listen_v4_;
+      listen_list_type          listen_v4_;
       // listen_v6_type            listen_v6_;
       index_type                index_;
       error_page_type           error_page_;
@@ -94,7 +96,7 @@ namespace webservconfig
       // void SetListenV4(const listen_type &listen);
       // void SetListenV6(const listen_type &listen);
       // void SetListen(const listen_type &listen);
-      void SetListenV4(const listen_v4_type &listen);
+      void SetListenV4(const listen_list_type &listen);
       // void SetListenV6(const listen_v6_type &listen);
       void SetIndex(const index_type &index);
       void SetErrorPage(const error_page_type &error_page);
@@ -114,21 +116,21 @@ namespace webservconfig
       // const listen_type         &GetListenV4() const;
       // const listen_type         &GetListenV6() const;
       // const listen_type           &GetListen() const;
-      const listen_v4_type        &GetListenV4() const;
+      const listen_list_type        &GetListenV4() const;
       // const listen_v6_type        &GetListenV6() const;
-      const listen_string_type    &GetListenStringV4() const;
-      const listen_string_type    &GetListenStringV6() const;
-      const index_type            &GetIndex() const;
-      const listen_string_type    &GetListenString() const;
-      const error_page_type       &GetErrorPage() const;
-      bool                        GetAutoIndex() const;
-      body_size_type              GetClientMaxBodySize() const;
-      const limit_except_type     &GetLimitExceptByDenyAll() const;
-      const server_name_list_type &GetServerName() const;
-      const return_type           &GetReturn() const;
-      const std::string           &GetUploadPath() const;
-      const std::string           &GetRoot() const;
-      const extension_list_type   &GetCgiExtension() const;
+      const listen_string_list_type &GetListenStringV4() const;
+      const listen_string_list_type &GetListenStringV6() const;
+      const index_type              &GetIndex() const;
+      const listen_string_list_type &GetListenString() const;
+      const error_page_type         &GetErrorPage() const;
+      bool                          GetAutoIndex() const;
+      body_size_type                GetClientMaxBodySize() const;
+      const limit_except_type       &GetLimitExceptByDenyAll() const;
+      const server_name_list_type   &GetServerName() const;
+      const return_type             &GetReturn() const;
+      const std::string             &GetUploadPath() const;
+      const std::string             &GetRoot() const;
+      const extension_list_type     &GetCgiExtension() const;
 
 /**
  * Utility Getter
