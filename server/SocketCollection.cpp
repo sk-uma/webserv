@@ -18,6 +18,7 @@ SocketCollection::SocketCollection(const webservconfig::ServerCollection &config
        iter != this->pm_.end(); iter++) {
     std::cout << iter->second;
   }
+  InitSocket_();
 }
 
 SocketCollection::~SocketCollection()
@@ -44,6 +45,19 @@ void SocketCollection::SetPortManager_(const webservconfig::Server &server)
   webservconfig::ConfigBase::listen_list_type::const_iterator iter = server.GetListenV4().begin();
   for (; iter != server.GetListenV4().end() && iter_s != server.GetListenStringV4().end(); iter++, iter_s++) {
     this->pm_[iter->second].AddSocket(*iter, *iter_s, server);
+  }
+}
+
+void SocketCollection::InitSocket_()
+{
+  for (SocketCollection::port_manager_list_type::const_iterator iter = this->pm_.begin();
+       iter != this->pm_.end(); iter++) {
+    for (PortManager::socket_list_type::const_iterator it = iter->second.GetSocket().begin();
+         it != iter->second.GetSocket().end(); it++) {
+      Socket socket(*it);
+      socket.SetupSocket();
+      this->socket_vector_.push_back(socket);
+    }
   }
 }
 

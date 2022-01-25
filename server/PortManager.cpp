@@ -1,14 +1,7 @@
 #include "PortManager.hpp"
 
 PortManager::PortManager():
-  port_(80),
-  is_inaddr_any_(false),
-  socket_vector_(),
-  address_vector_()
-{ }
-
-PortManager::PortManager(int port):
-  port_(port),
+  port_(-1),
   is_inaddr_any_(false),
   socket_vector_(),
   address_vector_()
@@ -38,9 +31,14 @@ bool PortManager::IsInaddrAny(struct in_addr addr) const
   return (addr.s_addr == INADDR_ANY);
 }
 
-Socket *PortManager::GetSocket(const webservconfig::ConfigBase::listen_type &address) const
+Socket *PortManager::GetSocket(const webservconfig::ConfigBase::listen_type &address)
 {
-  (void)address;
+  for (socket_list_type::iterator iter = this->socket_vector_.begin();
+       iter != this->socket_vector_.end(); iter++) {
+    if (iter->GetAddress() == address) {
+      return &(*iter);
+    }
+  }
   return (NULL);
 }
 
@@ -63,8 +61,10 @@ int PortManager::AddSocket(const webservconfig::ConfigBase::listen_type &address
           any_addr_socket.AddServer(*it);
         }
       }
+      any_addr_socket.AddServer(server);
       this->socket_vector_.clear();
       this->socket_vector_.push_back(any_addr_socket);
+      this->is_inaddr_any_ = true;
     } else if ((res = GetSocket(address)) != NULL) {
       res->AddServer(server);
     } else {
@@ -89,5 +89,22 @@ int PortManager::GetPort() const { return (this->port_); }
 std::ostream &operator<<(std::ostream &os, const PortManager &pm)
 {
   os << pm.GetPort() << std::endl;
+  for (PortManager::socket_list_type::const_iterator iter = pm.GetSocket().begin();
+       iter != pm.GetSocket().end(); iter++) {
+    std::cout << "  " << iter->GetStrIPAddress() << std::endl;
+    for (Socket::server_list_type::const_iterator it = iter->GetServerVector().begin();
+         it != iter->GetServerVector().end(); it++) {
+      if (it->GetServerName().size() != 0) {
+        std::cout << "    " << *it->GetServerName().begin() << std::endl;
+      } else {
+        std::cout << "    not found name" << std::endl;
+      }
+    }
+  }
   return (os);
+}
+
+bool operator==(struct in_addr lhs, struct in_addr rhs)
+{
+  return !(std::memcmp(&lhs, &rhs, sizeof(struct in_addr)));
 }

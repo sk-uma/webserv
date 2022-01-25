@@ -43,9 +43,10 @@ class Socket
  */
 
     int                     GetListenfd() const;
+    const listen_type       &GetAddress() const;
     const std::string       &GetStrPort() const;
     int                     GetPort() const;
-    const std::string       &GetStrAddress() const;
+    const std::string       &GetStrIPAddress() const;
     const server_list_type  &GetServerVector() const;
 };
 

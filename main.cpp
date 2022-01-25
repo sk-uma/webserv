@@ -66,7 +66,7 @@ int	main(int argc, char **argv)
 	// std::cout << "fin sock set: " << sock.size() << std::endl;
 	std::cout << "listen:" << std::endl;
 	for (std::vector<Socket>::const_iterator it = sock.begin(); it != sock.end(); it++) {
-		std::cout << it->GetStrAddress() << ":" << it->GetPort() << std::endl;
+		std::cout << it->GetStrIPAddress() << ":" << it->GetPort() << std::endl;
 	}
 	std::cout << std::endl;
 	exit(0);

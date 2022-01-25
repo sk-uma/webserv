@@ -143,7 +143,8 @@ void Socket::AddServer(const webservconfig::Server &s)
  */
 
 int Socket::GetListenfd() const { return (this->listenfd_); }
+const Socket::listen_type &Socket::GetAddress() const { return (this->address_); }
 const std::string &Socket::GetStrPort() const { return (this->str_address_.second); }
 int Socket::GetPort() const { return (this->address_.second); }
-const std::string &Socket::GetStrAddress() const { return (this->str_address_.first); }
+const std::string &Socket::GetStrIPAddress() const { return (this->str_address_.first); }
 const Socket::server_list_type &Socket::GetServerVector() const { return (this->server_); }

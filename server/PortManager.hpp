@@ -17,12 +17,11 @@ class PortManager
     std::vector<struct in_addr> address_vector_;
 
   private:
-    bool IsInaddrAny(struct in_addr addr) const;
-    Socket *GetSocket(const webservconfig::ConfigBase::listen_type &address) const;
+    bool    IsInaddrAny(struct in_addr addr) const;
+    Socket  *GetSocket(const webservconfig::ConfigBase::listen_type &address);
 
   public:
     PortManager();
-    PortManager(int port);
     ~PortManager();
     PortManager(const PortManager &other);
     const PortManager &operator=(const PortManager &rhs);
@@ -39,5 +38,6 @@ class PortManager
 };
 
 std::ostream &operator<<(std::ostream &os, const PortManager &pm);
+bool operator==(struct in_addr lhs, struct in_addr rhs);
 
 #endif

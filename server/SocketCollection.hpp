@@ -11,16 +11,16 @@
 class SocketCollection
 {
   public:
-    typedef std::vector<Socket>         socket_list_type;
-    typedef std::map<int, PortManager>  port_manager_list_type;
+    typedef std::vector<Socket>                     socket_list_type;
+    typedef std::map<int, PortManager>              port_manager_list_type;
+    typedef webservconfig::ConfigBase::listen_type  listen_type;
 
   private:
     socket_list_type        socket_vector_;
     port_manager_list_type  pm_;
 
   private:
-    void InitSocket(const std::string &port, const std::string& address, const webservconfig::Server &server);
-    bool CompareToAddr(const struct addrinfo *first, const struct addrinfo *second);
+    void InitSocket_();
     void SetPortManager_(const webservconfig::Server &server);
 
   public:
