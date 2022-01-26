@@ -44,8 +44,11 @@ RequestParser::RequestParser(void) {}
 RequestParser::RequestParser(std::string request_)
 	:request(request_),	header(""), body(""), method(""), uri(""),
 	// path_translated(""), query_string(""), path_info(""), script_name(""),
-	content_length(""),	content_type(""), transfer_encoding("")
+	content_length(""),	content_type(""), transfer_encoding(""), http_version(""),
+	error_status(200)
 {
+	// std::cerr << "in constructor" << std::endl << std::flush;
+	// write(2, "in constructor\n", 16);
 	//ヘッダーとボディを分けてメンバ変数に格納する
 	header_split();
 
@@ -63,7 +66,12 @@ RequestParser::RequestParser(std::string request_)
 	content_length = get_field("Content-Length");
 	content_type = get_field("Content-Type");
 	setenv("CONTENT_LENGTH", content_length.c_str(), 1);
-	setenv("CONTENT_TYPE", content_type.c_str(), 1);	
+	setenv("CONTENT_TYPE", content_type.c_str(), 1);
+
+	if (get_field("Host") != "") {
+		this->error_status = 400;
+		// std::cout << "Host: not found" << std::endl;
+	}
 }
 
 RequestParser::~RequestParser(void) {}
@@ -90,6 +98,8 @@ RequestParser &RequestParser::operator=(RequestParser const &obj)
 		content_length = obj.content_length;
 		content_type = obj.content_type;
 		transfer_encoding = obj.transfer_encoding;
+		http_version = obj.http_version;
+		error_status = obj.error_status;
 	}
 	return (*this);
 }
@@ -105,6 +115,7 @@ std::string	RequestParser::get_uri(void) const {return (this->uri);}
 std::string	RequestParser::get_content_length(void) const {return (this->content_length);}
 std::string	RequestParser::get_content_type(void) const {return (this->content_type);}
 std::string	RequestParser::get_transfer_encoding(void) const {return (this->transfer_encoding);}
+int	RequestParser::get_error_status(void) const {return (this->error_status);}
 
 //ヘッダー情報から値を取り出すためのメンバ関数
 //返り値:ヘッダー項目の値。該当する項目がない場合は空文字列で返す
@@ -182,6 +193,27 @@ void		RequestParser::set_method_and_uri(void)
 	std::istringstream	iss_top(str_top);
 	std::getline(iss_top, method, ' ');
 	std::getline(iss_top, uri, ' ');
+	std::getline(iss_top, http_version);
+	// std::cout << "in set" << std::endl;
+	// std::cerr << "[" << http_version << "]" << std::endl;
+	// std::cerr << "chr: " << std::strchr(http_version.c_str(), ' ') << std::endl;
+	// char *res = std::strchr(http_version.c_str(), ' ');
+	int res = std::strcmp(http_version.c_str(), "HTTP/1.1\r");
+	// for (int i = 0; i < (int)std::strlen(http_version.c_str()); i++) {
+	// 	std::cout << i << ": " << (int)http_version.c_str()[i] << std::endl;
+	// }
+	// std::cout << "res: " << std::strlen(http_version.c_str()) << std::endl;
+	if (res) {
+		// write(2, "res: 0\nmethod: [", 17);
+		// write(2, method.c_str(), std::strlen(method.c_str()));
+		// write(2, "]\nuri: [", 9);
+		// write(2, uri.c_str(), std::strlen(uri.c_str()));
+		// write(2, "]\nhttp_version: [", 18);
+		// write(2, http_version.c_str(), std::strlen(http_version.c_str()));
+		// write(2, "]", 2);
+		// write(2, "\n", 2);
+		this->error_status = 400;
+	}
 	setenv("REQUEST_METHOD", method.c_str(), 1);
 	setenv("REQUEST_URI", uri.c_str(), 1);
 }

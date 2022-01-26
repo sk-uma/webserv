@@ -15,6 +15,7 @@
 
 # include "ServerCollection.hpp"
 # include "Setting.hpp"
+# include <cstring>
 
 class RequestParser
 {
@@ -31,6 +32,8 @@ class RequestParser
 		std::string					content_length;
 		std::string					content_type;
 		std::string					transfer_encoding;
+		std::string 				http_version;
+		int									error_status;
 
 	public:
 		RequestParser(void);
@@ -52,6 +55,7 @@ class RequestParser
 		std::string	get_content_type(void) const;
 		std::string	get_transfer_encoding(void) const;
 		std::string	get_field(std::string key) const;
+		int get_error_status(void) const;
 
 		void		set_uri(std::string uri_);
 

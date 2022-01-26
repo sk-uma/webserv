@@ -213,20 +213,33 @@ int	main(int argc, char **argv)
 				//Requestになにも取得していない状態の場合、writeしない
 				if (manage.GetReq(accfd[i]) == "")
 					continue ;
-				// RequestParser 	request(manage.GetReq(accfd[i]), manage.GetConf(accfd[i]));
+				// bool request_invalid_flag = false;
+				// (void)request_invalid_flag;
+				// RequestParser request(manage.GetReq(accfd[i]), manage.GetConf(accfd[i]));
 				RequestParser 	request(manage.GetReq(accfd[i]));
-				// manage.SetConf(accfd[i], );
-				// std::cout << manage.GetSocket(accfd[i]).GetStrIPAddress() << ":" << manage.GetSocket(accfd[i]).GetStrPort() << std::endl;
-				// std::cout << "re: " << get_local_addr(accfd[i]) << std::endl;
-				// std::cout << manage.GetSocket(accfd[i]).SearchServer(accfd[i], request.get_field("Host")) << std::endl;
+				// std::cout << "in main" << std::endl;
+				// try {
+				// 	// std::cerr << "before parse..." << std::endl;
+				// 	request = RequestParser(manage.GetReq(accfd[i]), manage.GetConf(accfd[i]));
+				// } catch (std::exception &e) {
+				// 	request_invalid_flag = true;
+				// 	std::cout << e.what() << std::endl;
+				// }
 				//Content-Lengthがあるが、bodyが取得できていない場合、writeしない
 				if ((unsigned long)atoi(request.get_content_length().c_str()) != request.get_body().length())
 					continue ;
 				webservconfig::Server conf(manage.GetSocket(accfd[i]).SearchServer(accfd[i], request.get_field("Host")));
-				Response		response(request, conf);
 				// Response		response(request, manage.GetConf(accfd[i]));
+				Response		response;
+				// std::cerr << "before response" << std::endl << std::flush;
+				if (request.get_error_status() != 200) {
+					// std::cout << "status: " << request.get_error_status() << std::endl;
+					response = Response(request, conf, request.get_error_status());
+				} else {
+					response = Response(request, conf);
+				}
 				std::string		response_str;
-				
+
 				//method HEADの場合はヘッダーだけ出力
 				if (request.get_method() == "HEAD")
 					response_str = response.get_header();

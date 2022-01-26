@@ -20,7 +20,8 @@ webservconfig::ConfigBase::ConfigBase():
   cgi_extension_(),
   listen_flag_(false),
   index_flag_(false),
-  cgi_extension_flag_(false)
+  cgi_extension_flag_(false),
+  server_name_flag_(false)
 {
   struct in_addr ia;
 
