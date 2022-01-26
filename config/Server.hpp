@@ -16,6 +16,7 @@
 
 # include "ConfigBase.hpp"
 # include "Location.hpp"
+# include "ConfigUtils.hpp"
 
 namespace webservconfig
 {
@@ -37,6 +38,9 @@ namespace webservconfig
       const Server &operator=(const Server &rhs);
 
       void ParseServerBlock();
+
+      bool HasListen(listen_type address) const;
+      bool HasServerName(const std::string &name) const;
 
       std::ostream& PutServer(std::ostream& os, std::string first_indent, std::string indent) const;
 

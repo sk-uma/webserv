@@ -148,3 +148,68 @@ const std::string &Socket::GetStrPort() const { return (this->str_address_.secon
 int Socket::GetPort() const { return (this->address_.second); }
 const std::string &Socket::GetStrIPAddress() const { return (this->str_address_.first); }
 const Socket::server_list_type &Socket::GetServerVector() const { return (this->server_); }
+
+Socket::listen_type Socket::GetSocketAddress_(int sockfd) const
+{
+  struct sockaddr_in sin;
+  socklen_t len = sizeof(sin);
+  int rc = getsockname(sockfd, (struct sockaddr*)&sin, &len);
+  if (rc != 0) {
+    throw std::runtime_error("unknown address.");
+  }
+  std::string host(inet_ntoa(sin.sin_addr));
+  int port = ntohs(sin.sin_port);
+  // std::cout << host << ":" << port << std::endl;
+  return std::make_pair(sin.sin_addr, port);
+}
+
+// std::string get_local_addr(int sockfd) {
+//   struct sockaddr_in sin;
+//   socklen_t len = sizeof(sin);
+//   int rc = getsockname(sockfd, (struct sockaddr*)&sin, &len);
+//   if (rc != 0) {
+//     // error
+//     return "";
+//   }
+//   std::string host(inet_ntoa(sin.sin_addr));
+//   // int port = ntohs(sin.sin_port);
+//   return host + ':';
+// }
+
+webservconfig::Server Socket::SearchServer(int fd, const std::string &host) const
+{
+  std::vector<webservconfig::Server> sv;
+  webservconfig::Server serv;
+  webservconfig::Server any_serv;
+  int ip_find = false, any_find = false;
+  listen_type receive = GetSocketAddress_(fd);
+  // std::cout << "receive port: " << receive.second << std::endl;
+
+  // std::cout << "is any: " << (this->address_.first.s_addr == INADDR_ANY) << std::endl;
+  for (Socket::server_list_type::const_iterator iter = this->server_.begin();
+        iter != this->server_.end(); iter++) {
+    // std::cout << iter->GetServerName().at(0) << ": " << iter->HasListen(receive) << ", " << iter->HasServerName(host) << std::endl;
+    bool has_listen = iter->HasListen(receive);
+    bool has_server_name = iter->HasServerName(host);
+    bool has_any_addr = iter->HasListen(this->address_);
+    // std::cout << iter->GetServerName().at(0) << ": " << has_listen << ", " << has_server_name << std::endl;
+    // std::cout << iter->GetServerName().at(0) << ": ";
+    // std::cout << (this->address_.first.s_addr == INADDR_ANY) << (receive.first.s_addr == INADDR_ANY) << !any_find << std::endl;
+    if (has_listen && has_server_name) {
+      return (*iter);
+    } else if (has_listen && !ip_find) {
+      serv = *iter;
+      ip_find = true;
+    } else if ((this->address_.first.s_addr == INADDR_ANY) && has_any_addr && !any_find) {
+      any_serv = *iter;
+      any_find = true;
+    }
+  }
+  if (any_find && !ip_find) {
+    return (any_serv);
+  }
+  if (!ip_find) {
+    throw std::runtime_error("not found server");
+  }
+  return (serv);
+}

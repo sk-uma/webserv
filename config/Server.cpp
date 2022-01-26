@@ -117,6 +117,28 @@ void webservconfig::Server::InitLocation(std::vector<std::string> line, std::ist
   this->location_.push_back(location);
 }
 
+bool webservconfig::Server::HasListen(listen_type address) const
+{
+  for (webservconfig::Server::listen_list_type::const_iterator iter = this->listen_v4_.begin();
+       iter != this->listen_v4_.end(); iter++) {
+    if (*iter == address) {
+      return (true);
+    }
+  }
+  return (false);
+}
+
+bool webservconfig::Server::HasServerName(const std::string &name) const
+{
+  for (webservconfig::Server::server_name_list_type::const_iterator iter = this->server_name_.begin();
+       iter != this->server_name_.end(); iter++) {
+    if (*iter == name) {
+      return (true);
+    }
+  }
+  return (false);
+}
+
 /**
  * Getter
  */

@@ -39,6 +39,43 @@ void	sigpipe_wait(void)
 	sigaction(SIGPIPE, &act, NULL);
 }
 
+void GetSocketAddress(int sockfd)
+{
+  struct sockaddr_in sin;
+  socklen_t len = sizeof(sin);
+  int rc = getsockname(sockfd, (struct sockaddr*)&sin, &len);
+  if (rc != 0) {
+    throw std::runtime_error("unknown address.");
+  }
+  std::string host(inet_ntoa(sin.sin_addr));
+  int port = ntohs(sin.sin_port);
+  std::cout << host << ":" << port << std::endl;
+}
+
+// static struct in_addr GetSocketAddress(int sockfd)
+// {
+//   struct sockaddr_in sin;
+//   socklen_t len = sizeof(sin);
+//   int rc = getsockname(sockfd, (struct sockaddr*)&sin, &len);
+//   if (rc != 0) {
+//     throw std::runtime_error("unknown address.");
+//   }
+// 	return (sin.sin_addr);
+// }
+
+// std::string get_local_addr(int sockfd) {
+//   struct sockaddr_in sin;
+//   socklen_t len = sizeof(sin);
+//   int rc = getsockname(sockfd, (struct sockaddr*)&sin, &len);
+//   if (rc != 0) {
+//     // error
+//     return "";
+//   }
+//   std::string host(inet_ntoa(sin.sin_addr));
+//   // int port = ntohs(sin.sin_port);
+//   return host + ':';
+// }
+
 int	main(int argc, char **argv)
 {
 	if (argc != 2) {
@@ -69,7 +106,7 @@ int	main(int argc, char **argv)
 		std::cout << it->GetStrIPAddress() << ":" << it->GetPort() << std::endl;
 	}
 	std::cout << std::endl;
-	exit(0);
+	// exit(0);
 
 	//accfdは使用するファイルディスクリプタチェック
 	//rfdは読み取り可能ファイルディスクリプタ登録用
@@ -128,7 +165,9 @@ int	main(int argc, char **argv)
 						accfd[i] = connfd;
 						// manage.Init(accfd[i], it->get_server());
 						/**************** warn **************/
-						manage.Init(accfd[i], it->GetServerVector()[0]);
+						// manage.Init(accfd[i], it->GetServerVector()[0]);
+						manage.Init(accfd[i], *it);
+						// GetSocketAddress(accfd[i]);
 //						std::cout << "Accept: " << it->get_address() << ":" << it->get_StrPort() << std::endl;
 						limit_over = false;
 						break;
@@ -174,11 +213,18 @@ int	main(int argc, char **argv)
 				//Requestになにも取得していない状態の場合、writeしない
 				if (manage.GetReq(accfd[i]) == "")
 					continue ;
-				RequestParser 	request(manage.GetReq(accfd[i]), manage.GetConf(accfd[i]));
+				// RequestParser 	request(manage.GetReq(accfd[i]), manage.GetConf(accfd[i]));
+				RequestParser 	request(manage.GetReq(accfd[i]));
+				// manage.SetConf(accfd[i], );
+				// std::cout << manage.GetSocket(accfd[i]).GetStrIPAddress() << ":" << manage.GetSocket(accfd[i]).GetStrPort() << std::endl;
+				// std::cout << "re: " << get_local_addr(accfd[i]) << std::endl;
+				// std::cout << manage.GetSocket(accfd[i]).SearchServer(accfd[i], request.get_field("Host")) << std::endl;
 				//Content-Lengthがあるが、bodyが取得できていない場合、writeしない
 				if ((unsigned long)atoi(request.get_content_length().c_str()) != request.get_body().length())
 					continue ;
-				Response		response(request, manage.GetConf(accfd[i]));
+				webservconfig::Server conf(manage.GetSocket(accfd[i]).SearchServer(accfd[i], request.get_field("Host")));
+				Response		response(request, conf);
+				// Response		response(request, manage.GetConf(accfd[i]));
 				std::string		response_str;
 				
 				//method HEADの場合はヘッダーだけ出力

@@ -38,6 +38,5 @@ class PortManager
 };
 
 std::ostream &operator<<(std::ostream &os, const PortManager &pm);
-bool operator==(struct in_addr lhs, struct in_addr rhs);
 
 #endif

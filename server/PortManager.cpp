@@ -103,8 +103,3 @@ std::ostream &operator<<(std::ostream &os, const PortManager &pm)
   }
   return (os);
 }
-
-bool operator==(struct in_addr lhs, struct in_addr rhs)
-{
-  return !(std::memcmp(&lhs, &rhs, sizeof(struct in_addr)));
-}

@@ -27,6 +27,10 @@ class Response
 		std::map<int, std::string>	error_map;
 		std::map<int, std::string>	code_map;
 		int							status;
+		std::string					path_translated;
+		std::string					query_string;
+		std::string					path_info;
+		std::string					script_name;
 
 	public:
 		Response(void);
@@ -56,6 +60,7 @@ class Response
 		void		header_set(std::ostringstream &oss, webservconfig::ConfigBase::return_type ret_pair);
 		void		content_type_set(std::string file_path);
 		void		status_check(void);
+		void 		set_cgi_env(const RequestParser &rp, const webservconfig::Server &serv);
 };
 
 #endif

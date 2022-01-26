@@ -33,6 +33,9 @@ Response::Response(RequestParser &request, webservconfig::Server &serv)
 	webservconfig::ConfigBase::return_type	ret_pair = serv.GetReturn(path);
 	webservconfig::ConfigBase::server_name_list_type	name = serv.GetServerName();
 
+	// cgi env
+	set_cgi_env(request, serv);
+
 	//エラーページを設定
 	set_error_map(err_map_new);
 
@@ -45,7 +48,8 @@ Response::Response(RequestParser &request, webservconfig::Server &serv)
 	//urlに日本語がある場合、ブラウザでurlがエンコードされるのででコード
 	html_file = urlDecode(html_file);
 	//CGI起動の場合のため、cgi_file変数を定義。CGIを使用しない場合は使わない
-	std::string	cgi_file = EXE_DIR + HTML_PATH + request.get_script_name();
+	// std::string	cgi_file = EXE_DIR + HTML_PATH + request.get_script_name();
+	std::string	cgi_file = EXE_DIR + HTML_PATH + script_name;
 
 	//urlに日本語がある場合、ブラウザでurlがエンコードされるのででコード(CGI用)
 	cgi_file = urlDecode(cgi_file);
@@ -131,6 +135,10 @@ Response &Response::operator=(Response const &obj)
 		content_type = obj.content_type;
 		error_map = obj.error_map;
 		status = obj.status;
+		path_translated = obj.path_translated;
+		query_string = obj.query_string;
+		path_info = obj.path_info;
+		script_name = obj.script_name;
 	}
 	return (*this);
 }
@@ -571,4 +579,58 @@ void	Response::status_check(void)
 			status == STATUS_INTERNAL_SERVER_ERROR ||
 			status == STATUS_NOT_IMPLEMENTED))
 		status = STATUS_FORBIDDEN;
+}
+
+//CGI用の環境変数を設定する
+void		Response::set_cgi_env(const RequestParser &rp, const webservconfig::Server &serv)
+{
+	std::string query_string, path_info, script_name, path_translated;
+	std::size_t 		info_start;
+	std::size_t 		query_start;
+	std::size_t			i = 0;
+	std::string uri = rp.get_uri();
+	const std::string	root = serv.GetRoot(uri);
+	
+	query_string = "";
+	path_info = "";
+	script_name = "";
+	//先頭に複数/があった場合は除去する
+	while (uri[i] == '/')
+		i++;
+	if (i != 0)
+		i--;
+	uri = uri.substr(i);
+
+
+	if ((query_start = uri.find("?")) != std::string::npos)
+		query_string = uri.substr(query_start + 1);
+	uri = uri.substr(0, query_start);
+	webservconfig::ConfigBase::extension_list_type ex = serv.GetCgiExtension(uri);
+
+	for (size_t	c = 0; c < ex.size(); c++)
+	{
+		if (uri.rfind(ex[c]) == (uri.length() - ex[c].length()))
+		{
+			script_name = uri;
+			break ;
+		}
+		else if (uri.rfind(ex[c] + "/") != std::string::npos)
+		{
+			info_start = uri.rfind(ex[c] + "/") + ex[c].length();
+			i = info_start;
+			while (uri[i] == '/')
+				i++;
+			if (i != info_start)
+				i--;
+			// std::cout << "i: " << i << std::endl;
+			path_info = uri.substr(i);
+			script_name = uri.substr(0, info_start);
+			break ;
+		}
+	}
+	path_translated = root + (root[root.length() - 1] != '/' ? "": "/") + path_info;
+	setenv("PATH_TRANSLATED", path_translated.c_str(), 1);
+	setenv("PATH_INFO", path_info.c_str(), 1);
+	setenv("SCRIPT_NAME", script_name.c_str(), 1);
+	setenv("QUERY_STRING", query_string.c_str(), 1);
 }

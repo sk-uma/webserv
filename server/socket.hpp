@@ -22,9 +22,10 @@ class Socket
     std::vector<webservconfig::Server>  server_;
 
   private:
-    int SetSockaddr_(struct addrinfo **ai);
-    int SetListenfd_(struct addrinfo *ai);
-    int NormalizationAddress_(struct addrinfo *ai);
+    int         SetSockaddr_(struct addrinfo **ai);
+    int         SetListenfd_(struct addrinfo *ai);
+    int         NormalizationAddress_(struct addrinfo *ai);
+    listen_type GetSocketAddress_(int sockfd) const;
 
   public:
     Socket(void);
@@ -37,17 +38,18 @@ class Socket
 
     int SetupSocket();
     void AddServer(const webservconfig::Server &s);
+    webservconfig::Server       SearchServer(int fd, const std::string &host) const;
 
 /**
  * Getter
  */
 
-    int                     GetListenfd() const;
-    const listen_type       &GetAddress() const;
-    const std::string       &GetStrPort() const;
-    int                     GetPort() const;
-    const std::string       &GetStrIPAddress() const;
-    const server_list_type  &GetServerVector() const;
+    int                         GetListenfd() const;
+    const listen_type           &GetAddress() const;
+    const std::string           &GetStrPort() const;
+    int                         GetPort() const;
+    const std::string           &GetStrIPAddress() const;
+    const server_list_type      &GetServerVector() const;
 };
 
 #endif
