@@ -1,15 +1,3 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   socket.hpp                                         :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2021/09/06 21:31:14 by rtomishi          #+#    #+#             */
-/*   Updated: 2022/01/03 23:24:21 by rtomishi         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #ifndef SOCKET_HPP
 # define SOCKET_HPP
 
@@ -17,47 +5,51 @@
 # include "ServerCollection.hpp"
 # include "Server.hpp"
 
-
 class Socket
 {
-	private:
-		int								listenfd;
-		std::string				StrPort;
-		int 							port;
-		std::string       address;
-		struct addrinfo		hints;
-		struct addrinfo		*ai;
-		// std::vector<webservconfig::Server>  server;
-		webservconfig::Server server;
+  public:
+    typedef webservconfig::ConfigBase::listen_type        listen_type;
+    typedef webservconfig::ConfigBase::listen_string_type listen_string_type;
+    typedef std::vector<webservconfig::Server>            server_list_type;
 
-	public:
-		Socket(void);
-		explicit Socket(std::string port_);
-		explicit Socket(const std::string &address, const std::string &port);
-		~Socket(void);
-		Socket (Socket const &copy);
-		Socket &operator=(Socket const &obj);
+  private:
+    int                                 listenfd_;
+    // std::string                         str_port_;
+    // int                                 port_;
+    // std::string                         str_address_;
+    listen_type                         address_;
+    listen_string_type                  str_address_;
+    std::vector<webservconfig::Server>  server_;
 
-/**
- * Setter
- */
+  private:
+    int         SetSockaddr_(struct addrinfo **ai);
+    int         SetListenfd_(struct addrinfo *ai);
+    int         NormalizationAddress_(struct addrinfo *ai);
+    listen_type GetSocketAddress_(int sockfd) const;
 
-		void	set_listenfd();
-		int		set_sockaddr_in();
-		int		set_socket();
+  public:
+    Socket(void);
+    // Socket(const std::string &address, const std::string &port);
+    Socket(const webservconfig::ConfigBase::listen_type &address,
+           const webservconfig::ConfigBase::listen_string_type &str_address);
+    ~Socket();
+    Socket(const Socket &other);
+    const Socket &operator=(const Socket &rhs);
+
+    int SetupSocket();
+    void AddServer(const webservconfig::Server &s);
+    webservconfig::Server       SearchServer(int fd, const std::string &host) const;
 
 /**
  * Getter
  */
 
-		int								get_listenfd() const;
-		const std::string &get_StrPort() const;
-		int 							get_port() const;
-		const std::string &get_address() const;
-		const webservconfig::Server &get_server() const;
-		// const struct addrinfo *get_ai() const;
-
-		void set_server(const webservconfig::Server &s);
+    int                         GetListenfd() const;
+    const listen_type           &GetAddress() const;
+    const std::string           &GetStrPort() const;
+    int                         GetPort() const;
+    const std::string           &GetStrIPAddress() const;
+    const server_list_type      &GetServerVector() const;
 };
 
 #endif

@@ -133,3 +133,9 @@ std::ostream& operator<<(std::ostream& os, struct addrinfo ai)
   }
   return (os);
 }
+
+bool operator==(struct in_addr lhs, struct in_addr rhs)
+{
+  return !(std::memcmp(&lhs, &rhs, sizeof(struct in_addr)));
+}
+

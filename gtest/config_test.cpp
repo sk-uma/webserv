@@ -1,17 +1,17 @@
 #include "gtest/gtest.h"
 #include "ServerCollection.hpp"
 
-static webservconfig::ConfigBase::listen_v4_type::value_type GetAddrV4(const std::string &address, int port) {
+static webservconfig::ConfigBase::listen_type GetAddrV4(const std::string &address, int port) {
   struct in_addr ia;
   inet_pton(AF_INET, address.c_str(), &ia);
   return std::make_pair(ia, port);
 }
 
-static webservconfig::ConfigBase::listen_v6_type::value_type GetAddrV6(const std::string &address, int port) {
-  struct in6_addr ia;
-  inet_pton(AF_INET6, address.c_str(), &ia);
-  return std::make_pair(ia, port);
-}
+// static webservconfig::ConfigBase::listen_v6_type::value_type GetAddrV6(const std::string &address, int port) {
+//   struct in6_addr ia;
+//   inet_pton(AF_INET6, address.c_str(), &ia);
+//   return std::make_pair(ia, port);
+// }
 
 bool operator==(struct in_addr left, struct in_addr right) {
   return !(std::memcmp(&left, &right, sizeof(struct in_addr)));
@@ -43,8 +43,8 @@ class ConfigTest : public ::testing::Test {
     virtual void TearDown() {
     }
 
-    webservconfig::ConfigBase::listen_v4_type default_listen_v4;
-    webservconfig::ConfigBase::listen_v6_type default_listen_v6;
+    webservconfig::ConfigBase::listen_list_type default_listen_v4;
+    // webservconfig::ConfigBase::listen_v6_type default_listen_v6;
     webservconfig::ConfigBase::index_type default_index;
     webservconfig::ConfigBase::error_page_type default_error_page;
     bool default_autoindex;
@@ -84,7 +84,7 @@ TEST_F(ConfigTest, Min000) {
 
   ASSERT_EQ(1, server.size());
   ASSERT_EQ(default_listen_v4, server[0].webservconfig::ConfigBase::GetListenV4());
-  ASSERT_EQ(default_listen_v6, server[0].webservconfig::ConfigBase::GetListenV6());
+  // ASSERT_EQ(default_listen_v6, server[0].webservconfig::ConfigBase::GetListenV6());
   ASSERT_EQ(default_index, server[0].webservconfig::ConfigBase::GetIndex());
   ASSERT_EQ(default_error_page, server[0].webservconfig::ConfigBase::GetErrorPage());
   ASSERT_EQ(default_autoindex, server[0].webservconfig::ConfigBase::GetAutoIndex());
@@ -135,7 +135,7 @@ TEST_F(ConfigTest, BeforeServerCollection001) {
 
   ASSERT_EQ(1, server.size());
   ASSERT_EQ(default_listen_v4, server[0].webservconfig::ConfigBase::GetListenV4());
-  ASSERT_EQ(default_listen_v6, server[0].webservconfig::ConfigBase::GetListenV6());
+  // ASSERT_EQ(default_listen_v6, server[0].webservconfig::ConfigBase::GetListenV6());
   ASSERT_EQ(default_index, server[0].webservconfig::ConfigBase::GetIndex());
   ASSERT_EQ(default_error_page, server[0].webservconfig::ConfigBase::GetErrorPage());
   ASSERT_EQ(default_autoindex, server[0].webservconfig::ConfigBase::GetAutoIndex());
@@ -186,7 +186,7 @@ TEST_F(ConfigTest, AfterServerCollection002) {
 
   ASSERT_EQ(1, server.size());
   ASSERT_EQ(default_listen_v4, server[0].webservconfig::ConfigBase::GetListenV4());
-  ASSERT_EQ(default_listen_v6, server[0].webservconfig::ConfigBase::GetListenV6());
+  // ASSERT_EQ(default_listen_v6, server[0].webservconfig::ConfigBase::GetListenV6());
   ASSERT_EQ(default_index, server[0].webservconfig::ConfigBase::GetIndex());
   ASSERT_EQ(default_error_page, server[0].webservconfig::ConfigBase::GetErrorPage());
   ASSERT_EQ(default_autoindex, server[0].webservconfig::ConfigBase::GetAutoIndex());
@@ -240,7 +240,7 @@ TEST_F(ConfigTest, DuplicationServerCollection003) {
 
   ASSERT_EQ(1, server.size());
   ASSERT_EQ(default_listen_v4, server[0].webservconfig::ConfigBase::GetListenV4());
-  ASSERT_EQ(default_listen_v6, server[0].webservconfig::ConfigBase::GetListenV6());
+  // ASSERT_EQ(default_listen_v6, server[0].webservconfig::ConfigBase::GetListenV6());
   ASSERT_EQ(default_index, server[0].webservconfig::ConfigBase::GetIndex());
   ASSERT_EQ(default_error_page, server[0].webservconfig::ConfigBase::GetErrorPage());
   ASSERT_EQ(default_autoindex, server[0].webservconfig::ConfigBase::GetAutoIndex());
@@ -282,9 +282,9 @@ TEST_F(ConfigTest, BeforeServer004) {
   default_listen_v4.clear();
   default_listen_v4.push_back(GetAddrV4("127.0.0.1", 80));
   ASSERT_EQ(default_listen_v4, server[0].webservconfig::ConfigBase::GetListenV4());
-  default_listen_v6.clear();
-  default_listen_v6.push_back(GetAddrV6("::1", 81));
-  ASSERT_EQ(default_listen_v6, server[0].webservconfig::ConfigBase::GetListenV6());
+  // default_listen_v6.clear();
+  // default_listen_v6.push_back(GetAddrV6("::1", 81));
+  // ASSERT_EQ(default_listen_v6, server[0].webservconfig::ConfigBase::GetListenV6());
   default_index.clear();
   default_index.push_back("hello.html");
   default_index.push_back("world.html");
@@ -345,9 +345,9 @@ TEST_F(ConfigTest, AfterServer005) {
   default_listen_v4.clear();
   default_listen_v4.push_back(GetAddrV4("127.0.0.1", 80));
   ASSERT_EQ(default_listen_v4, server[0].webservconfig::ConfigBase::GetListenV4());
-  default_listen_v6.clear();
-  default_listen_v6.push_back(GetAddrV6("::1", 81));
-  ASSERT_EQ(default_listen_v6, server[0].webservconfig::ConfigBase::GetListenV6());
+  // default_listen_v6.clear();
+  // default_listen_v6.push_back(GetAddrV6("::1", 81));
+  // ASSERT_EQ(default_listen_v6, server[0].webservconfig::ConfigBase::GetListenV6());
   default_index.clear();
   default_index.push_back("hello.html");
   default_index.push_back("world.html");
@@ -409,10 +409,10 @@ TEST_F(ConfigTest, DuplicationServer006) {
   default_listen_v4.push_back(GetAddrV4("127.0.0.1", 80));
   default_listen_v4.push_back(GetAddrV4("127.0.0.2", 82));
   ASSERT_EQ(default_listen_v4, server[0].webservconfig::ConfigBase::GetListenV4());
-  default_listen_v6.clear();
-  default_listen_v6.push_back(GetAddrV6("::1", 81));
-  default_listen_v6.push_back(GetAddrV6("::", 83));
-  ASSERT_EQ(default_listen_v6, server[0].webservconfig::ConfigBase::GetListenV6());
+  // default_listen_v6.clear();
+  // default_listen_v6.push_back(GetAddrV6("::1", 81));
+  // default_listen_v6.push_back(GetAddrV6("::", 83));
+  // ASSERT_EQ(default_listen_v6, server[0].webservconfig::ConfigBase::GetListenV6());
   default_index.clear();
   default_index.push_back("hello.html");
   default_index.push_back("world.html");
@@ -474,7 +474,7 @@ TEST_F(ConfigTest, OnlyLocation007) {
 
   ASSERT_EQ(1, server.size());
   ASSERT_EQ(default_listen_v4, server[0].webservconfig::ConfigBase::GetListenV4());
-  ASSERT_EQ(default_listen_v6, server[0].webservconfig::ConfigBase::GetListenV6());
+  // ASSERT_EQ(default_listen_v6, server[0].webservconfig::ConfigBase::GetListenV6());
   ASSERT_EQ(default_index, server[0].webservconfig::ConfigBase::GetIndex());
   ASSERT_EQ(default_error_page, server[0].webservconfig::ConfigBase::GetErrorPage());
   ASSERT_EQ(default_autoindex, server[0].webservconfig::ConfigBase::GetAutoIndex());
@@ -547,10 +547,10 @@ TEST_F(ConfigTest, Max008) {
   default_listen_v4.push_back(GetAddrV4("127.0.0.1", 80));
   default_listen_v4.push_back(GetAddrV4("127.0.0.2", 82));
   ASSERT_EQ(default_listen_v4, server[0].webservconfig::ConfigBase::GetListenV4());
-  default_listen_v6.clear();
-  default_listen_v6.push_back(GetAddrV6("::1", 81));
-  default_listen_v6.push_back(GetAddrV6("::", 83));
-  ASSERT_EQ(default_listen_v6, server[0].webservconfig::ConfigBase::GetListenV6());
+  // default_listen_v6.clear();
+  // default_listen_v6.push_back(GetAddrV6("::1", 81));
+  // default_listen_v6.push_back(GetAddrV6("::", 83));
+  // ASSERT_EQ(default_listen_v6, server[0].webservconfig::ConfigBase::GetListenV6());
   default_index.clear();
   default_index.push_back("hello_server.html");
   default_index.push_back("world_server.html");

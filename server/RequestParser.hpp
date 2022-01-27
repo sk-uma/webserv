@@ -25,10 +25,10 @@ class RequestParser
 		std::string					body;
 		std::string					method;
 		std::string					uri;
-		std::string					path_translated;
-		std::string					query_string;
-		std::string					path_info;
-		std::string					script_name;
+		// std::string					path_translated;
+		// std::string					query_string;
+		// std::string					path_info;
+		// std::string					script_name;
 		std::string					content_length;
 		std::string					content_type;
 		std::string					transfer_encoding;
@@ -37,6 +37,7 @@ class RequestParser
 
 	public:
 		RequestParser(void);
+		RequestParser(std::string requires_);
 		explicit RequestParser(std::string request_, webservconfig::Server &serv);
 		~RequestParser(void);
 		RequestParser(RequestParser const &copy);
@@ -46,10 +47,10 @@ class RequestParser
 		std::string	get_header(void) const;
 		std::string	get_body(void) const;
 		std::string	get_uri(void) const;
-		std::string	get_path_translated(void) const;
-		std::string	get_query_string(void) const;
-		std::string	get_path_info(void) const;
-		std::string	get_script_name(void) const;
+		// std::string	get_path_translated(void) const;
+		// std::string	get_query_string(void) const;
+		// std::string	get_path_info(void) const;
+		// std::string	get_script_name(void) const;
 		std::string	get_content_length(void) const;
 		std::string	get_content_type(void) const;
 		std::string	get_transfer_encoding(void) const;
@@ -61,7 +62,7 @@ class RequestParser
 		void		header_split(void);
 		void		chunked_split(void);
 		void		set_method_and_uri(void);
-		void		set_cgi_env(webservconfig::Server &serv);
+		// void		set_cgi_env(webservconfig::Server &serv);
 };
 
 #endif
