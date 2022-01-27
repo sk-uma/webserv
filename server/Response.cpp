@@ -72,7 +72,9 @@ Response::Response(RequestParser &request, webservconfig::Server &serv)
 	html_file = urlDecode(html_file);
 	//CGI起動の場合のため、cgi_file変数を定義。CGIを使用しない場合は使わない
 	// std::string	cgi_file = EXE_DIR + HTML_PATH + request.get_script_name();
-	std::string	cgi_file = EXE_DIR + HTML_PATH + script_name;
+	std::string	cgi_file = EXE_DIR + HTML_PATH + this->script_name;
+
+	// std::cout << "cgi_file: " << cgi_file << std::endl;
 
 	//urlに日本語がある場合、ブラウザでurlがエンコードされるのででコード(CGI用)
 	cgi_file = urlDecode(cgi_file);
@@ -620,7 +622,6 @@ void	Response::status_check(void)
 //CGI用の環境変数を設定する
 void		Response::set_cgi_env(const RequestParser &rp, const webservconfig::Server &serv)
 {
-	std::string query_string, path_info, script_name, path_translated;
 	std::size_t 		info_start;
 	std::size_t 		query_start;
 	std::size_t			i = 0;

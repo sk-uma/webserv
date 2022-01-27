@@ -192,8 +192,8 @@ webservconfig::Server Socket::SearchServer(int fd, const std::string &host) cons
     bool has_listen = iter->HasListen(receive);
     bool has_server_name = iter->HasServerName(host);
     bool has_any_addr = iter->HasListen(this->address_);
-    // std::cout << iter->GetServerName().at(0) << ": " << has_listen << ", " << has_server_name << std::endl;
-    // std::cout << iter->GetServerName().at(0) << ": ";
+    // std::cout << iter->GetServerName().at(0) << ", " << host << ": ";
+    // std::cout << has_listen << ", " << has_server_name << std::endl;
     // std::cout << (this->address_.first.s_addr == INADDR_ANY) << (receive.first.s_addr == INADDR_ANY) << !any_find << std::endl;
     if (has_listen && has_server_name) {
       return (*iter);

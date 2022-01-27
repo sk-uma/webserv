@@ -132,7 +132,9 @@ bool webservconfig::Server::HasServerName(const std::string &name) const
 {
   for (webservconfig::Server::server_name_list_type::const_iterator iter = this->server_name_.begin();
        iter != this->server_name_.end(); iter++) {
-    if (*iter == name) {
+    // std::cout << name.substr(0, name.find(':')) << ", " << iter->substr(0, iter->find(':')) << std::endl;
+    // if (*iter == name) {
+    if (name.substr(0, name.find(':')) == iter->substr(0, iter->find(':'))) {
       return (true);
     }
   }
