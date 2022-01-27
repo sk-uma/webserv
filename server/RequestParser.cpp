@@ -68,7 +68,7 @@ RequestParser::RequestParser(std::string request_)
 	setenv("CONTENT_LENGTH", content_length.c_str(), 1);
 	setenv("CONTENT_TYPE", content_type.c_str(), 1);
 
-	if (get_field("Host") != "") {
+	if (get_field("Host") == "") {
 		this->error_status = 400;
 		// std::cout << "Host: not found" << std::endl;
 	}
