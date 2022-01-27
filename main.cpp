@@ -39,6 +39,43 @@ void	sigpipe_wait(void)
 	sigaction(SIGPIPE, &act, NULL);
 }
 
+void GetSocketAddress(int sockfd)
+{
+  struct sockaddr_in sin;
+  socklen_t len = sizeof(sin);
+  int rc = getsockname(sockfd, (struct sockaddr*)&sin, &len);
+  if (rc != 0) {
+    throw std::runtime_error("unknown address.");
+  }
+  std::string host(inet_ntoa(sin.sin_addr));
+  int port = ntohs(sin.sin_port);
+  std::cout << host << ":" << port << std::endl;
+}
+
+// static struct in_addr GetSocketAddress(int sockfd)
+// {
+//   struct sockaddr_in sin;
+//   socklen_t len = sizeof(sin);
+//   int rc = getsockname(sockfd, (struct sockaddr*)&sin, &len);
+//   if (rc != 0) {
+//     throw std::runtime_error("unknown address.");
+//   }
+// 	return (sin.sin_addr);
+// }
+
+// std::string get_local_addr(int sockfd) {
+//   struct sockaddr_in sin;
+//   socklen_t len = sizeof(sin);
+//   int rc = getsockname(sockfd, (struct sockaddr*)&sin, &len);
+//   if (rc != 0) {
+//     // error
+//     return "";
+//   }
+//   std::string host(inet_ntoa(sin.sin_addr));
+//   // int port = ntohs(sin.sin_port);
+//   return host + ':';
+// }
+
 int	main(int argc, char **argv)
 {
 	if (argc != 2) {
@@ -66,9 +103,10 @@ int	main(int argc, char **argv)
 	// std::cout << "fin sock set: " << sock.size() << std::endl;
 	std::cout << "listen:" << std::endl;
 	for (std::vector<Socket>::const_iterator it = sock.begin(); it != sock.end(); it++) {
-		std::cout << it->get_address() << ":" << it->get_port() << std::endl;
+		std::cout << it->GetStrIPAddress() << ":" << it->GetPort() << std::endl;
 	}
 	std::cout << std::endl;
+	// exit(0);
 
 	//accfdは使用するファイルディスクリプタチェック
 	//rfdは読み取り可能ファイルディスクリプタ登録用
@@ -85,14 +123,14 @@ int	main(int argc, char **argv)
 	//FD_SETで監視対象のディスクリプタをセットする
 	while (1)
 	{
-		int		nfd = (*(sock.end() - 1)).get_listenfd() + 1;
+		int		nfd = (*(sock.end() - 1)).GetListenfd() + 1;
 
 		FD_ZERO(&rfd);
 		FD_ZERO(&wfd);
 		for (std::vector<Socket>::iterator it = sock.begin(); it != sock.end(); it++)
 		{
-			FD_SET((*it).get_listenfd(), &rfd);
-			FD_SET((*it).get_listenfd(), &wfd);
+			FD_SET((*it).GetListenfd(), &rfd);
+			FD_SET((*it).GetListenfd(), &wfd);
 		}
 		for (int i = 0; i < MAX_SESSION; i++)
 		{
@@ -111,9 +149,11 @@ int	main(int argc, char **argv)
 		//listenfdから接続要求を取り出して参照する新しいファイルディスクリプターを設定する
 		for (std::vector<Socket>::iterator it = sock.begin(); it != sock.end(); it++)
 		{
-			if (FD_ISSET((*it).get_listenfd(), &rfd))
+			// if (FD_ISSET((*it).get_listenfd(), &rfd))
+			if (FD_ISSET((*it).GetListenfd(), &rfd))
 			{
-				int connfd = accept((*it).get_listenfd(), (struct sockaddr*)NULL, NULL);
+				// int connfd = accept((*it).get_listenfd(), (struct sockaddr*)NULL, NULL);
+				int connfd = accept((*it).GetListenfd(), (struct sockaddr*)NULL, NULL);
 				if (connfd == -1)
 					continue ;
 				fcntl(connfd, F_SETFL, O_NONBLOCK);
@@ -123,7 +163,11 @@ int	main(int argc, char **argv)
 					if (accfd[i] == -1)
 					{
 						accfd[i] = connfd;
-						manage.Init(accfd[i], it->get_server());
+						// manage.Init(accfd[i], it->get_server());
+						/**************** warn **************/
+						// manage.Init(accfd[i], it->GetServerVector()[0]);
+						manage.Init(accfd[i], *it);
+						// GetSocketAddress(accfd[i]);
 //						std::cout << "Accept: " << it->get_address() << ":" << it->get_StrPort() << std::endl;
 						limit_over = false;
 						break;
@@ -171,7 +215,8 @@ int	main(int argc, char **argv)
 					continue ;
 				// bool request_invalid_flag = false;
 				// (void)request_invalid_flag;
-				RequestParser request(manage.GetReq(accfd[i]), manage.GetConf(accfd[i]));
+				// RequestParser request(manage.GetReq(accfd[i]), manage.GetConf(accfd[i]));
+				RequestParser 	request(manage.GetReq(accfd[i]));
 				// std::cout << "in main" << std::endl;
 				// try {
 				// 	// std::cerr << "before parse..." << std::endl;
@@ -183,14 +228,15 @@ int	main(int argc, char **argv)
 				//Content-Lengthがあるが、bodyが取得できていない場合、writeしない
 				if ((unsigned long)atoi(request.get_content_length().c_str()) != request.get_body().length())
 					continue ;
+				webservconfig::Server conf(manage.GetSocket(accfd[i]).SearchServer(accfd[i], request.get_field("Host")));
 				// Response		response(request, manage.GetConf(accfd[i]));
 				Response		response;
 				// std::cerr << "before response" << std::endl << std::flush;
 				if (request.get_error_status() != 200) {
 					// std::cout << "status: " << request.get_error_status() << std::endl;
-					response = Response(request, manage.GetConf(accfd[i]), request.get_error_status());
+					response = Response(request, conf, request.get_error_status());
 				} else {
-					response = Response(request, manage.GetConf(accfd[i]));
+					response = Response(request, conf);
 				}
 				std::string		response_str;
 
@@ -230,6 +276,6 @@ int	main(int argc, char **argv)
 	}
 	//基本的にここには到達しない。
 	for (std::vector<Socket>::iterator it = sock.begin(); it != sock.end(); it++)
-		close((*it).get_listenfd());
+		close((*it).GetListenfd());
 	return (0);
 }

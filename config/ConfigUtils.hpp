@@ -26,5 +26,6 @@ namespace webservconfig
 };
 
 std::ostream& operator<<(std::ostream& os, struct addrinfo ai);
+bool operator==(struct in_addr lhs, struct in_addr rhs);
 
 #endif

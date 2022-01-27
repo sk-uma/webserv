@@ -39,12 +39,21 @@ void ClientManage::Init(int fd, webservconfig::Server serv)
 	res_size[fd] = 0;
 }
 
+void ClientManage::Init(int fd, Socket socket)
+{
+	this->socket[fd] = socket;
+	req[fd] = "";
+	res_size[fd] = 0;
+}
+
 void ClientManage::SetConf(int fd, webservconfig::Server serv) {conf[fd] = serv;}
 void ClientManage::AppendReq(int fd, std::string req_str) {req[fd] += req_str;}
 void ClientManage::AppendResSize(int fd, unsigned long size) {res_size[fd] += size;}
 webservconfig::Server &ClientManage::GetConf(int fd) {return conf[fd];}
 std::string ClientManage::GetReq(int fd) {return req[fd];}
 unsigned long ClientManage::GetResSize(int fd) {return res_size[fd];}
+
+const Socket &ClientManage::GetSocket(int fd) {return this->socket[fd];}
 
 void ClientManage::Erase(int fd)
 {
