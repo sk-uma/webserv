@@ -22,6 +22,7 @@ class SocketCollection
   private:
     void InitSocket_();
     void SetPortManager_(const webservconfig::Server &server);
+    bool CheckAddress_(const webservconfig::Server &server) const;
 
   public:
     SocketCollection();

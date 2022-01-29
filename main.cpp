@@ -101,11 +101,12 @@ int	main(int argc, char **argv)
 
 	std::vector<Socket> sock = socket_c.GetSocket();
 	// std::cout << "fin sock set: " << sock.size() << std::endl;
-	std::cout << "listen:" << std::endl;
+	std::cerr << "listen:" << std::endl;
 	for (std::vector<Socket>::const_iterator it = sock.begin(); it != sock.end(); it++) {
-		std::cout << it->GetStrIPAddress() << ":" << it->GetPort() << std::endl;
+		std::cerr << it->GetStrIPAddress() << ":" << it->GetPort() << std::endl;
 	}
-	std::cout << std::endl;
+	std::cerr << "Server is running..." << std::endl;
+	std::cerr << std::endl;
 	// exit(0);
 
 	//accfdは使用するファイルディスクリプタチェック
