@@ -11,13 +11,20 @@ SocketCollection::SocketCollection(const webservconfig::ServerCollection &config
 {
   for (std::vector<webservconfig::Server>::const_iterator iter = config.GetServer().begin();
        iter != config.GetServer().end(); iter++) {
+    if (CheckAddress_(*iter)) {
+      throw std::runtime_error("setup the same port multiple times.");
+    }
+  }
+
+  for (std::vector<webservconfig::Server>::const_iterator iter = config.GetServer().begin();
+       iter != config.GetServer().end(); iter++) {
     SetPortManager_(*iter);
   }
 
-  for (port_manager_list_type::const_iterator iter = this->pm_.begin();
-       iter != this->pm_.end(); iter++) {
-    std::cout << iter->second;
-  }
+  // for (port_manager_list_type::const_iterator iter = this->pm_.begin();
+  //      iter != this->pm_.end(); iter++) {
+  //   std::cout << iter->second;
+  // }
   InitSocket_();
 }
 
@@ -55,10 +62,25 @@ void SocketCollection::InitSocket_()
     for (PortManager::socket_list_type::const_iterator it = iter->second.GetSocket().begin();
          it != iter->second.GetSocket().end(); it++) {
       Socket socket(*it);
-      socket.SetupSocket();
+      if (socket.SetupSocket() == -1) {
+        throw std::runtime_error("failed to socket setup.");
+      }
       this->socket_vector_.push_back(socket);
     }
   }
+}
+
+bool SocketCollection::CheckAddress_(const webservconfig::Server &server) const
+{
+  for (webservconfig::ConfigBase::listen_list_type::const_iterator iter = server.GetListenV4().begin();
+       iter != server.GetListenV4().end(); iter++) {
+    for (webservconfig::ConfigBase::listen_list_type::const_iterator it = iter+1; it != server.GetListenV4().end(); it++) {
+      if (*iter == *it) {
+        return (true);
+      }
+    }
+  }
+  return (false);
 }
 
 // const Socket &SocketCollection::GetSocket(const std::string &address, int port) const
