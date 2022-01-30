@@ -107,24 +107,24 @@ int Socket::SetupSocket()
     return (-1);
   }
   if (this->SetListenfd_(ai) == -1) {
-    std::cerr << std::strerror(errno) << ": socket() failed." << std::endl;
+    // std::cerr << std::strerror(errno) << ": socket() failed." << std::endl;
     freeaddrinfo(ai);
     return (-1);
   }
   if (setsockopt(this->listenfd_, SOL_SOCKET, SO_REUSEADDR, (const char*)&optval, sizeof(optval)) == -1) {
-    std::cerr << std::strerror(errno) << ": setsockopt() failed." << std::endl;
+    // std::cerr << std::strerror(errno) << ": setsockopt() failed." << std::endl;
     close(this->listenfd_);
     freeaddrinfo(ai);
     return (-1);
   }
   if (bind(this->listenfd_,	ai->ai_addr, ai->ai_addrlen) == -1) {
-    std::cerr << std::strerror(errno) << ": bind() failed." << std::endl;
+    // std::cerr << std::strerror(errno) << ": bind() failed." << std::endl;
     close(this->listenfd_);
     freeaddrinfo(ai);
     return (-1);
   }
   if (listen(this->listenfd_, SOMAXCONN) == -1) {
-    std::cerr << std::strerror(errno) << ": listen() failed." << std::endl;
+    // std::cerr << std::strerror(errno) << ": listen() failed." << std::endl;
     close(this->listenfd_);
     freeaddrinfo(ai);
     return (-1);
