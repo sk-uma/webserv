@@ -85,16 +85,18 @@ def test_cgi(url: str, text: str = None, path: str = None, code: int = -1, log_l
             print(text)
 
 
-def test_upload(url: str, filename: str, log_level: int = 1):
-    # filename = os.path.basename(file_path)
-    file_path = "test_contents/" + filename
-    mine = mimetypes.guess_type(filename)
-    with open(file_path, 'rb') as f:
+def test_upload(url: str, src_path: str, dst_path: str, log_level: int = 1):
+    src_filename = os.path.basename(src_path)
+    # file_path = "test_contents/" + src_filename
+    mine = mimetypes.guess_type(src_filename)
+    with open(src_path, 'rb') as f:
         file_data = f.read()
-    files = {'Uploadfile': (filename, file_data, str(mine[0]))}
-    # print(files)
+    files = {'Uploadfile': (src_filename, file_data, str(mine[0]))}
+    # if src_filename == 'zen.txt':
+    #     print(files)
     response = requests.post(url, files=files)
     # print(response.status_code)
+    # print(response.text)
     if response.status_code != 200:
         if log_level >= 1:
             print("\033[31m" + "[KO] " + "\033[0m", end="")
@@ -104,42 +106,41 @@ def test_upload(url: str, filename: str, log_level: int = 1):
             print(200)
             print("\033[33m" + "Expectation:" + "\033[0m")
             print(response.status_code)
-    dst_path = "tmp/" + filename
-    with open(dst_path, 'r+b') as f:
+    # dst_path = "tmp/" + src_filename
+    with open(dst_path, 'rb') as f:
         upload_data = f.read()
     if file_data == upload_data:
         if log_level >= 1:
             print("\033[32m" + "[OK] " + "\033[0m", end="")
-            print(url, filename, sep=", ")
+            print(url, src_filename, sep=", ")
     else:
         if log_level >= 1:
             print("\033[31m" + "[KO] " + "\033[0m", end="")
             print("difference file", url, sep=", ")
-    os.remove(dst_path)
+    # os.remove(dst_path)
 
 
-def test_delete(url: str, filename: str, log_level: int = 1):
-    shutil.copy("test_contents/"+filename, "tmp/"+filename)
+def test_delete(url: str, del_path: str, log_level: int = 1):
+    # shutil.copy("test_contents/"+filename, "tmp/"+filename)
     response = requests.delete(url)
     # print(response.status_code)
     if response.status_code != 200:
         if log_level >= 1:
             print("\033[31m" + "[KO] " + "\033[0m", end="")
-            print("fail upload", url, sep=", ")
+            print("fail delete", url, sep=", ")
         if log_level >= 2:
             print("\033[33m" + "Response:" + "\033[0m", "status: " + str(response.status_code))
             print(200)
             print("\033[33m" + "Expectation:" + "\033[0m")
             print(response.status_code)
-    if not os.path.exists("tmp/"+filename):
+    if not os.path.exists(del_path):
         if log_level >= 1:
             print("\033[32m" + "[OK] " + "\033[0m", end="")
-            print(url, filename, sep=", ")
+            print(url, del_path, sep=", ")
     else:
         if log_level >= 1:
             print("\033[31m" + "[KO] " + "\033[0m", end="")
             print(url, sep=", ")
-
 
 
 if __name__ == '__main__':
@@ -156,6 +157,7 @@ if __name__ == '__main__':
 
     compare_get_url_file('http://127.0.0.1:8080', 'www-data/index.html', log_level=log_level)
     compare_get_url_file('http://127.0.0.1:8080/contents', 'www-data/contents/index.html', log_level=log_level)
+    compare_get_url_file('http://127.0.0.1:8080/contents/', 'www-data/contents/index.html', log_level=log_level)
 
     # Autoindex
     print("\n===>", "\033[34m" + "Autoindex" + "\033[0m", "<===", end="\n")
@@ -188,11 +190,19 @@ if __name__ == '__main__':
     # upload
     print("\n===>", "\033[34m" + "Upload" + "\033[0m", "<===", end="\n")
 
-    test_upload('http://127.0.0.1:8083/Upload', 'zen.txt', log_level=log_level)
-    test_upload('http://127.0.0.1:8083/Upload', 'sample.pdf', log_level=log_level)
-    test_upload('http://127.0.0.1:8083/Upload', 'animal.png', log_level=log_level)
+    if not os.path.exists("tmp"):
+        os.mkdir('tmp')
+    test_upload('http://127.0.0.1:8083/Upload', 'test_contents/zen.txt', 'tmp/zen.txt', log_level=log_level)
+    test_upload('http://127.0.0.1:8083/Upload', 'test_contents/sample.pdf', 'tmp/sample.pdf', log_level=log_level)
+    test_upload('http://127.0.0.1:8083/Upload', 'test_contents/animal.png', 'tmp/animal.png', log_level=log_level)
 
     # delete
     print("\n===>", "\033[34m" + "Delete" + "\033[0m", "<===", end="\n")
 
-    test_delete('http://127.0.0.1:8084/zen.txt', 'zen.txt', log_level=log_level)
+    if not os.path.exists("delete_tmp"):
+        shutil.copytree("test_contents", "delete_tmp")
+    test_delete('http://127.0.0.1:8084/zen.txt', 'delete_tmp/zen.txt', log_level=log_level)
+    test_delete('http://127.0.0.1:8084/sample.pdf', 'delete_tmp/sample.pdf', log_level=log_level)
+    test_delete('http://127.0.0.1:8084/animal.png', 'delete_tmp/animal.png', log_level=log_level)
+    test_delete('http://127.0.0.1:8084/dir/hello.txt', 'delete_tmp/dir/hello.txt', log_level=log_level)
+    shutil.rmtree("delete_tmp")
