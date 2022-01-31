@@ -1,8 +1,8 @@
 import socket
 import time
 
-target_ip = "127.0.0.2"
-target_port = 8081
+target_ip = "127.0.0.1"
+target_port = 5050
 buffer_size = 4098
 
 

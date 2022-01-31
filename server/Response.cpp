@@ -20,7 +20,7 @@ Response::Response(RequestParser &request, webservconfig::Server &serv, int code
 {
 	const std::string	path = request.get_uri();
 	webservconfig::ConfigBase::error_page_type	err_map_new = serv.GetErrorPage(path);
-	webservconfig::ConfigBase::return_type	ret_pair = serv.GetReturn(path);
+	webservconfig::ConfigBase::return_type	ret_pair(std::make_pair(-1, ""));
 
 	set_error_map(err_map_new);
 	// std::cout << "status: " << this->status << std::endl;
@@ -144,8 +144,8 @@ Response::Response(RequestParser &request, webservconfig::Server &serv)
 	//以下のswitch文でヘッダーを作成する
 	if (status >= 300)
 		error_body_set(ret_pair);
-		
-    std::ostringstream oss;
+
+	std::ostringstream oss;
 
 	oss << "Server:42Tokyo_webserv";
 //	oss << "Server:";
