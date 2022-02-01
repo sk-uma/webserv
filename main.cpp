@@ -52,6 +52,29 @@ void GetSocketAddress(int sockfd)
   std::cout << host << ":" << port << std::endl;
 }
 
+static void set_env_for_address(int server, int client)
+{
+	// std::cout << "server:" << std::endl;
+	// GetSocketAddress(server);
+	// std::cout << "client:" << std::endl;
+	// GetSocketAddress(client);
+	struct sockaddr_in sin;
+  socklen_t len = sizeof(sin);
+  if (!getpeername(client, (struct sockaddr*)&sin, &len)) {
+  	std::string host(inet_ntoa(sin.sin_addr));
+		setenv("REMOTE_ADDR", host.c_str(), 1);
+  } else {
+		unsetenv("REMOTE_ADDR");
+	}
+	if (!getsockname(server, (struct sockaddr*)&sin, &len)) {
+		std::stringstream ss;
+		ss << ntohs(sin.sin_port);
+		setenv("SERVER_PORT", ss.str().c_str(), 1);
+	} else {
+		unsetenv("SERVER_PORT");
+	}
+}
+
 // static struct in_addr GetSocketAddress(int sockfd)
 // {
 //   struct sockaddr_in sin;
@@ -171,6 +194,7 @@ int	main(int argc, char **argv)
 						// GetSocketAddress(accfd[i]);
 //						std::cout << "Accept: " << it->get_address() << ":" << it->get_StrPort() << std::endl;
 						limit_over = false;
+						set_env_for_address((*it).GetListenfd(), connfd);
 						break;
 					}
 				}

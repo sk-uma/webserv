@@ -20,7 +20,7 @@ Response::Response(RequestParser &request, webservconfig::Server &serv, int code
 {
 	const std::string	path = request.get_uri();
 	webservconfig::ConfigBase::error_page_type	err_map_new = serv.GetErrorPage(path);
-	webservconfig::ConfigBase::return_type	ret_pair = serv.GetReturn(path);
+	webservconfig::ConfigBase::return_type	ret_pair(std::make_pair(-1, ""));
 
 	set_error_map(err_map_new);
 	// std::cout << "status: " << this->status << std::endl;
@@ -152,8 +152,8 @@ Response::Response(RequestParser &request, webservconfig::Server &serv)
 	//以下のswitch文でヘッダーを作成する
 	if (status >= 300)
 		error_body_set(ret_pair);
-		
-    std::ostringstream oss;
+
+	std::ostringstream oss;
 
 	oss << "Server:42Tokyo_webserv";
 //	oss << "Server:";
@@ -627,6 +627,17 @@ void	Response::status_check(void)
 		status = STATUS_FORBIDDEN;
 }
 
+void		Response::set_env_for_header_(const RequestParser &rp, const std::string &field, const std::string &env_name)
+{
+	std::string res;
+
+	if ((res = rp.get_field(field.c_str())) != "") {
+		setenv(env_name.c_str(), res.c_str(), 1);
+	} else {
+		unsetenv(env_name.c_str());
+	}
+}
+
 //CGI用の環境変数を設定する
 void		Response::set_cgi_env(const RequestParser &rp, const webservconfig::Server &serv)
 {
@@ -674,8 +685,21 @@ void		Response::set_cgi_env(const RequestParser &rp, const webservconfig::Server
 		}
 	}
 	path_translated = root + (root[root.length() - 1] != '/' ? "": "/") + path_info;
-	setenv("PATH_TRANSLATED", path_translated.c_str(), 1);
+	setenv("X_REQUEST_URI", rp.get_uri().c_str(), 1);
+
+	setenv("REQUEST_METHOD", rp.get_method().c_str(), 1);
+	// this->set_env_for_header_(rp, "Authorization", "AUTH_TYPE");
+	this->set_env_for_header_(rp, "Content-Length", "CONTENT_LENGTH");
+	this->set_env_for_header_(rp, "Content-Type", "CONTENT_TYPE");
+	setenv("SERVER_SOFTWARE", "webserv", 1);
+	setenv("SERVER_PROTOCOL", "HTTP/1.1", 1);
 	setenv("PATH_INFO", path_info.c_str(), 1);
-	setenv("SCRIPT_NAME", script_name.c_str(), 1);
+	setenv("PATH_TRANSLATED", path_translated.c_str(), 1);
 	setenv("QUERY_STRING", query_string.c_str(), 1);
+	setenv("SCRIPT_NAME", script_name.c_str(), 1);
+	if (serv.GetServerName().size() != 0) {
+		setenv("SERVER_NAME", serv.GetServerName().at(0).c_str(), 1);
+	} else {
+		setenv("SERVER_NAME", "", 1);
+	}
 }
