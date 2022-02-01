@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/14 21:09:14 by rtomishi          #+#    #+#             */
-/*   Updated: 2022/01/20 13:59:28 by rtomishi         ###   ########.fr       */
+/*   Updated: 2022/02/01 10:22:39 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,6 +81,14 @@ Response::Response(RequestParser &request, webservconfig::Server &serv)
 
 	//html_fileがdirectoryだった場合、autoindex機能を使用するため、stat情報を格納
 	stat(html_file.c_str(), &eval_directory);
+
+	//urlがdirctory、autoindex=off, directory内にindexファイルがある場合、indexファイルを開くようにする
+	if ((S_ISDIR(eval_directory.st_mode)) && !AUTOINDEX &&
+			index_search(html_file, index) != "")
+	{
+		html_file = html_file + index_search(EXE_DIR + HTML_PATH, index);
+		stat(html_file.c_str(), &eval_directory);
+	}
 	//CGI起動の場合、指定しているURIがファイルであるのか評価するためstat情報を格納e
 	stat(cgi_file.c_str(), &eval_cgi);
 
@@ -120,7 +128,7 @@ Response::Response(RequestParser &request, webservconfig::Server &serv)
 		status = delete_file((EXE_DIR + HTML_PATH + request.get_uri()).c_str());
 		// std::cerr << "[*] " << "requests DELETE method" << std::endl;
 		write(2, "[*] requests DELETE method\n", 28);
-	//cgiを利用して、autoindex機能を実行。サブプロセスで実行する。
+	//autoindex機能を実行。
 	} else if (S_ISDIR(eval_directory.st_mode)) {
 		status = autoindex_c(html_file.c_str(), request, AUTOINDEX);
 		// std::cerr << "[*] " << "requests autoindex" << std::endl;
