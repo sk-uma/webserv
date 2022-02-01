@@ -65,8 +65,8 @@ RequestParser::RequestParser(std::string request_)
 	//ボディがある場合、Content-Type, Content-Lengthを設定
 	content_length = get_field("Content-Length");
 	content_type = get_field("Content-Type");
-	setenv("CONTENT_LENGTH", content_length.c_str(), 1);
-	setenv("CONTENT_TYPE", content_type.c_str(), 1);
+	// setenv("CONTENT_LENGTH", content_length.c_str(), 1);
+	// setenv("CONTENT_TYPE", content_type.c_str(), 1);
 
 	if (get_field("Host") == "") {
 		this->error_status = 400;
@@ -212,10 +212,14 @@ void		RequestParser::set_method_and_uri(void)
 		// write(2, http_version.c_str(), std::strlen(http_version.c_str()));
 		// write(2, "]", 2);
 		// write(2, "\n", 2);
-		this->error_status = 400;
+		if (!std::strcmp(http_version.substr(0, 5).c_str(), "HTTP/")) {
+			this->error_status = 505;
+		} else {
+			this->error_status = 400;
+		}
 	}
-	setenv("REQUEST_METHOD", method.c_str(), 1);
-	setenv("REQUEST_URI", uri.c_str(), 1);
+	// setenv("X_REQUEST_METHOD", method.c_str(), 1);
+	// setenv("X_REQUEST_URI", uri.c_str(), 1);
 }
 
 //CGI用の環境変数を設定する

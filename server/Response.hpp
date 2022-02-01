@@ -32,6 +32,9 @@ class Response
 		std::string					path_info;
 		std::string					script_name;
 
+	private:
+		void set_env_for_header_(const RequestParser &rp, const std::string &field, const std::string &env);
+
 	public:
 		Response(void);
 		explicit Response(RequestParser &request, webservconfig::Server &serv);
