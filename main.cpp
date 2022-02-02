@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/06 21:40:53 by rtomishi          #+#    #+#             */
-/*   Updated: 2022/01/20 13:50:40 by rtomishi         ###   ########.fr       */
+/*   Updated: 2022/02/01 22:04:39 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -173,10 +173,8 @@ int	main(int argc, char **argv)
 		//listenfdから接続要求を取り出して参照する新しいファイルディスクリプターを設定する
 		for (std::vector<Socket>::iterator it = sock.begin(); it != sock.end(); it++)
 		{
-			// if (FD_ISSET((*it).get_listenfd(), &rfd))
 			if (FD_ISSET((*it).GetListenfd(), &rfd))
 			{
-				// int connfd = accept((*it).get_listenfd(), (struct sockaddr*)NULL, NULL);
 				int connfd = accept((*it).GetListenfd(), (struct sockaddr*)NULL, NULL);
 				if (connfd == -1)
 					continue ;
@@ -187,9 +185,6 @@ int	main(int argc, char **argv)
 					if (accfd[i] == -1)
 					{
 						accfd[i] = connfd;
-						// manage.Init(accfd[i], it->get_server());
-						/**************** warn **************/
-						// manage.Init(accfd[i], it->GetServerVector()[0]);
 						manage.Init(accfd[i], *it);
 						// GetSocketAddress(accfd[i]);
 //						std::cout << "Accept: " << it->get_address() << ":" << it->get_StrPort() << std::endl;

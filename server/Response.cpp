@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/14 21:09:14 by rtomishi          #+#    #+#             */
-/*   Updated: 2022/02/01 10:22:39 by rtomishi         ###   ########.fr       */
+/*   Updated: 2022/02/02 11:12:10 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,10 +71,7 @@ Response::Response(RequestParser &request, webservconfig::Server &serv)
 	//urlに日本語がある場合、ブラウザでurlがエンコードされるのででコード
 	html_file = urlDecode(html_file);
 	//CGI起動の場合のため、cgi_file変数を定義。CGIを使用しない場合は使わない
-	// std::string	cgi_file = EXE_DIR + HTML_PATH + request.get_script_name();
 	std::string	cgi_file = EXE_DIR + HTML_PATH + this->script_name;
-
-	// std::cout << "cgi_file: " << cgi_file << std::endl;
 
 	//urlに日本語がある場合、ブラウザでurlがエンコードされるのででコード(CGI用)
 	cgi_file = urlDecode(cgi_file);
@@ -105,7 +102,7 @@ Response::Response(RequestParser &request, webservconfig::Server &serv)
 			}
 		}
 		// std::cerr << "[*] " << "cleate body" << std::endl;
-		write(2, "[*] cleate body\n", 17);
+		write(2, "[*] create body\n", 17);
 	}
 	else if (!method_limited(serv, request)) {
 		status = STATUS_NOT_IMPLEMENTED;
@@ -155,11 +152,7 @@ Response::Response(RequestParser &request, webservconfig::Server &serv)
 
 	std::ostringstream oss;
 
-	oss << "Server:42Tokyo_webserv";
-//	oss << "Server:";
-//	for (size_t	i = 0; i < name.size(); i++)
-//		oss << " " + name[i];
-	oss << "\r\n";
+	oss << "Server:42Tokyo_webserv\r\n";
 	oss << "Content-Length: " << body.length() << "\r\n";
 	oss << "Content-Type: " << content_type << "\r\n";
 	header_set(oss, ret_pair);
@@ -219,9 +212,6 @@ void	Response::set_error_map(webservconfig::ConfigBase::error_page_type &err_map
 }
 
 //indexファイルのvectorからファイル検索をして、ファイルが存在するもののパスを与える
-//返り値:見つかったindex_file。見つからなかった場合、空文字
-//root:ルートパス文字列
-//index:index_fileのリストが格納されたvector
 std::string	Response::index_search(std::string root, std::vector<std::string> index)
 {
 	for (std::vector<std::string>::iterator	it = index.begin(); it != index.end(); it++)
@@ -237,12 +227,8 @@ std::string	Response::index_search(std::string root, std::vector<std::string> in
 
 
 //許可されているmethod以外が指定されいる場合、falseとする
-//返り値:指定外のmethodでfalse
-//allowed:許可されているmethodをvectorで格納
-//request:リクエスト情報が入ったRequestParserクラス
 bool	Response::method_allowed(webservconfig::Server &serv, RequestParser &request)
 {
-	//for (std::vector<std::string>::iterator	it = allowed.begin(); it != allowed.end(); it++)
 	webservconfig::ConfigBase::limit_except_type allowed = serv.GetLimitExceptByDenyAll(request.get_uri());
 	if (allowed[request.get_method()])
 		return (true);
@@ -250,14 +236,10 @@ bool	Response::method_allowed(webservconfig::Server &serv, RequestParser &reques
 }
 
 //制限されているmethod以外が指定されいる場合、falseとする
-//返り値:指定外のmethodでfalse
-//allowed:制限されているmethodをvectorで格納
-//request:リクエスト情報が入ったRequestParserクラス
 bool	Response::method_limited(webservconfig::Server &serv, RequestParser &request)
 {
 	webservconfig::ConfigBase::limit_except_type limited = serv.GetLimitExceptByDenyAll(request.get_uri());
 	for (webservconfig::ConfigBase::limit_except_type::iterator	it = limited.begin(); it != limited.end(); it++)
-	//for (std::vector<std::string>::iterator	it = limited.begin(); it != limited.end(); it++)
 	{
 		if ((*it).first == request.get_method())
 			return (true);
@@ -268,10 +250,6 @@ bool	Response::method_limited(webservconfig::Server &serv, RequestParser &reques
 //CGIを起動するための関数
 //ボディがある場合はサブプロセスの標準入力から取得する。
 //responseのボディはサブプロセスの標準出力を受け取る
-//返り値:実行結果に対するステータスコード
-//exe_path：実行するCGIのパス
-//cgi_file：実行されるCGIの対象ファイル
-//request:リクエスト情報が入ったRequestParserクラス
 int		Response::cgi_exe(std::string const cgi_file, RequestParser &request, struct stat eval_cgi)
 {
 	//所有者権限がない場合はcgiを起動させない
@@ -335,8 +313,6 @@ int		Response::cgi_exe(std::string const cgi_file, RequestParser &request, struc
 }
 
 //ファイルを開いてレスポンスボディに文字列を格納する。見つからない場合はNot Found処理をする
-//返り値:実行結果に対するステータスコード
-//html_file:表示させるファイルのパス
 int		Response::open_html(std::string html_file)
 {
 	std::ifstream 	output_file(html_file.c_str(), std::ios::binary);
@@ -361,9 +337,6 @@ int		Response::open_html(std::string html_file)
 }
 
 //autoindex with c++
-//返り値:実行結果に対応するステータスコード
-//path:autoindexレスポンスを返すディレクトリのパス
-//request:リクエスト情報をもつRequestParserクラス
 int		Response::autoindex_c(const char *path, RequestParser &request, bool autoindex)
 {
     DIR 				*dp = opendir(path);
@@ -420,9 +393,6 @@ int		Response::autoindex_c(const char *path, RequestParser &request, bool autoin
 }
 
 //ファイルアップロードをするための関数
-//返り値:実行結果に対応するステータスコード
-//path:アップロードされるファイルを格納するフォルダパス
-//request:リクエスト情報をもつRequestParserクラス
 int		Response::upload_file(const char *path, RequestParser &request)
 {
 	std::istringstream			iss(request.get_body());
@@ -491,8 +461,6 @@ int		Response::upload_file(const char *path, RequestParser &request)
 }
 
 //DELETEメソッド指定時に指定のパスのファイルを消去する
-//返り値:実行結果に対するステータスコード
-//path:消去するファイルのパス
 int		Response::delete_file(const char *path)
 {
     std::ostringstream	oss;
@@ -514,7 +482,6 @@ int		Response::delete_file(const char *path)
 }
 
 //エラー用のボディ設定をする
-//error_path:エラーファイルが存在するディレクトリ
 void	Response::error_body_set(webservconfig::ConfigBase::return_type ret_pair)
 {
 	std::string	path;
@@ -528,13 +495,6 @@ void	Response::error_body_set(webservconfig::ConfigBase::return_type ret_pair)
 	}
 	if (error_map.count(status))
 		path = error_map.at(status);
-//	else
-//	{
-//		if (ret_pair.second != "")
-//			body = ret_pair.second + "\r\n";
-//		content_type = "application/octet-stream";
-//		return ;
-//	}
 	std::ifstream 	output_file(path.c_str());
 	std::string		temp_str;
 	int				file_exist = 0;
@@ -678,7 +638,6 @@ void		Response::set_cgi_env(const RequestParser &rp, const webservconfig::Server
 				i++;
 			if (i != info_start)
 				i--;
-			// std::cout << "i: " << i << std::endl;
 			path_info = uri.substr(i);
 			script_name = uri.substr(0, info_start);
 			break ;

@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/12 22:00:34 by rtomishi          #+#    #+#             */
-/*   Updated: 2022/01/20 13:52:45 by rtomishi         ###   ########.fr       */
+/*   Updated: 2022/02/02 11:10:10 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,34 +16,8 @@
 RequestParser::RequestParser(void) {}
 
 //コンストラクタ
-// RequestParser::RequestParser(std::string request_, webservconfig::Server &serv)
-// 	:request(request_),	header(""), body(""), method(""), uri(""),
-// 	path_translated(""), query_string(""), path_info(""), script_name(""),
-// 	content_length(""),	content_type(""), transfer_encoding("")
-// {
-// 	//ヘッダーとボディを分けてメンバ変数に格納する
-// 	header_split();
-
-// 	//Transfer-Encoding: chunkedの場合、bodyを書き換える
-// 	if (get_field("Transfer-Encoding") == "chunked")
-// 		chunked_split();
-
-// 	//メソッドとURIをメンバ変数に格納すると共に、環境変数にも設定する
-// 	set_method_and_uri();
-
-// 	//CGI用の環境変数PATH_TRANSLATED, PATH_INFO...などを設定する
-// 	set_cgi_env(serv);
-
-// 	//ボディがある場合、Content-Type, Content-Lengthを設定
-// 	content_length = get_field("Content-Length");
-// 	content_type = get_field("Content-Type");
-// 	setenv("CONTENT_LENGTH", content_length.c_str(), 1);
-// 	setenv("CONTENT_TYPE", content_type.c_str(), 1);	
-// }
-
 RequestParser::RequestParser(std::string request_)
 	:request(request_),	header(""), body(""), method(""), uri(""),
-	// path_translated(""), query_string(""), path_info(""), script_name(""),
 	content_length(""),	content_type(""), transfer_encoding(""), http_version(""),
 	error_status(200)
 {
@@ -59,15 +33,9 @@ RequestParser::RequestParser(std::string request_)
 	//メソッドとURIをメンバ変数に格納すると共に、環境変数にも設定する
 	set_method_and_uri();
 
-	//CGI用の環境変数PATH_TRANSLATED, PATH_INFO...などを設定する
-	// set_cgi_env(serv);
-
 	//ボディがある場合、Content-Type, Content-Lengthを設定
 	content_length = get_field("Content-Length");
 	content_type = get_field("Content-Type");
-	// setenv("CONTENT_LENGTH", content_length.c_str(), 1);
-	// setenv("CONTENT_TYPE", content_type.c_str(), 1);
-
 	if (get_field("Host") == "") {
 		this->error_status = 400;
 		// std::cout << "Host: not found" << std::endl;
@@ -91,10 +59,6 @@ RequestParser &RequestParser::operator=(RequestParser const &obj)
 
 		header = obj.header;
 		body = obj.body;
-		// path_translated = obj.path_translated;
-		// query_string = obj.query_string;
-		// path_info = obj.path_info;
-		// script_name = obj.script_name;
 		content_length = obj.content_length;
 		content_type = obj.content_type;
 		transfer_encoding = obj.transfer_encoding;
@@ -108,18 +72,12 @@ std::string	RequestParser::get_method(void) const {return (this->method);}
 std::string	RequestParser::get_header(void) const {return (this->header);}
 std::string	RequestParser::get_body(void) const {return (this->body);}
 std::string	RequestParser::get_uri(void) const {return (this->uri);}
-// std::string	RequestParser::get_query_string(void) const {return (this->query_string);}
-// std::string	RequestParser::get_path_translated(void) const {return (this->path_translated);}
-// std::string	RequestParser::get_path_info(void) const {return (this->path_info);}
-// std::string	RequestParser::get_script_name(void) const {return (this->script_name);}
 std::string	RequestParser::get_content_length(void) const {return (this->content_length);}
 std::string	RequestParser::get_content_type(void) const {return (this->content_type);}
 std::string	RequestParser::get_transfer_encoding(void) const {return (this->transfer_encoding);}
 int	RequestParser::get_error_status(void) const {return (this->error_status);}
 
 //ヘッダー情報から値を取り出すためのメンバ関数
-//返り値:ヘッダー項目の値。該当する項目がない場合は空文字列で返す
-//key:ヘッダー項目
 std::string	RequestParser::get_field(std::string key) const
 {
 	std::size_t			pos;
@@ -221,56 +179,4 @@ void		RequestParser::set_method_and_uri(void)
 	// setenv("X_REQUEST_METHOD", method.c_str(), 1);
 	// setenv("X_REQUEST_URI", uri.c_str(), 1);
 }
-
-//CGI用の環境変数を設定する
-// void		RequestParser::set_cgi_env(webservconfig::Server &serv)
-// {
-// 	std::size_t 		info_start;
-// 	std::size_t 		query_start;
-// 	std::size_t			i = 0;
-// 	const std::string	root = serv.GetRoot(uri);
-	
-// 	query_string = "";
-// 	path_info = "";
-// 	script_name = "";
-// 	//先頭に複数/があった場合は除去する
-// 	while (uri[i] == '/')
-// 		i++;
-// 	if (i != 0)
-// 		i--;
-// 	uri = uri.substr(i);
-
-
-// 	if ((query_start = uri.find("?")) != std::string::npos)
-// 		query_string = uri.substr(query_start + 1);
-// 	uri = uri.substr(0, query_start);
-// 	webservconfig::ConfigBase::extension_list_type ex = serv.GetCgiExtension(uri);
-
-// 	for (size_t	c = 0; c < ex.size(); c++)
-// 	{
-// 		if (uri.rfind(ex[c]) == (uri.length() - ex[c].length()))
-// 		{
-// 			script_name = uri;
-// 			break ;
-// 		}
-// 		else if (uri.rfind(ex[c] + "/") != std::string::npos)
-// 		{
-// 			info_start = uri.rfind(ex[c] + "/") + ex[c].length();
-// 			i = info_start;
-// 			while (uri[i] == '/')
-// 				i++;
-// 			if (i != info_start)
-// 				i--;
-// 			// std::cout << "i: " << i << std::endl;
-// 			path_info = uri.substr(i);
-// 			script_name = uri.substr(0, info_start);
-// 			break ;
-// 		}
-// 	}
-// 	path_translated = root + (root[root.length() - 1] != '/' ? "": "/") + path_info;
-// 	setenv("PATH_TRANSLATED", path_translated.c_str(), 1);
-// 	setenv("PATH_INFO", path_info.c_str(), 1);
-// 	setenv("SCRIPT_NAME", script_name.c_str(), 1);
-// 	setenv("QUERY_STRING", query_string.c_str(), 1);
-// }
 
