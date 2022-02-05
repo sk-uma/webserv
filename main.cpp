@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/06 21:40:53 by rtomishi          #+#    #+#             */
-/*   Updated: 2022/02/02 13:51:30 by rtomishi         ###   ########.fr       */
+/*   Updated: 2022/02/05 14:53:10 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -237,6 +237,20 @@ int	main(int argc, char **argv)
 				// (void)request_invalid_flag;
 				// RequestParser request(manage.GetReq(accfd[i]), manage.GetConf(accfd[i]));
 				RequestParser 	request(manage.GetReq(accfd[i]));
+				
+				if (!manage.GetContFlag(accfd[i]) && request.get_field("Expect") == "100-continue")
+				{
+					ssize_t	write_size = write(accfd[i], CONTINUE_RESPONSE.c_str(), CONTINUE_RESPONSE.length());
+					if (write_size <= 0)
+					{
+						manage.Erase(accfd[i]);
+						close(accfd[i]);
+						accfd[i] = -1;
+					}
+					else
+						manage.SetContFlag(accfd[i]);
+					continue ;
+				}
 				// std::cout << "in main" << std::endl;
 				// try {
 				// 	// std::cerr << "before parse..." << std::endl;
@@ -248,6 +262,14 @@ int	main(int argc, char **argv)
 				//Content-Lengthがあるが、bodyが取得できていない場合、writeしない
 				if ((unsigned long)atoi(request.get_content_length().c_str()) != request.get_body().length())
 					continue ;
+				if (manage.GetContFlag(accfd[i]) && request.get_body() == "")
+				{
+					std::cout << "[*] 100-Continue. But request body is noting." << std::endl;;
+					manage.Erase(accfd[i]);
+					close(accfd[i]);
+					accfd[i] = -1;
+					continue ;
+				}
 				webservconfig::Server conf(manage.GetSocket(accfd[i]).SearchServer(accfd[i], request.get_field("Host")));
 				// Response		response(request, manage.GetConf(accfd[i]));
 				Response		response;
