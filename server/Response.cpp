@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/10/14 21:09:14 by rtomishi          #+#    #+#             */
-/*   Updated: 2022/02/02 11:12:10 by rtomishi         ###   ########.fr       */
+/*   Updated: 2022/02/05 22:10:04 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -402,7 +402,7 @@ int		Response::upload_file(const char *path, RequestParser &request)
 	std::vector<std::string>	vstr;
 	std::ostringstream			oss;
 	
-	if (request.get_content_type().find("multipart/form-data") == std::string::npos)
+	if (request.get_content_type().find("multipart/form-data") == std::string::npos || request.get_body() == "")
 		return (STATUS_BAD_REQUEST);
 	getline(iss, boundary);
 	boundary = boundary.substr(0, boundary.length() - 1);
