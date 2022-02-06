@@ -6,7 +6,7 @@
 /*   By: rtomishi <rtomishi@student.42tokyo.jp      +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2021/09/06 21:26:18 by rtomishi          #+#    #+#             */
-/*   Updated: 2022/01/19 21:44:59 by rtomishi         ###   ########.fr       */
+/*   Updated: 2022/02/05 22:16:29 by rtomishi         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,8 +46,10 @@ const std::string	CODE_FILE = "/server/status_code";
 const std::string	ERROR_PAGE_DIRECTORY = "/server/error_file/";
 const int			MAX_SESSION = 100;
 extern char			**environ;
+const std::string	CONTINUE_RESPONSE = "HTTP/1.1 100 Continue\r\n\r\n";
 
 //レスポンスステータス
+const int	STATUS_CONTINUE = 100;
 const int	STATUS_OK = 200;
 const int	STATUS_MOVED_PERMANENTLY = 301;
 const int	STATUS_FOUND = 302;
